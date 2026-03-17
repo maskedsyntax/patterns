@@ -106,27 +106,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   isSelected: _selectedIndex == 0,
                   onTap: () => setState(() => _selectedIndex = 0),
                   theme: theme,
+                  tooltip: 'Journal',
                 ),
                 _NavIcon(
                   icon: LineIcons.list,
                   isSelected: _selectedIndex == 1,
                   onTap: () => setState(() => _selectedIndex = 1),
                   theme: theme,
+                  tooltip: 'OCD Tracker',
                 ),
                 _NavIcon(
                   icon: LineIcons.barChart,
                   isSelected: _selectedIndex == 2,
                   onTap: () => setState(() => _selectedIndex = 2),
                   theme: theme,
+                  tooltip: 'Analytics',
                 ),
                 _NavIcon(
                   icon: LineIcons.cog,
                   isSelected: _selectedIndex == 3,
                   onTap: () => setState(() => _selectedIndex = 3),
                   theme: theme,
+                  tooltip: 'Settings',
                 ),
                 const Spacer(),
                 IconButton(
+                  mouseCursor: SystemMouseCursors.click,
                   icon: Icon(
                     isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
                     size: 20,
@@ -153,37 +158,60 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-class _NavIcon extends StatelessWidget {
+class _NavIcon extends StatefulWidget {
   final IconData icon;
   final bool isSelected;
   final VoidCallback onTap;
   final ThemeData theme;
+  final String tooltip;
 
   const _NavIcon({
     required this.icon,
     required this.isSelected,
     required this.onTap,
     required this.theme,
+    required this.tooltip,
   });
+
+  @override
+  State<_NavIcon> createState() => _NavIconState();
+}
+
+class _NavIconState extends State<_NavIcon> {
+  bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: isSelected ? theme.colorScheme.primary.withOpacity(0.1) : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(
-            icon,
-            color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface.withOpacity(0.4),
-            size: 26,
+      child: Tooltip(
+        message: widget.tooltip,
+        preferBelow: false,
+        margin: const EdgeInsets.only(left: 70),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => setState(() => _isHovered = true),
+          onExit: (_) => setState(() => _isHovered = false),
+          child: GestureDetector(
+            onTap: widget.onTap,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: widget.isSelected 
+                    ? widget.theme.colorScheme.primary.withOpacity(0.1) 
+                    : (_isHovered ? widget.theme.colorScheme.onSurface.withOpacity(0.05) : Colors.transparent),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                widget.icon,
+                color: widget.isSelected 
+                    ? widget.theme.colorScheme.primary 
+                    : widget.theme.colorScheme.onSurface.withOpacity(_isHovered ? 0.7 : 0.4),
+                size: 26,
+              ),
+            ),
           ),
         ),
       ),

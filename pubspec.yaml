@@ -43,6 +43,7 @@ dependencies:
   animations: ^2.1.1
   path: ^1.9.1
   file_picker: ^10.3.10
+  fl_chart: ^1.2.0
 
 dev_dependencies:
   flutter_test:

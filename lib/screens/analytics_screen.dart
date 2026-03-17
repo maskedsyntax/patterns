@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 import '../providers/providers.dart';
 import '../models/models.dart';
 
@@ -26,6 +28,10 @@ class AnalyticsScreen extends ConsumerWidget {
               int totalCompulsions = ocds.where((e) => e.type == OcdType.compulsion).length;
               double avgDistress = ocds.isEmpty ? 0 : ocds.map((e) => e.distressLevel).reduce((a, b) => a + b) / ocds.length;
 
+              // Process data for trend chart (last 10 events)
+              final sortedOcds = List<OcdEntry>.from(ocds)..sort((a, b) => a.datetime.compareTo(b.datetime));
+              final last10 = sortedOcds.length > 10 ? sortedOcds.sublist(sortedOcds.length - 10) : sortedOcds;
+              
               return ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
                 children: [
@@ -41,6 +47,37 @@ class AnalyticsScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 48),
+                  
+                  if (ocds.isNotEmpty) ...[
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: _ChartCard(
+                            title: 'Distress Trend',
+                            subtitle: 'Recent 10 events',
+                            child: _DistressTrendChart(entries: last10, theme: theme),
+                          ),
+                        ),
+                        const SizedBox(width: 24),
+                        Expanded(
+                          flex: 1,
+                          child: _ChartCard(
+                            title: 'Distribution',
+                            subtitle: 'Obsessions vs Compulsions',
+                            child: _DistributionChart(
+                              obsessions: totalObsessions,
+                              compulsions: totalCompulsions,
+                              theme: theme,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 48),
+                  ],
+
                   Text('Breakdown', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 24),
                   Row(
@@ -73,6 +110,145 @@ class AnalyticsScreen extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, s) => Center(child: Text('Error: $e')),
+      ),
+    );
+  }
+}
+
+class _ChartCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final Widget child;
+
+  const _ChartCard({required this.title, required this.subtitle, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: theme.cardTheme.color,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: theme.dividerColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+          Text(subtitle, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.4), fontSize: 12)),
+          const SizedBox(height: 32),
+          SizedBox(height: 200, child: child),
+        ],
+      ),
+    );
+  }
+}
+
+class _DistressTrendChart extends StatelessWidget {
+  final List<OcdEntry> entries;
+  final ThemeData theme;
+
+  const _DistressTrendChart({required this.entries, required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    return LineChart(
+      LineChartData(
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          getDrawingHorizontalLine: (value) => FlLine(
+            color: theme.dividerColor.withOpacity(0.5),
+            strokeWidth: 1,
+          ),
+        ),
+        titlesData: FlTitlesData(
+          show: true,
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                if (value.toInt() < 0 || value.toInt() >= entries.length) return const SizedBox();
+                final date = entries[value.toInt()].datetime;
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    DateFormat('MM/dd').format(date),
+                    style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.4), fontSize: 10),
+                  ),
+                );
+              },
+            ),
+          ),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 30,
+              getTitlesWidget: (value, meta) => Text(
+                value.toInt().toString(),
+                style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.4), fontSize: 10),
+              ),
+            ),
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        minX: 0,
+        maxX: entries.length.toDouble() - 1,
+        minY: 0,
+        maxY: 10,
+        lineBarsData: [
+          LineChartBarData(
+            spots: entries.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value.distressLevel.toDouble())).toList(),
+            isCurved: true,
+            color: theme.colorScheme.primary,
+            barWidth: 3,
+            isStrokeCapRound: true,
+            dotData: const FlDotData(show: true),
+            belowBarData: BarAreaData(
+              show: true,
+              color: theme.colorScheme.primary.withOpacity(0.1),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DistributionChart extends StatelessWidget {
+  final int obsessions;
+  final int compulsions;
+  final ThemeData theme;
+
+  const _DistributionChart({required this.obsessions, required this.compulsions, required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    if (obsessions == 0 && compulsions == 0) return const Center(child: Text('No data'));
+    
+    return PieChart(
+      PieChartData(
+        sectionsSpace: 4,
+        centerSpaceRadius: 40,
+        sections: [
+          PieChartSectionData(
+            color: Colors.blueAccent,
+            value: obsessions.toDouble(),
+            title: 'Obs',
+            radius: 50,
+            titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          PieChartSectionData(
+            color: Colors.orangeAccent,
+            value: compulsions.toDouble(),
+            title: 'Comp',
+            radius: 50,
+            titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+        ],
       ),
     );
   }

@@ -72,7 +72,7 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
   }
 }
 
-class _TypeOption extends StatelessWidget {
+class _TypeOption extends StatefulWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
@@ -86,24 +86,38 @@ class _TypeOption extends StatelessWidget {
   });
 
   @override
+  State<_TypeOption> createState() => _TypeOptionState();
+}
+
+class _TypeOptionState extends State<_TypeOption> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: isSelected ? theme.colorScheme.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: isSelected ? Colors.black : theme.colorScheme.onSurface.withOpacity(0.4),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            decoration: BoxDecoration(
+              color: widget.isSelected 
+                  ? widget.theme.colorScheme.primary 
+                  : (_isHovered ? widget.theme.colorScheme.onSurface.withOpacity(0.05) : Colors.transparent),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(
+              child: Text(
+                widget.label,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: widget.isSelected ? Colors.black : widget.theme.colorScheme.onSurface.withOpacity(_isHovered ? 0.7 : 0.4),
+                ),
               ),
             ),
           ),
@@ -146,114 +160,7 @@ class _OcdListView extends ConsumerWidget {
           itemCount: filtered.length,
           itemBuilder: (context, index) {
             final entry = filtered[index];
-            return Container(
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: theme.cardTheme.color,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: theme.dividerColor),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Container(
-                        width: 6,
-                        color: _getDistressColor(entry.distressLevel),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    DateFormat('MMM d, h:mm a').format(entry.datetime),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700, 
-                                      color: theme.colorScheme.onSurface.withOpacity(0.8),
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  Text(
-                                    'Distress ${entry.distressLevel}/10',
-                                    style: TextStyle(
-                                      color: _getDistressColor(entry.distressLevel),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  IconButton(
-                                    visualDensity: VisualDensity.compact,
-                                    icon: const Icon(LineIcons.trash, size: 18, color: Colors.redAccent),
-                                    onPressed: () => ref.read(ocdProvider.notifier).deleteEntry(entry.id!),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                type == OcdType.obsession ? 'OBSESSION' : 'COMPULSION',
-                                style: TextStyle(
-                                  color: theme.colorScheme.primary.withOpacity(0.6),
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                entry.content, 
-                                style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, height: 1.5)
-                              ),
-                              if (entry.actionTaken != null && entry.actionTaken!.isNotEmpty) ...[
-                                const SizedBox(height: 20),
-                                Text(
-                                  'ACTION TAKEN',
-                                  style: TextStyle(
-                                    color: theme.colorScheme.onSurface.withOpacity(0.3),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 1.2,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(entry.actionTaken!, style: const TextStyle(fontSize: 15, height: 1.5)),
-                              ],
-                              const SizedBox(height: 20),
-                              Text(
-                                'STRATEGY / RESPONSE',
-                                style: TextStyle(
-                                  color: theme.colorScheme.onSurface.withOpacity(0.3),
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                entry.response, 
-                                style: GoogleFonts.inter(
-                                  fontSize: 15, 
-                                  height: 1.5, 
-                                  fontStyle: FontStyle.italic,
-                                  color: theme.colorScheme.onSurface.withOpacity(0.7),
-                                )
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
+            return _OcdCard(entry: entry, type: type, theme: theme);
           },
         );
       },
@@ -261,11 +168,157 @@ class _OcdListView extends ConsumerWidget {
       error: (e, s) => Center(child: Text('Error: $e')),
     );
   }
+}
+
+class _OcdCard extends StatefulWidget {
+  final OcdEntry entry;
+  final OcdType type;
+  final ThemeData theme;
+
+  const _OcdCard({required this.entry, required this.type, required this.theme});
+
+  @override
+  State<_OcdCard> createState() => _OcdCardState();
+}
+
+class _OcdCardState extends State<_OcdCard> {
+  bool _isHovered = false;
 
   Color _getDistressColor(int level) {
     if (level < 4) return Colors.greenAccent.withOpacity(0.8);
     if (level < 8) return Colors.orangeAccent.withOpacity(0.8);
     return Colors.redAccent.withOpacity(0.8);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer(builder: (context, ref, _) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 20),
+        child: MouseRegion(
+          onEnter: (_) => setState(() => _isHovered = true),
+          onExit: (_) => setState(() => _isHovered = false),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            decoration: BoxDecoration(
+              color: widget.theme.cardTheme.color,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: _isHovered ? widget.theme.colorScheme.primary.withOpacity(0.3) : widget.theme.dividerColor,
+              ),
+              boxShadow: _isHovered ? [
+                BoxShadow(
+                  color: widget.theme.colorScheme.primary.withOpacity(0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                )
+              ] : [],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      width: 6,
+                      color: _getDistressColor(widget.entry.distressLevel),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  DateFormat('MMM d, h:mm a').format(widget.entry.datetime),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700, 
+                                    color: widget.theme.colorScheme.onSurface.withOpacity(0.8),
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const Spacer(),
+                                Text(
+                                  'Distress ${widget.entry.distressLevel}/10',
+                                  style: TextStyle(
+                                    color: _getDistressColor(widget.entry.distressLevel),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  mouseCursor: SystemMouseCursors.click,
+                                  icon: const Icon(LineIcons.trash, size: 18, color: Colors.redAccent),
+                                  onPressed: () => ref.read(ocdProvider.notifier).deleteEntry(widget.entry.id!),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              widget.type == OcdType.obsession ? 'OBSESSION' : 'COMPULSION',
+                              style: TextStyle(
+                                color: widget.theme.colorScheme.primary.withOpacity(0.6),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              widget.entry.content, 
+                              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, height: 1.5)
+                            ),
+                            if (widget.entry.actionTaken != null && widget.entry.actionTaken!.isNotEmpty) ...[
+                              const SizedBox(height: 20),
+                              Text(
+                                'ACTION TAKEN',
+                                style: TextStyle(
+                                  color: widget.theme.colorScheme.onSurface.withOpacity(0.3),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(widget.entry.actionTaken!, style: const TextStyle(fontSize: 15, height: 1.5)),
+                            ],
+                            const SizedBox(height: 20),
+                            Text(
+                              'STRATEGY / RESPONSE',
+                              style: TextStyle(
+                                color: widget.theme.colorScheme.onSurface.withOpacity(0.3),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              widget.entry.response, 
+                              style: GoogleFonts.inter(
+                                fontSize: 15, 
+                                height: 1.5, 
+                                fontStyle: FontStyle.italic,
+                                color: widget.theme.colorScheme.onSurface.withOpacity(0.7),
+                              )
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    });
   }
 }
 

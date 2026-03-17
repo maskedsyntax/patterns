@@ -15,17 +15,16 @@ class SettingsScreen extends ConsumerWidget {
     try {
       final jsonStr = await DbHelper.instance.exportAll();
       
-      // On macOS, it's often better to specify extensions and dialog title clearly
+      // Small delay can help macOS window management
+      await Future.delayed(const Duration(milliseconds: 100));
+
       final path = await FilePicker.platform.saveFile(
-        dialogTitle: 'Save Patterns Export',
-        fileName: 'patterns_export.json',
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-        lockParentWindow: true,
+        dialogTitle: 'Export Patterns Data',
+        fileName: 'patterns_backup.json',
+        type: FileType.any,
       );
 
       if (path != null) {
-        // Ensure the path has .json extension if user removed it
         String finalPath = path;
         if (!finalPath.toLowerCase().endsWith('.json')) {
           finalPath += '.json';
@@ -36,7 +35,11 @@ class SettingsScreen extends ConsumerWidget {
         
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Data exported successfully'), behavior: SnackBarBehavior.floating),
+            const SnackBar(
+              content: Text('Data exported successfully'), 
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.green,
+            ),
           );
         }
       }
@@ -44,7 +47,11 @@ class SettingsScreen extends ConsumerWidget {
       debugPrint('Export Error: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Export failed: $e'), behavior: SnackBarBehavior.floating),
+          SnackBar(
+            content: Text('Export failed: $e'), 
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     }
@@ -55,7 +62,7 @@ class SettingsScreen extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Import Data?'),
-        content: const Text('This will overwrite all your current journal and OCD entries. This action cannot be undone.'),
+        content: const Text('This will overwrite all your current entries. This action cannot be undone.'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
           ElevatedButton(
@@ -71,10 +78,8 @@ class SettingsScreen extends ConsumerWidget {
 
     try {
       final result = await FilePicker.platform.pickFiles(
-        dialogTitle: 'Select patterns_export.json',
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-        lockParentWindow: true,
+        dialogTitle: 'Select Patterns Backup',
+        type: FileType.any,
       );
       
       if (result != null && result.files.single.path != null) {
@@ -85,7 +90,11 @@ class SettingsScreen extends ConsumerWidget {
         ref.invalidate(ocdProvider);
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Data imported successfully'), behavior: SnackBarBehavior.floating),
+            const SnackBar(
+              content: Text('Data imported successfully'), 
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.green,
+            ),
           );
         }
       }
@@ -93,7 +102,11 @@ class SettingsScreen extends ConsumerWidget {
       debugPrint('Import Error: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Import failed: $e'), behavior: SnackBarBehavior.floating),
+          SnackBar(
+            content: Text('Import failed: $e'), 
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     }

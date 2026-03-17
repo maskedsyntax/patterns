@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
 import '../providers/providers.dart';
 import '../models/models.dart';
+import '../database/db_helper.dart';
 
 class JournalScreen extends ConsumerStatefulWidget {
   const JournalScreen({super.key});
@@ -45,7 +46,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
         _hasUnsavedChanges = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Entry saved successfully')),
+        const SnackBar(content: Text('Entry saved successfully'), behavior: SnackBarBehavior.floating),
       );
     }
   }
@@ -59,6 +60,32 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
       _controller.text = existing?.content ?? '';
       _hasUnsavedChanges = false;
     });
+  }
+
+  Future<void> _deleteEntry(String date) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Entry?'),
+        content: const Text('This will permanently remove this journal entry.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
+            onPressed: () => Navigator.pop(context, true), 
+            child: const Text('Delete')
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await DbHelper.instance.deleteJournalEntry(date);
+      ref.invalidate(journalProvider);
+      if (date == DateFormat('yyyy-MM-dd').format(_selectedDate)) {
+        _controller.clear();
+      }
+    }
   }
 
   @override
@@ -104,6 +131,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
           ),
           const SizedBox(width: 12),
           IconButton(
+            mouseCursor: SystemMouseCursors.click,
             icon: const Icon(LineIcons.calendar, size: 22),
             onPressed: () async {
               final picked = await showDatePicker(
@@ -157,46 +185,12 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                       );
                     }
                     final entry = entries[index - 1];
-                    final isSelected = entry.date == dateStr;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      child: InkWell(
-                        onTap: () => _loadEntryForDate(DateTime.parse(entry.date), entries),
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: isSelected ? theme.colorScheme.primary.withOpacity(0.1) : Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: isSelected ? theme.colorScheme.primary.withOpacity(0.5) : Colors.transparent,
-                              width: 1,
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                DateFormat('MMM d, yyyy').format(DateTime.parse(entry.date)),
-                                style: TextStyle(
-                                  color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
-                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                entry.content,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: theme.colorScheme.onSurface.withOpacity(isSelected ? 0.8 : 0.4),
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    return _JournalTile(
+                      entry: entry,
+                      isSelected: entry.date == dateStr,
+                      onTap: () => _loadEntryForDate(DateTime.parse(entry.date), entries),
+                      onDelete: () => _deleteEntry(entry.date),
+                      theme: theme,
                     );
                   },
                 );
@@ -238,6 +232,101 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _JournalTile extends StatefulWidget {
+  final JournalEntry entry;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+  final ThemeData theme;
+
+  const _JournalTile({
+    required this.entry,
+    required this.isSelected,
+    required this.onTap,
+    required this.onDelete,
+    required this.theme,
+  });
+
+  @override
+  State<_JournalTile> createState() => _JournalTileState();
+}
+
+class _JournalTileState extends State<_JournalTile> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: GestureDetector(
+          onTap: widget.onTap,
+          onSecondaryTapDown: (details) {
+            final offset = details.globalPosition;
+            showMenu(
+              context: context,
+              position: RelativeRect.fromLTRB(offset.dx, offset.dy, offset.dx + 1, offset.dy + 1),
+              items: [
+                PopupMenuItem(
+                  onTap: widget.onDelete,
+                  child: const Row(
+                    children: [
+                      Icon(LineIcons.trash, size: 18, color: Colors.redAccent),
+                      SizedBox(width: 12),
+                      Text('Delete Entry', style: TextStyle(color: Colors.redAccent)),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: widget.isSelected 
+                  ? widget.theme.colorScheme.primary.withOpacity(0.1) 
+                  : (_isHovered ? widget.theme.colorScheme.onSurface.withOpacity(0.03) : Colors.transparent),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: widget.isSelected 
+                    ? widget.theme.colorScheme.primary.withOpacity(0.5) 
+                    : Colors.transparent,
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  DateFormat('MMM d, yyyy').format(DateTime.parse(widget.entry.date)),
+                  style: TextStyle(
+                    color: widget.isSelected ? widget.theme.colorScheme.primary : widget.theme.colorScheme.onSurface,
+                    fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.normal,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  widget.entry.content,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: widget.theme.colorScheme.onSurface.withOpacity(widget.isSelected ? 0.8 : 0.4),
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

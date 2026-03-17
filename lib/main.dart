@@ -16,8 +16,8 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
     state = mode;
   }
   
-  void toggle() {
-    if (state == ThemeMode.dark) {
+  void toggle(bool currentlyDark) {
+    if (currentlyDark) {
       state = ThemeMode.light;
     } else {
       state = ThemeMode.dark;
@@ -74,7 +74,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final currentThemeMode = ref.watch(themeModeProvider);
+    final isDark = theme.brightness == Brightness.dark;
     
     return Scaffold(
       body: Row(
@@ -128,12 +128,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 const Spacer(),
                 IconButton(
                   icon: Icon(
-                    currentThemeMode == ThemeMode.dark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+                    isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
                     size: 20,
                     color: theme.colorScheme.onSurface.withOpacity(0.6),
                   ),
                   onPressed: () {
-                    ref.read(themeModeProvider.notifier).toggle();
+                    ref.read(themeModeProvider.notifier).toggle(isDark);
                   },
                 ),
                 const SizedBox(height: 32),

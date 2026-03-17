@@ -17,8 +17,6 @@ class SettingsScreen extends ConsumerWidget {
       final path = await FilePicker.platform.saveFile(
         dialogTitle: 'Export Data',
         fileName: 'patterns_export.json',
-        type: FileType.custom,
-        allowedExtensions: ['json'],
       );
       if (path != null) {
         final file = File(path);
@@ -39,11 +37,28 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Future<void> _importData(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Import Data?'),
+        content: const Text('This will overwrite all your current journal and OCD entries. This action cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
+            onPressed: () => Navigator.pop(context, true), 
+            child: const Text('Import & Overwrite')
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
     try {
       final result = await FilePicker.platform.pickFiles(
-        dialogTitle: 'Import Data',
-        type: FileType.custom,
-        allowedExtensions: ['json'],
+        dialogTitle: 'Select patterns_export.json',
+        type: FileType.any,
       );
       if (result != null && result.files.single.path != null) {
         final file = File(result.files.single.path!);
@@ -83,32 +98,45 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               Text('Appearance', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700)),
               const SizedBox(height: 24),
-              _SettingsItem(
-                title: 'Theme Mode',
-                subtitle: 'Choose your preferred visual style',
-                icon: LineIcons.palette,
-                trailing: DropdownButtonHideUnderline(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: theme.dividerColor),
+              _SettingsCard(
+                child: Column(
+                  children: [
+                    _SettingsRow(
+                      title: 'Theme Mode',
+                      subtitle: 'Current: ${themeMode.name.toUpperCase()}',
+                      icon: LineIcons.palette,
                     ),
-                    child: DropdownButton<ThemeMode>(
-                      value: themeMode,
-                      style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.w600),
-                      onChanged: (mode) {
-                        if (mode != null) {
-                          ref.read(themeModeProvider.notifier).setThemeMode(mode);
-                        }
-                      },
-                      items: const [
-                        DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
-                        DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
-                        DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
-                      ],
+                    const SizedBox(height: 20),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: theme.brightness == Brightness.dark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.all(4),
+                      child: Row(
+                        children: [
+                          _ThemeOption(
+                            label: 'System',
+                            isSelected: themeMode == ThemeMode.system,
+                            onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.system),
+                            theme: theme,
+                          ),
+                          _ThemeOption(
+                            label: 'Light',
+                            isSelected: themeMode == ThemeMode.light,
+                            onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.light),
+                            theme: theme,
+                          ),
+                          _ThemeOption(
+                            label: 'Dark',
+                            isSelected: themeMode == ThemeMode.dark,
+                            onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark),
+                            theme: theme,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
               const SizedBox(height: 48),
@@ -123,7 +151,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
               _SettingsItem(
                 title: 'Import Data',
-                subtitle: 'Restore entries from a JSON file (overwrites existing)',
+                subtitle: 'Restore entries from a JSON file',
                 icon: LineIcons.upload,
                 onTap: () => _importData(context, ref),
                 trailing: const Icon(LineIcons.angleRight, size: 18),
@@ -146,6 +174,103 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SettingsCard extends StatelessWidget {
+  final Widget child;
+  const _SettingsCard({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: theme.cardTheme.color,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: theme.dividerColor),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _SettingsRow extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+
+  const _SettingsRow({required this.title, required this.subtitle, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, size: 20, color: theme.colorScheme.primary),
+        ),
+        const SizedBox(width: 20),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+            const SizedBox(height: 2),
+            Text(
+              subtitle, 
+              style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.4), fontSize: 13)
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _ThemeOption extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final ThemeData theme;
+
+  const _ThemeOption({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected ? theme.colorScheme.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: isSelected ? Colors.black : theme.colorScheme.onSurface.withOpacity(0.4),
+              ),
+            ),
           ),
         ),
       ),

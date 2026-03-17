@@ -158,6 +158,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: _screens[_selectedIndex],
             ),
           ),
+        ],
       ),
     );
   }
@@ -199,10 +200,7 @@ class LogoPainter extends CustomPainter {
       ..strokeWidth = 3.5
       ..strokeCap = StrokeCap.round;
 
-    final path = Path();
-    
     // Abstract "P" and "Patterns" concept
-    // Draw three concentric arcs/circles indicating patterns and growth
     canvas.drawArc(
       Rect.fromLTWH(size.width * 0.25, size.height * 0.25, size.width * 0.5, size.height * 0.5),
       0, 4.5, false, paint
@@ -213,7 +211,6 @@ class LogoPainter extends CustomPainter {
       3, 4.5, false, paint
     );
 
-    // Centered dot
     canvas.drawCircle(Offset(size.width / 2, size.height / 2), 2, paint..style = PaintingStyle.fill);
   }
 

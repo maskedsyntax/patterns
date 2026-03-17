@@ -142,27 +142,25 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                 ),
                 const SizedBox(width: 32),
                 if (!_isFocusMode)
-                  Expanded(
-                    child: Container(
-                      height: 36,
-                      constraints: const BoxConstraints(maxWidth: 400),
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (value) => ref.read(journalSearchQueryProvider.notifier).query = value,
-                        style: const TextStyle(fontSize: 13),
-                        decoration: InputDecoration(
-                          hintText: 'Search journals...',
-                          prefixIcon: const Icon(LineIcons.search, size: 16),
-                          contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                          fillColor: theme.colorScheme.onSurface.withOpacity(0.05),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
-                          ),
+                  Container(
+                    height: 36,
+                    width: 250, // Reduced width as requested
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (value) => ref.read(journalSearchQueryProvider.notifier).query = value,
+                      style: const TextStyle(fontSize: 13),
+                      decoration: InputDecoration(
+                        hintText: 'Search journals...',
+                        prefixIcon: const Icon(LineIcons.search, size: 16),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                        fillColor: theme.colorScheme.onSurface.withOpacity(0.05),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
                         ),
                       ),
                     ),
@@ -254,18 +252,23 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
 
                           return ListView.builder(
                             itemCount: entries.length + 1,
-                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             itemBuilder: (context, index) {
                               if (index == 0) {
                                 return Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                                  child: OutlinedButton.icon(
+                                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                                  child: ElevatedButton.icon(
                                     onPressed: () => _loadEntryForDate(DateTime.now(), journalAsync.value ?? []),
                                     icon: const Icon(LineIcons.plus, size: 18),
                                     label: const Text('New Entry Today'),
-                                    style: OutlinedButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(vertical: 16),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: theme.colorScheme.onSurface.withOpacity(0.05),
+                                      foregroundColor: theme.colorScheme.primary,
+                                      padding: const EdgeInsets.symmetric(vertical: 20),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        side: BorderSide(color: theme.colorScheme.primary.withOpacity(0.2)),
+                                      ),
                                     ),
                                   ),
                                 );
@@ -448,12 +451,12 @@ class _JournalTileState extends State<_JournalTile> {
             decoration: BoxDecoration(
               color: widget.isSelected 
                   ? widget.theme.colorScheme.primary.withOpacity(0.1) 
-                  : (_isHovered ? widget.theme.colorScheme.onSurface.withOpacity(0.03) : Colors.transparent),
+                  : (_isHovered ? widget.theme.colorScheme.onSurface.withOpacity(0.05) : widget.theme.colorScheme.onSurface.withOpacity(0.02)),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: widget.isSelected 
                     ? widget.theme.colorScheme.primary.withOpacity(0.5) 
-                    : Colors.transparent,
+                    : (widget.theme.dividerColor.withOpacity(0.5)),
                 width: 1,
               ),
             ),

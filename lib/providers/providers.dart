@@ -18,7 +18,10 @@ class JournalNotifier extends AsyncNotifier<List<JournalEntry>> {
         updatedAt: DateTime.now(),
       );
       await DbHelper.instance.upsertJournalEntry(entry);
-      return await DbHelper.instance.getJournalEntries();
+      final entries = await DbHelper.instance.getJournalEntries();
+      // Ensure sorted by date ascending
+      entries.sort((a, b) => a.date.compareTo(b.date));
+      return entries;
     });
   }
 }

@@ -60,7 +60,7 @@ class DbHelper {
   // Journal Methods
   Future<List<JournalEntry>> getJournalEntries() async {
     final db = await instance.database;
-    final result = await db.query('journal', orderBy: 'date DESC');
+    final result = await db.query('journal', orderBy: 'date ASC');
     return result.map((json) => JournalEntry.fromMap(json)).toList();
   }
 

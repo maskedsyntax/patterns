@@ -15,50 +15,78 @@ class JournalScreen extends ConsumerStatefulWidget {
 class _JournalScreenState extends ConsumerState<JournalScreen> {
   final TextEditingController _controller = TextEditingController();
   DateTime _selectedDate = DateTime.now();
-  Timer? _debounce;
   bool _isSaving = false;
+  bool _hasUnsavedChanges = false;
 
   @override
   void dispose() {
-    _debounce?.cancel();
     _controller.dispose();
     super.dispose();
   }
 
-  void _onChanged() {
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(seconds: 1), () {
-      _save();
-    });
-  }
-
   Future<void> _save() async {
-    if (_controller.text.isEmpty) return;
+    if (_controller.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cannot save an empty entry')),
+      );
+      return;
+    }
+    
     setState(() => _isSaving = true);
     final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
     await ref.read(journalProvider.notifier).saveEntry(dateStr, _controller.text);
-    if (mounted) setState(() => _isSaving = false);
+    
+    if (mounted) {
+      setState(() {
+        _isSaving = false;
+        _hasUnsavedChanges = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Entry saved successfully')),
+      );
+    }
+  }
+
+  void _loadEntryForDate(DateTime date, List<dynamic> entries) {
+    final dateStr = DateFormat('yyyy-MM-dd').format(date);
+    final existing = entries.where((e) => e.date == dateStr).firstOrNull;
+    
+    setState(() {
+      _selectedDate = date;
+      _controller.text = existing?.content ?? '';
+      _hasUnsavedChanges = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final journalAsync = ref.watch(journalProvider);
-    final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
     final theme = Theme.of(context);
+    final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(DateFormat('MMMM d, yyyy').format(_selectedDate)),
         actions: [
-          if (_isSaving)
-            const Padding(
-              padding: EdgeInsets.only(right: 16.0),
-              child: SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
+          if (_hasUnsavedChanges)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.only(right: 12.0),
+                child: Text('Unsaved changes', style: TextStyle(fontSize: 12, color: Colors.orangeAccent)),
               ),
             ),
+          ElevatedButton.icon(
+            onPressed: _isSaving ? null : _save,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: theme.colorScheme.primary,
+              foregroundColor: Colors.black,
+            ),
+            icon: _isSaving 
+              ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+              : const Icon(Icons.save, size: 18),
+            label: const Text('Save'),
+          ),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.calendar_today_outlined, size: 20),
             onPressed: () async {
@@ -69,11 +97,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                 lastDate: DateTime.now(),
               );
               if (picked != null) {
-                setState(() => _selectedDate = picked);
-                // Load existing content for the new date
-                final entries = journalAsync.value ?? [];
-                final existing = entries.where((e) => e.date == DateFormat('yyyy-MM-dd').format(picked)).firstOrNull;
-                _controller.text = existing?.content ?? '';
+                _loadEntryForDate(picked, journalAsync.value ?? []);
               }
             },
           ),
@@ -95,12 +119,9 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                     if (index == 0) {
                       return ListTile(
                         leading: Icon(Icons.add, color: theme.colorScheme.primary),
-                        title: const Text('New Journal Entry'),
+                        title: const Text('New Entry Today'),
                         onTap: () {
-                          setState(() {
-                            _selectedDate = DateTime.now();
-                            _controller.clear();
-                          });
+                          _loadEntryForDate(DateTime.now(), entries);
                         },
                       );
                     }
@@ -123,10 +144,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                         style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6)),
                       ),
                       onTap: () {
-                        setState(() {
-                          _selectedDate = DateTime.parse(entry.date);
-                          _controller.text = entry.content;
-                        });
+                        _loadEntryForDate(DateTime.parse(entry.date), entries);
                       },
                     );
                   },
@@ -143,14 +161,18 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                 controller: _controller,
                 maxLines: null,
                 expands: true,
-                onChanged: (_) => _onChanged(),
+                onChanged: (value) {
+                  if (!_hasUnsavedChanges) {
+                    setState(() => _hasUnsavedChanges = true);
+                  }
+                },
                 style: GoogleFonts.inter(
                   fontSize: 18,
                   height: 1.6,
                   color: theme.colorScheme.onSurface,
                 ),
                 decoration: const InputDecoration(
-                  hintText: 'Write your thoughts...',
+                  hintText: 'Start writing...',
                   filled: false,
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,

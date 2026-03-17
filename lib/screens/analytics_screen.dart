@@ -48,98 +48,103 @@ class AnalyticsScreen extends ConsumerWidget {
                 } catch (_) {}
               }
               
-              return ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
-                children: [
-                  Text('Overview', style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
-                  const SizedBox(height: 32),
-                  Row(
+              return Center(
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 1000),
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
                     children: [
-                      Expanded(child: _StatCard(title: 'Journal Entries', value: journals.length.toString(), icon: LineIcons.book)),
-                      const SizedBox(width: 20),
-                      Expanded(child: _StatCard(title: 'OCD Events', value: ocds.length.toString(), icon: LineIcons.bullseye)),
-                      const SizedBox(width: 20),
-                      Expanded(child: _StatCard(title: 'Avg Distress', value: avgDistress.toStringAsFixed(1), icon: LineIcons.areaChart)),
-                    ],
-                  ),
-                  const SizedBox(height: 48),
+                      Text('Overview', style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
+                      const SizedBox(height: 32),
+                      Row(
+                        children: [
+                          Expanded(child: _StatCard(title: 'Journal Entries', value: journals.length.toString(), icon: LineIcons.book)),
+                          const SizedBox(width: 20),
+                          Expanded(child: _StatCard(title: 'OCD Events', value: ocds.length.toString(), icon: LineIcons.bullseye)),
+                          const SizedBox(width: 20),
+                          Expanded(child: _StatCard(title: 'Avg Distress', value: avgDistress.toStringAsFixed(1), icon: LineIcons.areaChart)),
+                        ],
+                      ),
+                      const SizedBox(height: 48),
 
-                  _ChartCard(
-                    title: 'Journaling Consistency',
-                    subtitle: 'Activity over the past year',
-                    height: 280,
-                    child: HeatMap(
-                      datasets: journalHeatMapData,
-                      colorMode: ColorMode.color,
-                      defaultColor: theme.dividerColor.withOpacity(0.1),
-                      textColor: theme.colorScheme.onSurface.withOpacity(0.6),
-                      showColorTip: false,
-                      showText: false,
-                      scrollable: true,
-                      size: 20,
-                      startDate: DateTime.now().subtract(const Duration(days: 365)),
-                      endDate: DateTime.now(),
-                      colorsets: {
-                        1: theme.colorScheme.primary.withOpacity(0.8),
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 48),
-                  
-                  if (ocds.isNotEmpty) ...[
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: _ChartCard(
-                            title: 'Distress Trend',
-                            subtitle: 'Recent 10 events',
-                            child: _DistressTrendChart(entries: last10, theme: theme),
-                          ),
+                      _ChartCard(
+                        title: 'Journaling Consistency',
+                        subtitle: 'Activity over the past year',
+                        height: 220,
+                        child: HeatMap(
+                          datasets: journalHeatMapData,
+                          colorMode: ColorMode.color,
+                          defaultColor: theme.dividerColor.withOpacity(0.1),
+                          textColor: theme.colorScheme.onSurface.withOpacity(0.6),
+                          showColorTip: false,
+                          showText: false,
+                          scrollable: true,
+                          size: 18,
+                          startDate: DateTime.now().subtract(const Duration(days: 365)),
+                          endDate: DateTime.now(),
+                          colorsets: {
+                            1: theme.colorScheme.primary.withOpacity(0.8),
+                          },
                         ),
-                        const SizedBox(width: 24),
-                        Expanded(
-                          flex: 1,
-                          child: _ChartCard(
-                            title: 'Distribution',
-                            subtitle: 'Obsessions vs Compulsions',
-                            child: _DistributionChart(
-                              obsessions: totalObsessions,
-                              compulsions: totalCompulsions,
-                              theme: theme,
+                      ),
+                      const SizedBox(height: 48),
+                      
+                      if (ocds.isNotEmpty) ...[
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: _ChartCard(
+                                title: 'Distress Trend',
+                                subtitle: 'Recent 10 events',
+                                child: _DistressTrendChart(entries: last10, theme: theme),
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 24),
+                            Expanded(
+                              flex: 1,
+                              child: _ChartCard(
+                                title: 'Distribution',
+                                subtitle: 'Obsessions vs Compulsions',
+                                child: _DistributionChart(
+                                  obsessions: totalObsessions,
+                                  compulsions: totalCompulsions,
+                                  theme: theme,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+                        const SizedBox(height: 48),
                       ],
-                    ),
-                    const SizedBox(height: 48),
-                  ],
 
-                  Text('Breakdown', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _StatCard(
-                          title: 'Obsessions', 
-                          value: totalObsessions.toString(), 
-                          icon: LineIcons.brain,
-                          color: Colors.blueAccent,
-                        )
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: _StatCard(
-                          title: 'Compulsions', 
-                          value: totalCompulsions.toString(), 
-                          icon: LineIcons.fingerprint,
-                          color: Colors.orangeAccent,
-                        )
+                      Text('Breakdown', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _StatCard(
+                              title: 'Obsessions', 
+                              value: totalObsessions.toString(), 
+                              icon: LineIcons.brain,
+                              color: Colors.blueAccent,
+                            )
+                          ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: _StatCard(
+                              title: 'Compulsions', 
+                              value: totalCompulsions.toString(), 
+                              icon: LineIcons.fingerprint,
+                              color: Colors.orangeAccent,
+                            )
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),

@@ -123,48 +123,56 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
               tooltip: _isFocusMode ? 'Exit Focus Mode' : 'Enter Focus Mode',
               onPressed: () => setState(() => _isFocusMode = !_isFocusMode),
             ),
-            title: Row(
+            titleSpacing: 0,
+            title: Stack(
+              alignment: Alignment.center,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(DateFormat('MMMM d, yyyy').format(_selectedDate)),
-                    Text(
-                      _hasUnsavedChanges ? 'Unsaved changes' : 'All changes saved',
-                      style: TextStyle(
-                        fontSize: 11, 
-                        fontWeight: FontWeight.normal,
-                        color: _hasUnsavedChanges ? theme.colorScheme.primary : theme.colorScheme.onSurface.withOpacity(0.4),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 32),
+                // Centered Search Bar
                 if (!_isFocusMode)
-                  Container(
-                    height: 36,
-                    width: 250, // Reduced width as requested
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: (value) => ref.read(journalSearchQueryProvider.notifier).query = value,
-                      style: const TextStyle(fontSize: 13),
-                      decoration: InputDecoration(
-                        hintText: 'Search journals...',
-                        prefixIcon: const Icon(LineIcons.search, size: 16),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                        fillColor: theme.colorScheme.onSurface.withOpacity(0.05),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
+                  Center(
+                    child: Container(
+                      height: 36,
+                      width: 250,
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) => ref.read(journalSearchQueryProvider.notifier).query = value,
+                        style: const TextStyle(fontSize: 13),
+                        decoration: InputDecoration(
+                          hintText: 'Search journals...',
+                          prefixIcon: const Icon(LineIcons.search, size: 16),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                          fillColor: theme.colorScheme.onSurface.withOpacity(0.05),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
                         ),
                       ),
                     ),
                   ),
+                // Date and Save Status (Left aligned)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(DateFormat('MMMM d, yyyy').format(_selectedDate), style: const TextStyle(fontSize: 16)),
+                      Text(
+                        _hasUnsavedChanges ? 'Unsaved changes' : 'All changes saved',
+                        style: TextStyle(
+                          fontSize: 11, 
+                          fontWeight: FontWeight.normal,
+                          color: _hasUnsavedChanges ? theme.colorScheme.primary : theme.colorScheme.onSurface.withOpacity(0.4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
             actions: [

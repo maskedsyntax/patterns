@@ -25,6 +25,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
   bool _hasUnsavedChanges = false;
   bool _initialLoadDone = false;
   bool _isPreviewMode = false;
+  bool _isFocusMode = false;
 
   @override
   void dispose() {
@@ -113,6 +114,11 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(_isFocusMode ? LineIcons.expand : LineIcons.compress),
+          tooltip: _isFocusMode ? 'Exit Focus Mode' : 'Enter Focus Mode',
+          onPressed: () => setState(() => _isFocusMode = !_isFocusMode),
+        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -182,73 +188,82 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
       ),
       body: Row(
         children: [
-          Container(
-            width: 300,
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            width: _isFocusMode ? 0 : 300,
             decoration: BoxDecoration(
               border: Border(right: BorderSide(color: theme.dividerColor)),
             ),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (value) => ref.read(journalSearchQueryProvider.notifier).state = value,
-                    style: const TextStyle(fontSize: 13),
-                    decoration: InputDecoration(
-                      hintText: 'Search journals...',
-                      prefixIcon: const Icon(LineIcons.search, size: 18),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                      fillColor: theme.colorScheme.onSurface.withOpacity(0.03),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const NeverScrollableScrollPhysics(),
+              child: SizedBox(
+                width: 300,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) => ref.read(journalSearchQueryProvider.notifier).state = value,
+                        style: const TextStyle(fontSize: 13),
+                        decoration: InputDecoration(
+                          hintText: 'Search journals...',
+                          prefixIcon: const Icon(LineIcons.search, size: 18),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                          fillColor: theme.colorScheme.onSurface.withOpacity(0.03),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                Expanded(
-                  child: filteredJournalAsync.when(
-                    data: (entries) {
-                      if (!_initialLoadDone && journalAsync.hasValue) {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (mounted) {
-                            _loadEntryForDate(_selectedDate, journalAsync.value!);
-                            _initialLoadDone = true;
+                    Expanded(
+                      child: filteredJournalAsync.when(
+                        data: (entries) {
+                          if (!_initialLoadDone && journalAsync.hasValue) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (mounted) {
+                                _loadEntryForDate(_selectedDate, journalAsync.value!);
+                                _initialLoadDone = true;
+                              }
+                            });
                           }
-                        });
-                      }
 
-                      return ListView.builder(
-                        itemCount: entries.length + 1,
-                        padding: const EdgeInsets.only(bottom: 8),
-                        itemBuilder: (context, index) {
-                          if (index == 0) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                              child: OutlinedButton.icon(
-                                onPressed: () => _loadEntryForDate(DateTime.now(), journalAsync.value ?? []),
-                                icon: const Icon(LineIcons.plus, size: 18),
-                                label: const Text('New Entry Today'),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                ),
-                              ),
-                            );
-                          }
-                          final entry = entries[index - 1];
-                          return _JournalTile(
-                            entry: entry,
-                            isSelected: entry.date == dateStr,
-                            onTap: () => _loadEntryForDate(DateTime.parse(entry.date), journalAsync.value ?? []),
-                            onDelete: () => _deleteEntry(entry.date),
-                            theme: theme,
+                          return ListView.builder(
+                            itemCount: entries.length + 1,
+                            padding: const EdgeInsets.only(bottom: 8),
+                            itemBuilder: (context, index) {
+                              if (index == 0) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                                  child: OutlinedButton.icon(
+                                    onPressed: () => _loadEntryForDate(DateTime.now(), journalAsync.value ?? []),
+                                    icon: const Icon(LineIcons.plus, size: 18),
+                                    label: const Text('New Entry Today'),
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                  ),
+                                );
+                              }
+                              final entry = entries[index - 1];
+                              return _JournalTile(
+                                entry: entry,
+                                isSelected: entry.date == dateStr,
+                                onTap: () => _loadEntryForDate(DateTime.parse(entry.date), journalAsync.value ?? []),
+                                onDelete: () => _deleteEntry(entry.date),
+                                theme: theme,
+                              );
+                            },
                           );
                         },
-                      );
-                    },
-                    loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (e, s) => Center(child: Text('Error: $e')),
-                  ),
+                        loading: () => const Center(child: CircularProgressIndicator()),
+                        error: (e, s) => Center(child: Text('Error: $e')),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
           Expanded(
@@ -257,7 +272,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
               child: _isPreviewMode 
                 ? Markdown(
                     data: _controller.text.isEmpty ? '*No content to preview*' : _controller.text,
-                    padding: const EdgeInsets.all(48),
+                    padding: EdgeInsets.symmetric(horizontal: _isFocusMode ? 100 : 48, vertical: 48),
                     extensionSet: md.ExtensionSet.gitHubFlavored,
                     styleSheet: MarkdownStyleSheet(
                       p: GoogleFonts.inter(fontSize: 18, height: 1.8, color: theme.colorScheme.onSurface.withOpacity(0.8)),
@@ -270,7 +285,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                     ),
                   )
                 : Padding(
-                    padding: const EdgeInsets.fromLTRB(48, 48, 48, 0),
+                    padding: EdgeInsets.fromLTRB(_isFocusMode ? 100 : 48, 48, _isFocusMode ? 100 : 48, 0),
                     child: TextField(
                       controller: _controller,
                       maxLines: null,

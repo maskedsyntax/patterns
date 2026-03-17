@@ -32,7 +32,13 @@ final journalProvider = AsyncNotifierProvider<JournalNotifier, List<JournalEntry
 });
 
 // Search and Filtering Providers
-final journalSearchQueryProvider = StateProvider<String>((ref) => "");
+class JournalSearchQueryNotifier extends Notifier<String> {
+  @override
+  String build() => "";
+  set query(String value) => state = value;
+}
+
+final journalSearchQueryProvider = NotifierProvider<JournalSearchQueryNotifier, String>(JournalSearchQueryNotifier.new);
 
 final filteredJournalProvider = Provider<AsyncValue<List<JournalEntry>>>((ref) {
   final journalAsync = ref.watch(journalProvider);
@@ -74,7 +80,13 @@ final ocdProvider = AsyncNotifierProvider<OcdNotifier, List<OcdEntry>>(() {
   return OcdNotifier();
 });
 
-final ocdHighDistressOnlyProvider = StateProvider<bool>((ref) => false);
+class OcdHighDistressNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+  void toggle() => state = !state;
+}
+
+final ocdHighDistressOnlyProvider = NotifierProvider<OcdHighDistressNotifier, bool>(OcdHighDistressNotifier.new);
 
 final filteredOcdProvider = Provider<AsyncValue<List<OcdEntry>>>((ref) {
   final ocdAsync = ref.watch(ocdProvider);

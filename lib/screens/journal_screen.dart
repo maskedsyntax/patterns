@@ -206,7 +206,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                       padding: const EdgeInsets.all(16.0),
                       child: TextField(
                         controller: _searchController,
-                        onChanged: (value) => ref.read(journalSearchQueryProvider.notifier).state = value,
+                        onChanged: (value) => ref.read(journalSearchQueryProvider.notifier).query = value,
                         style: const TextStyle(fontSize: 13),
                         decoration: InputDecoration(
                           hintText: 'Search journals...',

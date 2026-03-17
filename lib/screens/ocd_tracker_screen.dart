@@ -28,7 +28,7 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
         actions: [
           _HighDistressToggle(
             isSelected: isHighDistressOnly,
-            onTap: () => ref.read(ocdHighDistressOnlyProvider.notifier).state = !isHighDistressOnly,
+            onTap: () => ref.read(ocdHighDistressOnlyProvider.notifier).toggle(),
             theme: theme,
           ),
           const SizedBox(width: 16),

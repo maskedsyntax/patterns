@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../providers/providers.dart';
-import '../theme/app_theme.dart';
 
 class JournalScreen extends ConsumerStatefulWidget {
   const JournalScreen({super.key});
@@ -45,6 +44,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
   Widget build(BuildContext context) {
     final journalAsync = ref.watch(journalProvider);
     final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -84,8 +84,8 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
         children: [
           Container(
             width: 280,
-            decoration: const BoxDecoration(
-              border: Border(right: BorderSide(color: Color(0xFF2D3142))),
+            decoration: BoxDecoration(
+              border: Border(right: BorderSide(color: theme.dividerColor)),
             ),
             child: journalAsync.when(
               data: (entries) {
@@ -94,7 +94,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                   itemBuilder: (context, index) {
                     if (index == 0) {
                       return ListTile(
-                        leading: const Icon(Icons.add, color: AppTheme.accentColor),
+                        leading: Icon(Icons.add, color: theme.colorScheme.primary),
                         title: const Text('New Journal Entry'),
                         onTap: () {
                           setState(() {
@@ -108,11 +108,11 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                     final isSelected = entry.date == dateStr;
                     return ListTile(
                       selected: isSelected,
-                      selectedTileColor: AppTheme.accentColor.withOpacity(0.05),
+                      selectedTileColor: theme.colorScheme.primary.withOpacity(0.05),
                       title: Text(
                         DateFormat('MMM d, yyyy').format(DateTime.parse(entry.date)),
                         style: TextStyle(
-                          color: isSelected ? AppTheme.accentColor : AppTheme.textPrimary,
+                          color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                         ),
                       ),
@@ -120,7 +120,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                         entry.content,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: AppTheme.textSecondary.withOpacity(0.7)),
+                        style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6)),
                       ),
                       onTap: () {
                         setState(() {
@@ -147,9 +147,9 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                 style: GoogleFonts.inter(
                   fontSize: 18,
                   height: 1.6,
-                  color: AppTheme.textPrimary,
+                  color: theme.colorScheme.onSurface,
                 ),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Write your thoughts...',
                   filled: false,
                   enabledBorder: InputBorder.none,

@@ -6,7 +6,24 @@ import 'theme/app_theme.dart';
 import 'screens/journal_screen.dart';
 import 'screens/ocd_tracker_screen.dart';
 
-final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
+class ThemeModeNotifier extends Notifier<ThemeMode> {
+  @override
+  ThemeMode build() => ThemeMode.system;
+
+  void setThemeMode(ThemeMode mode) {
+    state = mode;
+  }
+  
+  void toggle() {
+    if (state == ThemeMode.dark) {
+      state = ThemeMode.light;
+    } else {
+      state = ThemeMode.dark;
+    }
+  }
+}
+
+final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(ThemeModeNotifier.new);
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,6 +72,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final currentThemeMode = ref.watch(themeModeProvider);
     
     return Scaffold(
       body: Row(
@@ -84,16 +102,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   padding: const EdgeInsets.only(bottom: 20.0),
                   child: IconButton(
                     icon: Icon(
-                      ref.watch(themeModeProvider) == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode,
+                      currentThemeMode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode,
                       size: 20,
                     ),
                     onPressed: () {
-                      final current = ref.read(themeModeProvider);
-                      if (current == ThemeMode.dark) {
-                        ref.read(themeModeProvider.notifier).state = ThemeMode.light;
-                      } else {
-                        ref.read(themeModeProvider.notifier).state = ThemeMode.dark;
-                      }
+                      ref.read(themeModeProvider.notifier).toggle();
                     },
                   ),
                 ),

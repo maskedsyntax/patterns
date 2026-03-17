@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
 import '../models/models.dart';
 import '../providers/providers.dart';
-import '../theme/app_theme.dart';
 
 class OcdTrackerScreen extends ConsumerStatefulWidget {
   const OcdTrackerScreen({super.key});
@@ -26,6 +25,7 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> with Single
   @override
   Widget build(BuildContext context) {
     final ocdAsync = ref.watch(ocdProvider);
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -33,9 +33,9 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> with Single
         bottom: TabBar(
           controller: _tabController,
           dividerColor: Colors.transparent,
-          indicatorColor: AppTheme.accentColor,
-          labelColor: AppTheme.accentColor,
-          unselectedLabelColor: AppTheme.textSecondary,
+          indicatorColor: theme.colorScheme.primary,
+          labelColor: theme.colorScheme.primary,
+          unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.6),
           tabs: const [
             Tab(text: 'Obsessions'),
             Tab(text: 'Compulsions'),
@@ -50,10 +50,10 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> with Single
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: AppTheme.accentColor,
+        backgroundColor: theme.colorScheme.primary,
         onPressed: () => _showAddDialog(context),
-        label: const Text('Track New', style: TextStyle(color: Colors.white)),
-        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Track New', style: TextStyle(color: Colors.black)),
+        icon: const Icon(Icons.add, color: Colors.black),
       ),
     );
   }
@@ -74,6 +74,8 @@ class _OcdListView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    
     return entries.when(
       data: (data) {
         final filtered = data.where((e) => e.type == type).toList();
@@ -82,9 +84,9 @@ class _OcdListView extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(LineIcons.clipboard, size: 64, color: AppTheme.textSecondary.withOpacity(0.2)),
+                Icon(LineIcons.clipboard, size: 64, color: theme.colorScheme.onSurface.withOpacity(0.2)),
                 const SizedBox(height: 16),
-                Text('No entries yet', style: TextStyle(color: AppTheme.textSecondary.withOpacity(0.5))),
+                Text('No entries yet', style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.5))),
               ],
             ),
           );
@@ -106,7 +108,7 @@ class _OcdListView extends ConsumerWidget {
                       children: [
                         Text(
                           DateFormat('MMM d, h:mm a').format(entry.datetime),
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.accentColor),
+                          style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.primary),
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -132,18 +134,18 @@ class _OcdListView extends ConsumerWidget {
                     const SizedBox(height: 12),
                     Text(
                       type == OcdType.obsession ? 'Obsessive Thought:' : 'Compulsive Urge:',
-                      style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                      style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 12),
                     ),
                     const SizedBox(height: 4),
                     Text(entry.content, style: const TextStyle(fontSize: 16)),
                     if (entry.actionTaken != null && entry.actionTaken!.isNotEmpty) ...[
                       const SizedBox(height: 12),
-                      const Text('Action Taken:', style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                      Text('Action Taken:', style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 12)),
                       const SizedBox(height: 4),
                       Text(entry.actionTaken!, style: const TextStyle(fontSize: 16)),
                     ],
                     const SizedBox(height: 12),
-                    const Text('Response/Strategy:', style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                    Text('Response/Strategy:', style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 12)),
                     const SizedBox(height: 4),
                     Text(entry.response, style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic)),
                   ],
@@ -188,8 +190,10 @@ class _OcdEntryDialogState extends ConsumerState<OcdEntryDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Dialog(
-      backgroundColor: AppTheme.surfaceColor,
+      backgroundColor: theme.colorScheme.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Container(
         width: 500,
@@ -254,8 +258,8 @@ class _OcdEntryDialogState extends ConsumerState<OcdEntryDialog> {
                 const SizedBox(width: 16),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.accentColor,
-                    foregroundColor: Colors.white,
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   ),
                   onPressed: () async {

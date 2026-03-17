@@ -25,7 +25,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
   bool _isSaving = false;
   bool _hasUnsavedChanges = false;
   bool _initialLoadDone = false;
-  bool _isPreviewMode = false;
+  bool _isPreviewMode = true; // Default to true
   bool _isFocusMode = false;
 
   @override
@@ -51,6 +51,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
       setState(() {
         _isSaving = false;
         _hasUnsavedChanges = false;
+        _isPreviewMode = true; // Switch back to preview after saving
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Entry saved successfully'), behavior: SnackBarBehavior.floating),
@@ -58,7 +59,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
     }
   }
 
-  void _loadEntryForDate(DateTime date, List<JournalEntry> entries) {
+  void _loadEntryForDate(DateTime date, List<JournalEntry> entries, {bool forceEdit = false}) {
     final dateStr = DateFormat('yyyy-MM-dd').format(date);
     final existing = entries.where((e) => e.date == dateStr).firstOrNull;
     
@@ -66,6 +67,8 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
       _selectedDate = date;
       _controller.text = existing?.content ?? '';
       _hasUnsavedChanges = false;
+      // If entry doesn't exist, start in edit mode. If it does, respect forceEdit or default to preview.
+      _isPreviewMode = (existing == null || forceEdit) ? false : true;
     });
   }
 
@@ -91,6 +94,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
       ref.invalidate(journalProvider);
       if (date == DateFormat('yyyy-MM-dd').format(_selectedDate)) {
         _controller.clear();
+        _isPreviewMode = false;
       }
     }
   }
@@ -108,6 +112,9 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
         final existing = entries.where((e) => e.date == DateFormat('yyyy-MM-dd').format(_selectedDate)).firstOrNull;
         if (existing != null) {
           _controller.text = existing.content;
+          _isPreviewMode = true;
+        } else {
+          _isPreviewMode = false;
         }
         _initialLoadDone = true;
       }
@@ -260,7 +267,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                       child: SizedBox(
                         width: double.infinity,
                         child: OutlinedButton.icon(
-                          onPressed: () => _loadEntryForDate(DateTime.now(), journalAsync.value ?? []),
+                          onPressed: () => _loadEntryForDate(DateTime.now(), journalAsync.value ?? [], forceEdit: true),
                           icon: const Icon(LineIcons.plus, size: 16),
                           label: const Text('Today'),
                           style: OutlinedButton.styleFrom(

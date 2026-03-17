@@ -5,6 +5,7 @@ import 'package:line_icons/line_icons.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
+import 'package:window_manager/window_manager.dart';
 import '../providers/providers.dart';
 import '../models/models.dart';
 
@@ -18,8 +19,13 @@ class AnalyticsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Analytics'),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: DragToMoveArea(
+          child: AppBar(
+            title: const Text('Analytics'),
+          ),
+        ),
       ),
       body: journalAsync.when(
         data: (journals) {
@@ -61,6 +67,7 @@ class AnalyticsScreen extends ConsumerWidget {
                   _ChartCard(
                     title: 'Journaling Consistency',
                     subtitle: 'Activity over the past year',
+                    height: 280,
                     child: HeatMap(
                       datasets: journalHeatMapData,
                       colorMode: ColorMode.color,

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:window_manager/window_manager.dart';
 import '../database/db_helper.dart';
 import '../providers/providers.dart';
 import '../main.dart';
@@ -14,8 +15,6 @@ class SettingsScreen extends ConsumerWidget {
   Future<void> _exportData(BuildContext context) async {
     try {
       final jsonStr = await DbHelper.instance.exportAll();
-      
-      // Small delay can help macOS window management
       await Future.delayed(const Duration(milliseconds: 100));
 
       final path = await FilePicker.platform.saveFile(
@@ -118,8 +117,13 @@ class SettingsScreen extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: DragToMoveArea(
+          child: AppBar(
+            title: const Text('Settings'),
+          ),
+        ),
       ),
       body: Center(
         child: Container(

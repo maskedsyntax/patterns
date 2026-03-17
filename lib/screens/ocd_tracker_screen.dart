@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:window_manager/window_manager.dart';
 import '../models/models.dart';
 import '../providers/providers.dart';
 
@@ -23,44 +24,49 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('OCD Tracker'),
-        actions: [
-          _HighDistressToggle(
-            isSelected: isHighDistressOnly,
-            onTap: () => ref.read(ocdHighDistressOnlyProvider.notifier).toggle(),
-            theme: theme,
-          ),
-          const SizedBox(width: 16),
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Container(
-              width: 300,
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              decoration: BoxDecoration(
-                color: theme.brightness == Brightness.dark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(12),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: DragToMoveArea(
+          child: AppBar(
+            title: const Text('OCD Tracker'),
+            actions: [
+              _HighDistressToggle(
+                isSelected: isHighDistressOnly,
+                onTap: () => ref.read(ocdHighDistressOnlyProvider.notifier).toggle(),
+                theme: theme,
               ),
-              padding: const EdgeInsets.all(4),
-              child: Row(
-                children: [
-                  _TypeOption(
-                    label: 'Obsessions',
-                    isSelected: _selectedType == OcdType.obsession,
-                    onTap: () => setState(() => _selectedType = OcdType.obsession),
-                    theme: theme,
+              const SizedBox(width: 16),
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: Container(
+                  width: 300,
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  decoration: BoxDecoration(
+                    color: theme.brightness == Brightness.dark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  _TypeOption(
-                    label: 'Compulsions',
-                    isSelected: _selectedType == OcdType.compulsion,
-                    onTap: () => setState(() => _selectedType = OcdType.compulsion),
-                    theme: theme,
+                  padding: const EdgeInsets.all(4),
+                  child: Row(
+                    children: [
+                      _TypeOption(
+                        label: 'Obsessions',
+                        isSelected: _selectedType == OcdType.obsession,
+                        onTap: () => setState(() => _selectedType = OcdType.obsession),
+                        theme: theme,
+                      ),
+                      _TypeOption(
+                        label: 'Compulsions',
+                        isSelected: _selectedType == OcdType.compulsion,
+                        onTap: () => setState(() => _selectedType = OcdType.compulsion),
+                        theme: theme,
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
       body: _OcdListView(type: _selectedType, entries: filteredOcdAsync),
       floatingActionButton: FloatingActionButton.extended(

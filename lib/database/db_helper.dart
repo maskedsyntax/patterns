@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -99,5 +100,36 @@ class DbHelper {
   Future<int> deleteOcdEntry(int id) async {
     final db = await instance.database;
     return await db.delete('ocd', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // Export / Import
+  Future<String> exportAll() async {
+    final db = await instance.database;
+    final journal = await db.query('journal');
+    final ocd = await db.query('ocd');
+    final data = {
+      'journal': journal,
+      'ocd': ocd,
+    };
+    return jsonEncode(data);
+  }
+
+  Future<void> importAll(String jsonStr) async {
+    final data = jsonDecode(jsonStr) as Map<String, dynamic>;
+    final db = await instance.database;
+    await db.transaction((txn) async {
+      await txn.delete('journal');
+      await txn.delete('ocd');
+      if (data['journal'] != null) {
+        for (final item in data['journal']) {
+          await txn.insert('journal', Map<String, dynamic>.from(item));
+        }
+      }
+      if (data['ocd'] != null) {
+        for (final item in data['ocd']) {
+          await txn.insert('ocd', Map<String, dynamic>.from(item));
+        }
+      }
+    });
   }
 }

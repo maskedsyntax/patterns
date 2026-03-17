@@ -5,6 +5,8 @@ import 'package:line_icons/line_icons.dart';
 import 'theme/app_theme.dart';
 import 'screens/journal_screen.dart';
 import 'screens/ocd_tracker_screen.dart';
+import 'screens/analytics_screen.dart';
+import 'screens/settings_screen.dart';
 
 class ThemeModeNotifier extends Notifier<ThemeMode> {
   @override
@@ -65,8 +67,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final List<Widget> _screens = [
     const JournalScreen(),
     const OcdTrackerScreen(),
-    const Center(child: Text('Analytics coming soon')),
-    const Center(child: Text('Settings coming soon')),
+    const AnalyticsScreen(),
+    const SettingsScreen(),
   ];
 
   @override

@@ -150,8 +150,14 @@ class _ChartCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final Widget child;
+  final double height;
 
-  const _ChartCard({required this.title, required this.subtitle, required this.child});
+  const _ChartCard({
+    required this.title, 
+    required this.subtitle, 
+    required this.child,
+    this.height = 240,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +175,7 @@ class _ChartCard extends StatelessWidget {
           Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
           Text(subtitle, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.4), fontSize: 12)),
           const SizedBox(height: 24),
-          child,
+          SizedBox(height: height, child: child),
         ],
       ),
     );
@@ -227,7 +233,7 @@ class _DistressTrendChart extends StatelessWidget {
         ),
         borderData: FlBorderData(show: false),
         minX: 0,
-        maxX: entries.length.toDouble() - 1,
+        maxX: entries.length > 1 ? entries.length.toDouble() - 1 : 1.0,
         minY: 0,
         maxY: 10,
         lineBarsData: [

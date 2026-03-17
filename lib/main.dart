@@ -153,22 +153,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 40,
-                  child: DragToMoveArea(child: SizedBox.expand()),
-                ),
-                Expanded(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: _screens[_selectedIndex],
-                  ),
-                ),
-              ],
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: _screens[_selectedIndex],
             ),
           ),
-        ],
       ),
     );
   }

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:markdown/markdown.dart' as md;
+import 'package:window_manager/window_manager.dart';
 import '../providers/providers.dart';
 import '../models/models.dart';
 import '../database/db_helper.dart';
@@ -113,78 +114,115 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(_isFocusMode ? LineIcons.expand : LineIcons.compress),
-          tooltip: _isFocusMode ? 'Exit Focus Mode' : 'Enter Focus Mode',
-          onPressed: () => setState(() => _isFocusMode = !_isFocusMode),
-        ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(DateFormat('MMMM d, yyyy').format(_selectedDate)),
-            Text(
-              _hasUnsavedChanges ? 'Unsaved changes' : 'All changes saved',
-              style: TextStyle(
-                fontSize: 12, 
-                fontWeight: FontWeight.normal,
-                color: _hasUnsavedChanges ? theme.colorScheme.primary : theme.colorScheme.onSurface.withOpacity(0.4),
-              ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: DragToMoveArea(
+          child: AppBar(
+            leading: IconButton(
+              icon: Icon(_isFocusMode ? LineIcons.expand : LineIcons.compress),
+              tooltip: _isFocusMode ? 'Exit Focus Mode' : 'Enter Focus Mode',
+              onPressed: () => setState(() => _isFocusMode = !_isFocusMode),
             ),
-          ],
-        ),
-        actions: [
-          Container(
-            height: 32,
-            width: 80,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.onSurface.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            padding: const EdgeInsets.all(2),
-            child: Row(
+            title: Row(
               children: [
-                _ModeToggle(
-                  icon: LineIcons.edit,
-                  isSelected: !_isPreviewMode,
-                  onTap: () => setState(() => _isPreviewMode = false),
-                  theme: theme,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(DateFormat('MMMM d, yyyy').format(_selectedDate)),
+                    Text(
+                      _hasUnsavedChanges ? 'Unsaved changes' : 'All changes saved',
+                      style: TextStyle(
+                        fontSize: 11, 
+                        fontWeight: FontWeight.normal,
+                        color: _hasUnsavedChanges ? theme.colorScheme.primary : theme.colorScheme.onSurface.withOpacity(0.4),
+                      ),
+                    ),
+                  ],
                 ),
-                _ModeToggle(
-                  icon: LineIcons.eye,
-                  isSelected: _isPreviewMode,
-                  onTap: () => setState(() => _isPreviewMode = true),
-                  theme: theme,
-                ),
+                const SizedBox(width: 32),
+                if (!_isFocusMode)
+                  Expanded(
+                    child: Container(
+                      height: 36,
+                      constraints: const BoxConstraints(maxWidth: 400),
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) => ref.read(journalSearchQueryProvider.notifier).query = value,
+                        style: const TextStyle(fontSize: 13),
+                        decoration: InputDecoration(
+                          hintText: 'Search journals...',
+                          prefixIcon: const Icon(LineIcons.search, size: 16),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                          fillColor: theme.colorScheme.onSurface.withOpacity(0.05),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
+            actions: [
+              Container(
+                height: 32,
+                width: 80,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.onSurface.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.all(2),
+                child: Row(
+                  children: [
+                    _ModeToggle(
+                      icon: LineIcons.edit,
+                      isSelected: !_isPreviewMode,
+                      onTap: () => setState(() => _isPreviewMode = false),
+                      theme: theme,
+                    ),
+                    _ModeToggle(
+                      icon: LineIcons.eye,
+                      isSelected: _isPreviewMode,
+                      onTap: () => setState(() => _isPreviewMode = true),
+                      theme: theme,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              ElevatedButton.icon(
+                onPressed: _isSaving ? null : _save,
+                icon: _isSaving 
+                  ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                  : const Icon(LineIcons.save, size: 18),
+                label: const Text('Save'),
+              ),
+              const SizedBox(width: 12),
+              IconButton(
+                mouseCursor: SystemMouseCursors.click,
+                icon: const Icon(LineIcons.calendar, size: 22),
+                onPressed: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: _selectedDate,
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime.now(),
+                  );
+                  if (picked != null) {
+                    _loadEntryForDate(picked, journalAsync.value ?? []);
+                  }
+                },
+              ),
+              const SizedBox(width: 16),
+            ],
           ),
-          const SizedBox(width: 16),
-          ElevatedButton.icon(
-            onPressed: _isSaving ? null : _save,
-            icon: _isSaving 
-              ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-              : const Icon(LineIcons.save, size: 18),
-            label: const Text('Save'),
-          ),
-          const SizedBox(width: 12),
-          IconButton(
-            mouseCursor: SystemMouseCursors.click,
-            icon: const Icon(LineIcons.calendar, size: 22),
-            onPressed: () async {
-              final picked = await showDatePicker(
-                context: context,
-                initialDate: _selectedDate,
-                firstDate: DateTime(2000),
-                lastDate: DateTime.now(),
-              );
-              if (picked != null) {
-                _loadEntryForDate(picked, journalAsync.value ?? []);
-              }
-            },
-          ),
-          const SizedBox(width: 16),
-        ],
+        ),
       ),
       body: Row(
         children: [
@@ -202,20 +240,6 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                 width: 300,
                 child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (value) => ref.read(journalSearchQueryProvider.notifier).query = value,
-                        style: const TextStyle(fontSize: 13),
-                        decoration: InputDecoration(
-                          hintText: 'Search journals...',
-                          prefixIcon: const Icon(LineIcons.search, size: 18),
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                          fillColor: theme.colorScheme.onSurface.withOpacity(0.03),
-                        ),
-                      ),
-                    ),
                     Expanded(
                       child: filteredJournalAsync.when(
                         data: (entries) {
@@ -230,7 +254,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
 
                           return ListView.builder(
                             itemCount: entries.length + 1,
-                            padding: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
                             itemBuilder: (context, index) {
                               if (index == 0) {
                                 return Padding(

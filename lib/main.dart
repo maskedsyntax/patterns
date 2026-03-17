@@ -96,15 +96,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       body: Row(
         children: [
+          // UNIFIED SIDEBAR (Navigation Part)
           Container(
-            width: 80,
-            color: theme.scaffoldBackgroundColor,
+            width: 72,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface, // Shared background with the list
+              border: Border(right: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
+            ),
             child: Column(
               children: [
-                const SizedBox(
-                  height: 48,
-                  child: DragToMoveArea(child: SizedBox.expand()),
-                ),
+                const SizedBox(height: 48, child: DragToMoveArea(child: SizedBox.expand())),
                 _PatternsLogo(theme: theme),
                 const SizedBox(height: 48),
                 _NavIcon(
@@ -151,7 +152,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
           ),
-          const VerticalDivider(thickness: 1, width: 1),
+          
+          // MAIN CONTENT (which will include its own contextual sidebar)
           Expanded(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
@@ -171,16 +173,16 @@ class _PatternsLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 52,
-      height: 52,
+      width: 44,
+      height: 44,
       decoration: BoxDecoration(
         color: theme.colorScheme.primary,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.primary.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: theme.colorScheme.primary.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -197,10 +199,9 @@ class LogoPainter extends CustomPainter {
     final paint = Paint()
       ..color = Colors.black
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.5
+      ..strokeWidth = 3.0
       ..strokeCap = StrokeCap.round;
 
-    // Abstract "P" and "Patterns" concept
     canvas.drawArc(
       Rect.fromLTWH(size.width * 0.25, size.height * 0.25, size.width * 0.5, size.height * 0.5),
       0, 4.5, false, paint
@@ -211,7 +212,7 @@ class LogoPainter extends CustomPainter {
       3, 4.5, false, paint
     );
 
-    canvas.drawCircle(Offset(size.width / 2, size.height / 2), 2, paint..style = PaintingStyle.fill);
+    canvas.drawCircle(Offset(size.width / 2, size.height / 2), 1.5, paint..style = PaintingStyle.fill);
   }
 
   @override
@@ -243,11 +244,11 @@ class _NavIconState extends State<_NavIcon> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Tooltip(
         message: widget.tooltip,
         preferBelow: false,
-        margin: const EdgeInsets.only(left: 70),
+        margin: const EdgeInsets.only(left: 60),
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           onEnter: (_) => setState(() => _isHovered = true),
@@ -256,20 +257,20 @@ class _NavIconState extends State<_NavIcon> {
             onTap: widget.onTap,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              width: 48,
-              height: 48,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
                 color: widget.isSelected 
-                    ? widget.theme.colorScheme.primary.withOpacity(0.1) 
+                    ? widget.theme.colorScheme.primary.withOpacity(0.15) 
                     : (_isHovered ? widget.theme.colorScheme.onSurface.withOpacity(0.05) : Colors.transparent),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 widget.icon,
                 color: widget.isSelected 
                     ? widget.theme.colorScheme.primary 
-                    : widget.theme.colorScheme.onSurface.withOpacity(_isHovered ? 0.7 : 0.4),
-                size: 26,
+                    : widget.theme.colorScheme.onSurface.withOpacity(_isHovered ? 0.7 : 0.3),
+                size: 24,
               ),
             ),
           ),

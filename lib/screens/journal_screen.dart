@@ -38,7 +38,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
   Future<void> _save() async {
     if (_controller.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cannot save an empty entry')),
+        const SnackBar(content: Text('Cannot save an empty entry'), behavior: SnackBarBehavior.floating),
       );
       return;
     }
@@ -114,119 +114,127 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
     });
 
     return Scaffold(
+      backgroundColor: theme.brightness == Brightness.dark ? Colors.black : Colors.white,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: DragToMoveArea(
-          child: AppBar(
-            leading: IconButton(
-              icon: Icon(_isFocusMode ? LineIcons.expand : LineIcons.compress),
-              tooltip: _isFocusMode ? 'Exit Focus Mode' : 'Enter Focus Mode',
-              onPressed: () => setState(() => _isFocusMode = !_isFocusMode),
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme.brightness == Brightness.dark ? Colors.black : Colors.white,
+              border: Border(bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
             ),
-            titleSpacing: 0,
-            title: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Centered Search Bar
-                if (!_isFocusMode)
-                  Center(
-                    child: Container(
-                      height: 36,
-                      width: 250,
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (value) => ref.read(journalSearchQueryProvider.notifier).query = value,
-                        style: const TextStyle(fontSize: 13),
-                        decoration: InputDecoration(
-                          hintText: 'Search journals...',
-                          prefixIcon: const Icon(LineIcons.search, size: 16),
-                          contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                          fillColor: theme.colorScheme.onSurface.withOpacity(0.05),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              leading: IconButton(
+                icon: Icon(_isFocusMode ? LineIcons.expand : LineIcons.compress, size: 20),
+                tooltip: _isFocusMode ? 'Exit Focus Mode' : 'Enter Focus Mode',
+                onPressed: () => setState(() => _isFocusMode = !_isFocusMode),
+              ),
+              titleSpacing: 0,
+              title: Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (!_isFocusMode)
+                    Center(
+                      child: Container(
+                        height: 34,
+                        width: 250,
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: (value) => ref.read(journalSearchQueryProvider.notifier).query = value,
+                          style: const TextStyle(fontSize: 13),
+                          decoration: InputDecoration(
+                            hintText: 'Search journals...',
+                            prefixIcon: const Icon(LineIcons.search, size: 16),
+                            contentPadding: EdgeInsets.zero,
+                            fillColor: theme.colorScheme.onSurface.withOpacity(0.05),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                // Date and Save Status (Left aligned)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(DateFormat('MMMM d, yyyy').format(_selectedDate), style: const TextStyle(fontSize: 16)),
-                      Text(
-                        _hasUnsavedChanges ? 'Unsaved changes' : 'All changes saved',
-                        style: TextStyle(
-                          fontSize: 11, 
-                          fontWeight: FontWeight.normal,
-                          color: _hasUnsavedChanges ? theme.colorScheme.primary : theme.colorScheme.onSurface.withOpacity(0.4),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(DateFormat('MMMM d, yyyy').format(_selectedDate), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                        Text(
+                          _hasUnsavedChanges ? 'Unsaved changes' : 'Saved',
+                          style: TextStyle(
+                            fontSize: 10, 
+                            fontWeight: FontWeight.w500,
+                            color: _hasUnsavedChanges ? theme.colorScheme.primary : theme.colorScheme.onSurface.withOpacity(0.3),
+                          ),
                         ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                Container(
+                  height: 30,
+                  width: 70,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.onSurface.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  padding: const EdgeInsets.all(2),
+                  child: Row(
+                    children: [
+                      _ModeToggle(
+                        icon: LineIcons.edit,
+                        isSelected: !_isPreviewMode,
+                        onTap: () => setState(() => _isPreviewMode = false),
+                        theme: theme,
+                      ),
+                      _ModeToggle(
+                        icon: LineIcons.eye,
+                        isSelected: _isPreviewMode,
+                        onTap: () => setState(() => _isPreviewMode = true),
+                        theme: theme,
                       ),
                     ],
                   ),
                 ),
+                const SizedBox(width: 16),
+                SizedBox(
+                  height: 32,
+                  child: ElevatedButton.icon(
+                    onPressed: _isSaving ? null : _save,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                    ),
+                    icon: _isSaving 
+                      ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                      : const Icon(LineIcons.save, size: 16),
+                    label: const Text('Save', style: TextStyle(fontSize: 13)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  mouseCursor: SystemMouseCursors.click,
+                  icon: const Icon(LineIcons.calendar, size: 20),
+                  onPressed: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _selectedDate,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime.now(),
+                    );
+                    if (picked != null) {
+                      _loadEntryForDate(picked, journalAsync.value ?? []);
+                    }
+                  },
+                ),
+                const SizedBox(width: 16),
               ],
             ),
-            actions: [
-              Container(
-                height: 32,
-                width: 80,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.onSurface.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding: const EdgeInsets.all(2),
-                child: Row(
-                  children: [
-                    _ModeToggle(
-                      icon: LineIcons.edit,
-                      isSelected: !_isPreviewMode,
-                      onTap: () => setState(() => _isPreviewMode = false),
-                      theme: theme,
-                    ),
-                    _ModeToggle(
-                      icon: LineIcons.eye,
-                      isSelected: _isPreviewMode,
-                      onTap: () => setState(() => _isPreviewMode = true),
-                      theme: theme,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 16),
-              ElevatedButton.icon(
-                onPressed: _isSaving ? null : _save,
-                icon: _isSaving 
-                  ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                  : const Icon(LineIcons.save, size: 18),
-                label: const Text('Save'),
-              ),
-              const SizedBox(width: 12),
-              IconButton(
-                mouseCursor: SystemMouseCursors.click,
-                icon: const Icon(LineIcons.calendar, size: 22),
-                onPressed: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: _selectedDate,
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime.now(),
-                  );
-                  if (picked != null) {
-                    _loadEntryForDate(picked, journalAsync.value ?? []);
-                  }
-                },
-              ),
-              const SizedBox(width: 16),
-            ],
           ),
         ),
       ),
@@ -235,17 +243,34 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
-            width: _isFocusMode ? 0 : 300,
+            width: _isFocusMode ? 0 : 280,
             decoration: BoxDecoration(
-              border: Border(right: BorderSide(color: theme.dividerColor)),
+              color: theme.colorScheme.surface, // Sidebar part of unified surface
+              border: Border(right: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
             ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               physics: const NeverScrollableScrollPhysics(),
               child: SizedBox(
-                width: 300,
+                width: 280,
                 child: Column(
                   children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () => _loadEntryForDate(DateTime.now(), journalAsync.value ?? []),
+                          icon: const Icon(LineIcons.plus, size: 16),
+                          label: const Text('Today'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            side: BorderSide(color: theme.colorScheme.primary.withOpacity(0.3)),
+                          ),
+                        ),
+                      ),
+                    ),
                     Expanded(
                       child: filteredJournalAsync.when(
                         data: (entries) {
@@ -259,29 +284,10 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                           }
 
                           return ListView.builder(
-                            itemCount: entries.length + 1,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            itemCount: entries.length,
+                            padding: const EdgeInsets.only(bottom: 8),
                             itemBuilder: (context, index) {
-                              if (index == 0) {
-                                return Padding(
-                                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                                  child: ElevatedButton.icon(
-                                    onPressed: () => _loadEntryForDate(DateTime.now(), journalAsync.value ?? []),
-                                    icon: const Icon(LineIcons.plus, size: 18),
-                                    label: const Text('New Entry Today'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: theme.colorScheme.onSurface.withOpacity(0.05),
-                                      foregroundColor: theme.colorScheme.primary,
-                                      padding: const EdgeInsets.symmetric(vertical: 20),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        side: BorderSide(color: theme.colorScheme.primary.withOpacity(0.2)),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-                              final entry = entries[index - 1];
+                              final entry = entries[index];
                               return _JournalTile(
                                 entry: entry,
                                 isSelected: entry.date == dateStr,
@@ -303,49 +309,54 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
           ),
           Expanded(
             child: Container(
-              color: theme.brightness == Brightness.dark ? const Color(0xFF050505) : Colors.white,
-              child: _isPreviewMode 
-                ? Markdown(
-                    data: _controller.text.isEmpty ? '*No content to preview*' : _controller.text,
-                    padding: EdgeInsets.symmetric(horizontal: _isFocusMode ? 100 : 48, vertical: 48),
-                    extensionSet: md.ExtensionSet.gitHubFlavored,
-                    styleSheet: MarkdownStyleSheet(
-                      p: GoogleFonts.inter(fontSize: 18, height: 1.8, color: theme.colorScheme.onSurface.withOpacity(0.8)),
-                      h1: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.w800, color: theme.colorScheme.primary),
-                      h2: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface),
-                      blockquote: const TextStyle(color: Colors.grey),
-                      blockquoteDecoration: BoxDecoration(
-                        border: Border(left: BorderSide(color: theme.colorScheme.primary, width: 4)),
+              color: theme.brightness == Brightness.dark ? Colors.black : Colors.white,
+              child: Center(
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: _isPreviewMode 
+                    ? Markdown(
+                        data: _controller.text.isEmpty ? '*No content to preview*' : _controller.text,
+                        padding: const EdgeInsets.all(48),
+                        extensionSet: md.ExtensionSet.gitHubFlavored,
+                        styleSheet: MarkdownStyleSheet(
+                          p: GoogleFonts.inter(fontSize: 18, height: 1.8, color: theme.colorScheme.onSurface.withOpacity(0.8)),
+                          h1: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.w800, color: theme.colorScheme.primary),
+                          h2: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface),
+                          blockquote: const TextStyle(color: Colors.grey),
+                          blockquoteDecoration: BoxDecoration(
+                            border: Border(left: BorderSide(color: theme.colorScheme.primary, width: 4)),
+                          ),
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.fromLTRB(48, 48, 48, 0),
+                        child: TextField(
+                          controller: _controller,
+                          maxLines: null,
+                          expands: true,
+                          onChanged: (value) {
+                            if (!_hasUnsavedChanges) {
+                              setState(() => _hasUnsavedChanges = true);
+                            }
+                          },
+                          style: GoogleFonts.inter(
+                            fontSize: 19,
+                            height: 1.7,
+                            color: theme.colorScheme.onSurface,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Start writing...',
+                            hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.1)),
+                            filled: false,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
                       ),
-                    ),
-                  )
-                : Padding(
-                    padding: EdgeInsets.fromLTRB(_isFocusMode ? 100 : 48, 48, _isFocusMode ? 100 : 48, 0),
-                    child: TextField(
-                      controller: _controller,
-                      maxLines: null,
-                      expands: true,
-                      onChanged: (value) {
-                        if (!_hasUnsavedChanges) {
-                          setState(() => _hasUnsavedChanges = true);
-                        }
-                      },
-                      style: GoogleFonts.inter(
-                        fontSize: 20,
-                        height: 1.8,
-                        color: theme.colorScheme.onSurface,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'Start writing... (Markdown supported)',
-                        hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.2)),
-                        filled: false,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -379,20 +390,13 @@ class _ModeToggle extends StatelessWidget {
             curve: Curves.easeInOut,
             decoration: BoxDecoration(
               color: isSelected ? theme.colorScheme.primary : Colors.transparent,
-              borderRadius: BorderRadius.circular(6),
-              boxShadow: isSelected ? [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                )
-              ] : [],
+              borderRadius: BorderRadius.circular(4),
             ),
             child: Center(
               child: Icon(
                 icon, 
-                size: 18, 
-                color: isSelected ? Colors.black : theme.colorScheme.onSurface.withOpacity(0.4)
+                size: 16, 
+                color: isSelected ? Colors.black : theme.colorScheme.onSurface.withOpacity(0.3)
               ),
             ),
           ),
@@ -427,7 +431,7 @@ class _JournalTileState extends State<_JournalTile> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         onEnter: (_) => setState(() => _isHovered = true),
@@ -454,19 +458,13 @@ class _JournalTileState extends State<_JournalTile> {
             );
           },
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.all(16),
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: widget.isSelected 
                   ? widget.theme.colorScheme.primary.withOpacity(0.1) 
-                  : (_isHovered ? widget.theme.colorScheme.onSurface.withOpacity(0.05) : widget.theme.colorScheme.onSurface.withOpacity(0.02)),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: widget.isSelected 
-                    ? widget.theme.colorScheme.primary.withOpacity(0.5) 
-                    : (widget.theme.dividerColor.withOpacity(0.5)),
-                width: 1,
-              ),
+                  : (_isHovered ? widget.theme.colorScheme.onSurface.withOpacity(0.03) : Colors.transparent),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -474,8 +472,9 @@ class _JournalTileState extends State<_JournalTile> {
                 Text(
                   DateFormat('MMM d, yyyy').format(DateTime.parse(widget.entry.date)),
                   style: TextStyle(
-                    color: widget.isSelected ? widget.theme.colorScheme.primary : widget.theme.colorScheme.onSurface,
-                    fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.normal,
+                    color: widget.isSelected ? widget.theme.colorScheme.primary : widget.theme.colorScheme.onSurface.withOpacity(0.8),
+                    fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w500,
+                    fontSize: 13,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -484,8 +483,8 @@ class _JournalTileState extends State<_JournalTile> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: widget.theme.colorScheme.onSurface.withOpacity(widget.isSelected ? 0.8 : 0.4),
-                    fontSize: 13,
+                    color: widget.theme.colorScheme.onSurface.withOpacity(widget.isSelected ? 0.6 : 0.3),
+                    fontSize: 12,
                   ),
                 ),
               ],

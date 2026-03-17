@@ -85,6 +85,11 @@ class DbHelper {
     }
   }
 
+  Future<int> deleteJournalEntry(String date) async {
+    final db = await instance.database;
+    return await db.delete('journal', where: 'date = ?', whereArgs: [date]);
+  }
+
   // OCD Methods
   Future<List<OcdEntry>> getOcdEntries() async {
     final db = await instance.database;

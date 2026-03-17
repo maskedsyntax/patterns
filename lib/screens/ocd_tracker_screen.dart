@@ -18,13 +18,20 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ocdAsync = ref.watch(ocdProvider);
+    final filteredOcdAsync = ref.watch(filteredOcdProvider);
+    final isHighDistressOnly = ref.watch(ocdHighDistressOnlyProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('OCD Tracker'),
         actions: [
+          _HighDistressToggle(
+            isSelected: isHighDistressOnly,
+            onTap: () => ref.read(ocdHighDistressOnlyProvider.notifier).state = !isHighDistressOnly,
+            theme: theme,
+          ),
+          const SizedBox(width: 16),
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: Container(
@@ -55,7 +62,7 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
           ),
         ],
       ),
-      body: _OcdListView(type: _selectedType, entries: ocdAsync),
+      body: _OcdListView(type: _selectedType, entries: filteredOcdAsync),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddDialog(context),
         label: const Text('Track New'),
@@ -68,6 +75,51 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
     showDialog(
       context: context,
       builder: (context) => OcdEntryDialog(initialType: _selectedType),
+    );
+  }
+}
+
+class _HighDistressToggle extends StatelessWidget {
+  final bool isSelected;
+  final VoidCallback onTap;
+  final ThemeData theme;
+
+  const _HighDistressToggle({required this.isSelected, required this.onTap, required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: isSelected ? 'Show all events' : 'Show high distress only (7+)',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.redAccent.withOpacity(0.1) : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: isSelected ? Colors.redAccent.withOpacity(0.5) : theme.dividerColor),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                LineIcons.exclamationTriangle, 
+                size: 18, 
+                color: isSelected ? Colors.redAccent : theme.colorScheme.onSurface.withOpacity(0.4)
+              ),
+              if (isSelected) ...[
+                const SizedBox(width: 8),
+                const Text(
+                  'HIGH DISTRESS', 
+                  style: TextStyle(color: Colors.redAccent, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)
+                ),
+              ]
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -148,7 +200,7 @@ class _OcdListView extends ConsumerWidget {
                 Icon(LineIcons.clipboard, size: 64, color: theme.colorScheme.onSurface.withOpacity(0.1)),
                 const SizedBox(height: 16),
                 Text(
-                  'No entries yet', 
+                  'No entries found', 
                   style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.3), fontWeight: FontWeight.w500)
                 ),
               ],

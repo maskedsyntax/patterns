@@ -5,7 +5,9 @@ import '../database/db_helper.dart';
 class JournalNotifier extends AsyncNotifier<List<JournalEntry>> {
   @override
   Future<List<JournalEntry>> build() async {
-    return await DbHelper.instance.getJournalEntries();
+    final entries = await DbHelper.instance.getJournalEntries();
+    entries.sort((a, b) => a.date.compareTo(b.date));
+    return entries;
   }
 
   Future<void> saveEntry(String date, String content) async {
@@ -19,7 +21,6 @@ class JournalNotifier extends AsyncNotifier<List<JournalEntry>> {
       );
       await DbHelper.instance.upsertJournalEntry(entry);
       final entries = await DbHelper.instance.getJournalEntries();
-      // Ensure sorted by date ascending
       entries.sort((a, b) => a.date.compareTo(b.date));
       return entries;
     });
@@ -28,6 +29,22 @@ class JournalNotifier extends AsyncNotifier<List<JournalEntry>> {
 
 final journalProvider = AsyncNotifierProvider<JournalNotifier, List<JournalEntry>>(() {
   return JournalNotifier();
+});
+
+// Search and Filtering Providers
+final journalSearchQueryProvider = StateProvider<String>((ref) => "");
+
+final filteredJournalProvider = Provider<AsyncValue<List<JournalEntry>>>((ref) {
+  final journalAsync = ref.watch(journalProvider);
+  final query = ref.watch(journalSearchQueryProvider).toLowerCase();
+
+  return journalAsync.whenData((entries) {
+    if (query.isEmpty) return entries;
+    return entries.where((entry) {
+      return entry.content.toLowerCase().contains(query) || 
+             entry.date.contains(query);
+    }).toList();
+  });
 });
 
 class OcdNotifier extends AsyncNotifier<List<OcdEntry>> {
@@ -55,4 +72,16 @@ class OcdNotifier extends AsyncNotifier<List<OcdEntry>> {
 
 final ocdProvider = AsyncNotifierProvider<OcdNotifier, List<OcdEntry>>(() {
   return OcdNotifier();
+});
+
+final ocdHighDistressOnlyProvider = StateProvider<bool>((ref) => false);
+
+final filteredOcdProvider = Provider<AsyncValue<List<OcdEntry>>>((ref) {
+  final ocdAsync = ref.watch(ocdProvider);
+  final highDistressOnly = ref.watch(ocdHighDistressOnlyProvider);
+
+  return ocdAsync.whenData((entries) {
+    if (!highDistressOnly) return entries;
+    return entries.where((entry) => entry.distressLevel >= 7).toList();
+  });
 });

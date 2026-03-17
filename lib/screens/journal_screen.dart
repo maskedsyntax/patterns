@@ -19,6 +19,7 @@ class JournalScreen extends ConsumerStatefulWidget {
 
 class _JournalScreenState extends ConsumerState<JournalScreen> {
   final TextEditingController _controller = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
   bool _isSaving = false;
   bool _hasUnsavedChanges = false;
@@ -28,6 +29,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
   @override
   void dispose() {
     _controller.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -94,6 +96,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
   @override
   Widget build(BuildContext context) {
     final journalAsync = ref.watch(journalProvider);
+    final filteredJournalAsync = ref.watch(filteredJournalProvider);
     final theme = Theme.of(context);
     final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
 
@@ -184,48 +187,68 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
             decoration: BoxDecoration(
               border: Border(right: BorderSide(color: theme.dividerColor)),
             ),
-            child: journalAsync.when(
-              data: (entries) {
-                if (!_initialLoadDone) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted) {
-                      _loadEntryForDate(_selectedDate, entries);
-                      _initialLoadDone = true;
-                    }
-                  });
-                }
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) => ref.read(journalSearchQueryProvider.notifier).state = value,
+                    style: const TextStyle(fontSize: 13),
+                    decoration: InputDecoration(
+                      hintText: 'Search journals...',
+                      prefixIcon: const Icon(LineIcons.search, size: 18),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      fillColor: theme.colorScheme.onSurface.withOpacity(0.03),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: filteredJournalAsync.when(
+                    data: (entries) {
+                      if (!_initialLoadDone && journalAsync.hasValue) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (mounted) {
+                            _loadEntryForDate(_selectedDate, journalAsync.value!);
+                            _initialLoadDone = true;
+                          }
+                        });
+                      }
 
-                return ListView.builder(
-                  itemCount: entries.length + 1,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: OutlinedButton.icon(
-                          onPressed: () => _loadEntryForDate(DateTime.now(), entries),
-                          icon: const Icon(LineIcons.plus),
-                          label: const Text('New Entry Today'),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                        ),
+                      return ListView.builder(
+                        itemCount: entries.length + 1,
+                        padding: const EdgeInsets.only(bottom: 8),
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                              child: OutlinedButton.icon(
+                                onPressed: () => _loadEntryForDate(DateTime.now(), journalAsync.value ?? []),
+                                icon: const Icon(LineIcons.plus, size: 18),
+                                label: const Text('New Entry Today'),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                              ),
+                            );
+                          }
+                          final entry = entries[index - 1];
+                          return _JournalTile(
+                            entry: entry,
+                            isSelected: entry.date == dateStr,
+                            onTap: () => _loadEntryForDate(DateTime.parse(entry.date), journalAsync.value ?? []),
+                            onDelete: () => _deleteEntry(entry.date),
+                            theme: theme,
+                          );
+                        },
                       );
-                    }
-                    final entry = entries[index - 1];
-                    return _JournalTile(
-                      entry: entry,
-                      isSelected: entry.date == dateStr,
-                      onTap: () => _loadEntryForDate(DateTime.parse(entry.date), entries),
-                      onDelete: () => _deleteEntry(entry.date),
-                      theme: theme,
-                    );
-                  },
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, s) => Center(child: Text('Error: $e')),
+                    },
+                    loading: () => const Center(child: CircularProgressIndicator()),
+                    error: (e, s) => Center(child: Text('Error: $e')),
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(

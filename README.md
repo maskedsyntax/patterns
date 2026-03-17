@@ -1,17 +1,29 @@
-# patterns
+# Patterns
+### Clarity for the mind through structured reflection.
 
-A new Flutter project.
+Patterns is a focused desktop application designed to assist with daily journaling and tracking obsessive-compulsive patterns. By providing a clean, structured environment to record thoughts and behaviors, it helps you identify trends and prepare clear information for personal reflection or professional consultations.
 
-## Getting Started
+## What Patterns Does
 
-This project is a starting point for a Flutter application.
+The application is built around two core activities:
 
-A few resources to get you started if this is your first Flutter project:
+**Daily Journaling**
+A minimalist writing space where you can record your thoughts and experiences. Each entry is tied to a specific date, allowing you to build a chronological history of your mental well-being.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+**OCD Tracking**
+Dedicated tools to document obsessions and compulsions as they happen. You can record the nature of the thought or urge, the actions taken in response, and the associated distress levels on a 0 to 10 scale.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## How to Use Patterns
+
+**Navigation**
+Use the sidebar to switch between your Journal and the OCD Tracker. You can also toggle between light and dark modes at the bottom of the navigation bar to suit your environment.
+
+**Journaling**
+Select a date from the calendar or use the "New Entry Today" shortcut. Write your thoughts in the main editor and use the Save button to persist your entry. You can browse previous entries by selecting them from the list on the left.
+
+**Tracking Events**
+When an obsession or compulsion occurs, use the "Track New" button. Choose the event type, describe what happened, and set your distress level. These entries are saved in a structured list for easy review.
+
+## Privacy and Data
+
+Patterns is an offline-first application. All your data is stored locally on your own computer. No information is ever uploaded to the cloud or shared with third parties. Your reflections and personal data remain entirely under your control.

@@ -32,10 +32,12 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> with Single
         title: const Text('OCD Tracker'),
         bottom: TabBar(
           controller: _tabController,
-          dividerColor: Colors.transparent,
+          dividerColor: theme.dividerColor,
           indicatorColor: theme.colorScheme.primary,
+          indicatorWeight: 2,
           labelColor: theme.colorScheme.primary,
-          unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.6),
+          unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.4),
+          labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
           tabs: const [
             Tab(text: 'Obsessions'),
             Tab(text: 'Compulsions'),
@@ -50,10 +52,9 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> with Single
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: theme.colorScheme.primary,
         onPressed: () => _showAddDialog(context),
-        label: const Text('Track New', style: TextStyle(color: Colors.black)),
-        icon: const Icon(Icons.add, color: Colors.black),
+        label: const Text('Track New'),
+        icon: const Icon(LineIcons.plus),
       ),
     );
   }
@@ -84,71 +85,126 @@ class _OcdListView extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(LineIcons.clipboard, size: 64, color: theme.colorScheme.onSurface.withOpacity(0.2)),
+                Icon(LineIcons.clipboard, size: 64, color: theme.colorScheme.onSurface.withOpacity(0.1)),
                 const SizedBox(height: 16),
-                Text('No entries yet', style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.5))),
+                Text(
+                  'No entries yet', 
+                  style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.3), fontWeight: FontWeight.w500)
+                ),
               ],
             ),
           );
         }
         return ListView.builder(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
           itemCount: filtered.length,
           itemBuilder: (context, index) {
             final entry = filtered[index];
-            return Card(
-              margin: const EdgeInsets.only(bottom: 16),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          DateFormat('MMM d, h:mm a').format(entry.datetime),
-                          style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.primary),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: _getDistressColor(entry.distressLevel).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(20),
+            return Container(
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: theme.cardTheme.color,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: theme.dividerColor),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        width: 6,
+                        color: _getDistressColor(entry.distressLevel),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    DateFormat('MMM d, h:mm a').format(entry.datetime),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700, 
+                                      color: theme.colorScheme.onSurface.withOpacity(0.8),
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    'Distress ${entry.distressLevel}/10',
+                                    style: TextStyle(
+                                      color: _getDistressColor(entry.distressLevel),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  IconButton(
+                                    visualDensity: VisualDensity.compact,
+                                    icon: const Icon(LineIcons.trash, size: 18, color: Colors.redAccent),
+                                    onPressed: () => ref.read(ocdProvider.notifier).deleteEntry(entry.id!),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                type == OcdType.obsession ? 'OBSESSION' : 'COMPULSION',
+                                style: TextStyle(
+                                  color: theme.colorScheme.primary.withOpacity(0.6),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                entry.content, 
+                                style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, height: 1.5)
+                              ),
+                              if (entry.actionTaken != null && entry.actionTaken!.isNotEmpty) ...[
+                                const SizedBox(height: 20),
+                                Text(
+                                  'ACTION TAKEN',
+                                  style: TextStyle(
+                                    color: theme.colorScheme.onSurface.withOpacity(0.3),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(entry.actionTaken!, style: const TextStyle(fontSize: 15, height: 1.5)),
+                              ],
+                              const SizedBox(height: 20),
+                              Text(
+                                'STRATEGY / RESPONSE',
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface.withOpacity(0.3),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                entry.response, 
+                                style: GoogleFonts.inter(
+                                  fontSize: 15, 
+                                  height: 1.5, 
+                                  fontStyle: FontStyle.italic,
+                                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                )
+                              ),
+                            ],
                           ),
-                          child: Text(
-                            'Distress: ${entry.distressLevel}/10',
-                            style: TextStyle(
-                              color: _getDistressColor(entry.distressLevel),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
-                          onPressed: () => ref.read(ocdProvider.notifier).deleteEntry(entry.id!),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      type == OcdType.obsession ? 'Obsessive Thought:' : 'Compulsive Urge:',
-                      style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 12),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(entry.content, style: const TextStyle(fontSize: 16)),
-                    if (entry.actionTaken != null && entry.actionTaken!.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Text('Action Taken:', style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 12)),
-                      const SizedBox(height: 4),
-                      Text(entry.actionTaken!, style: const TextStyle(fontSize: 16)),
+                      ),
                     ],
-                    const SizedBox(height: 12),
-                    Text('Response/Strategy:', style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 12)),
-                    const SizedBox(height: 4),
-                    Text(entry.response, style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic)),
-                  ],
+                  ),
                 ),
               ),
             );
@@ -161,9 +217,9 @@ class _OcdListView extends ConsumerWidget {
   }
 
   Color _getDistressColor(int level) {
-    if (level < 4) return Colors.greenAccent;
-    if (level < 8) return Colors.orangeAccent;
-    return Colors.redAccent;
+    if (level < 4) return Colors.greenAccent.withOpacity(0.8);
+    if (level < 8) return Colors.orangeAccent.withOpacity(0.8);
+    return Colors.redAccent.withOpacity(0.8);
   }
 }
 
@@ -194,74 +250,88 @@ class _OcdEntryDialogState extends ConsumerState<OcdEntryDialog> {
     
     return Dialog(
       backgroundColor: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: theme.dividerColor),
+      ),
       child: Container(
-        width: 500,
-        padding: const EdgeInsets.all(32),
+        width: 550,
+        padding: const EdgeInsets.all(40),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Track OCD Event', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 24),
+            Text('Track OCD Event', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 32),
             SegmentedButton<OcdType>(
+              style: SegmentedButton.styleFrom(
+                selectedBackgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+                selectedForegroundColor: theme.colorScheme.primary,
+                side: BorderSide(color: theme.dividerColor),
+              ),
               segments: const [
-                ButtonSegment(value: OcdType.obsession, label: Text('Obsession')),
-                ButtonSegment(value: OcdType.compulsion, label: Text('Compulsion')),
+                ButtonSegment(value: OcdType.obsession, label: Text('Obsession'), icon: Icon(LineIcons.brain)),
+                ButtonSegment(value: OcdType.compulsion, label: Text('Compulsion'), icon: Icon(LineIcons.handPointer)),
               ],
               selected: {_type},
               onSelectionChanged: (set) => setState(() => _type = set.first),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             TextField(
               controller: _contentController,
               decoration: InputDecoration(
                 labelText: _type == OcdType.obsession ? 'Obsessive Thought' : 'Compulsive Urge',
-                hintText: 'What was the thought or urge?',
+                hintText: 'Describe the experience...',
               ),
               maxLines: 3,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             if (_type == OcdType.compulsion) ...[
               TextField(
                 controller: _actionController,
                 decoration: const InputDecoration(
                   labelText: 'Action Taken',
-                  hintText: 'What did you do?',
+                  hintText: 'What was your response?',
                 ),
                 maxLines: 2,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
             ],
             TextField(
               controller: _responseController,
               decoration: const InputDecoration(
-                labelText: 'Response / Strategy',
-                hintText: 'How did you handle it?',
+                labelText: 'Strategy Used',
+                hintText: 'Coping mechanism or therapy response...',
               ),
               maxLines: 3,
             ),
-            const SizedBox(height: 24),
-            Text('Distress Level: ${_distressLevel.round()}/10', style: const TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 32),
+            Row(
+              children: [
+                Text('Distress Level', style: TextStyle(fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface.withOpacity(0.6))),
+                const Spacer(),
+                Text('${_distressLevel.round()}/10', style: TextStyle(fontWeight: FontWeight.w800, color: theme.colorScheme.primary, fontSize: 18)),
+              ],
+            ),
             Slider(
               value: _distressLevel,
               min: 0,
               max: 10,
               divisions: 10,
+              activeColor: theme.colorScheme.primary,
               onChanged: (val) => setState(() => _distressLevel = val),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 40),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                TextButton(
+                  onPressed: () => Navigator.pop(context), 
+                  child: Text('Cancel', style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.4)))
+                ),
                 const SizedBox(width: 16),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  ),
                   onPressed: () async {
                     final entry = OcdEntry(
                       type: _type,

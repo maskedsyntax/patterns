@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:line_icons/line_icons.dart';
 import '../providers/providers.dart';
 import '../models/models.dart';
 
@@ -66,7 +67,6 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
     final theme = Theme.of(context);
     final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
 
-    // Listen for the first time data is available to populate today's entry
     ref.listen<AsyncValue<List<JournalEntry>>>(journalProvider, (previous, next) {
       if (!_initialLoadDone && next.hasValue) {
         final entries = next.value!;
@@ -80,29 +80,31 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(DateFormat('MMMM d, yyyy').format(_selectedDate)),
-        actions: [
-          if (_hasUnsavedChanges)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.only(right: 12.0),
-                child: Text('Unsaved changes', style: TextStyle(fontSize: 12, color: Colors.orangeAccent)),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(DateFormat('MMMM d, yyyy').format(_selectedDate)),
+            Text(
+              _hasUnsavedChanges ? 'Unsaved changes' : 'All changes saved',
+              style: TextStyle(
+                fontSize: 12, 
+                fontWeight: FontWeight.normal,
+                color: _hasUnsavedChanges ? theme.colorScheme.primary : theme.colorScheme.onSurface.withOpacity(0.4),
               ),
             ),
+          ],
+        ),
+        actions: [
           ElevatedButton.icon(
             onPressed: _isSaving ? null : _save,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              foregroundColor: Colors.black,
-            ),
             icon: _isSaving 
               ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-              : const Icon(Icons.save, size: 18),
+              : const Icon(LineIcons.save, size: 18),
             label: const Text('Save'),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
           IconButton(
-            icon: const Icon(Icons.calendar_today_outlined, size: 20),
+            icon: const Icon(LineIcons.calendar, size: 22),
             onPressed: () async {
               final picked = await showDatePicker(
                 context: context,
@@ -115,19 +117,18 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
               }
             },
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 16),
         ],
       ),
       body: Row(
         children: [
           Container(
-            width: 280,
+            width: 300,
             decoration: BoxDecoration(
               border: Border(right: BorderSide(color: theme.dividerColor)),
             ),
             child: journalAsync.when(
               data: (entries) {
-                // If initial load didn't happen yet (e.g. state was already loaded), do it now
                 if (!_initialLoadDone) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (mounted) {
@@ -139,37 +140,63 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
 
                 return ListView.builder(
                   itemCount: entries.length + 1,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   itemBuilder: (context, index) {
                     if (index == 0) {
-                      return ListTile(
-                        leading: Icon(Icons.add, color: theme.colorScheme.primary),
-                        title: const Text('New Entry Today'),
-                        onTap: () {
-                          _loadEntryForDate(DateTime.now(), entries);
-                        },
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: OutlinedButton.icon(
+                          onPressed: () => _loadEntryForDate(DateTime.now(), entries),
+                          icon: const Icon(LineIcons.plus),
+                          label: const Text('New Entry Today'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
                       );
                     }
                     final entry = entries[index - 1];
                     final isSelected = entry.date == dateStr;
-                    return ListTile(
-                      selected: isSelected,
-                      selectedTileColor: theme.colorScheme.primary.withOpacity(0.05),
-                      title: Text(
-                        DateFormat('MMM d, yyyy').format(DateTime.parse(entry.date)),
-                        style: TextStyle(
-                          color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      child: InkWell(
+                        onTap: () => _loadEntryForDate(DateTime.parse(entry.date), entries),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: isSelected ? theme.colorScheme.primary.withOpacity(0.1) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected ? theme.colorScheme.primary.withOpacity(0.5) : Colors.transparent,
+                              width: 1,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                DateFormat('MMM d, yyyy').format(DateTime.parse(entry.date)),
+                                style: TextStyle(
+                                  color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                entry.content,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface.withOpacity(isSelected ? 0.8 : 0.4),
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      subtitle: Text(
-                        entry.content,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6)),
-                      ),
-                      onTap: () {
-                        _loadEntryForDate(DateTime.parse(entry.date), entries);
-                      },
                     );
                   },
                 );
@@ -179,28 +206,33 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
             ),
           ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: TextField(
-                controller: _controller,
-                maxLines: null,
-                expands: true,
-                onChanged: (value) {
-                  if (!_hasUnsavedChanges) {
-                    setState(() => _hasUnsavedChanges = true);
-                  }
-                },
-                style: GoogleFonts.inter(
-                  fontSize: 18,
-                  height: 1.6,
-                  color: theme.colorScheme.onSurface,
-                ),
-                decoration: const InputDecoration(
-                  hintText: 'Start writing...',
-                  filled: false,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  contentPadding: EdgeInsets.zero,
+            child: Container(
+              color: theme.brightness == Brightness.dark ? const Color(0xFF050505) : Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(48, 48, 48, 0),
+                child: TextField(
+                  controller: _controller,
+                  maxLines: null,
+                  expands: true,
+                  onChanged: (value) {
+                    if (!_hasUnsavedChanges) {
+                      setState(() => _hasUnsavedChanges = true);
+                    }
+                  },
+                  style: GoogleFonts.inter(
+                    fontSize: 20,
+                    height: 1.8,
+                    color: theme.colorScheme.onSurface,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Start writing...',
+                    hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.2)),
+                    filled: false,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                  ),
                 ),
               ),
             ),

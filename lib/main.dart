@@ -79,63 +79,66 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       body: Row(
         children: [
-          NavigationRail(
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: (index) => setState(() => _selectedIndex = index),
-            labelType: NavigationRailLabelType.none,
-            leading: Column(
+          Container(
+            width: 80,
+            color: theme.scaffoldBackgroundColor,
+            child: Column(
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: 32),
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.primary,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: theme.colorScheme.primary.withOpacity(0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: const Icon(LineIcons.brain, color: Colors.black, size: 28),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 48),
+                _NavIcon(
+                  icon: LineIcons.penNib,
+                  isSelected: _selectedIndex == 0,
+                  onTap: () => setState(() => _selectedIndex = 0),
+                  theme: theme,
+                ),
+                _NavIcon(
+                  icon: LineIcons.list,
+                  isSelected: _selectedIndex == 1,
+                  onTap: () => setState(() => _selectedIndex = 1),
+                  theme: theme,
+                ),
+                _NavIcon(
+                  icon: LineIcons.barChart,
+                  isSelected: _selectedIndex == 2,
+                  onTap: () => setState(() => _selectedIndex = 2),
+                  theme: theme,
+                ),
+                _NavIcon(
+                  icon: LineIcons.cog,
+                  isSelected: _selectedIndex == 3,
+                  onTap: () => setState(() => _selectedIndex = 3),
+                  theme: theme,
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: Icon(
+                    currentThemeMode == ThemeMode.dark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+                    size: 20,
+                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  ),
+                  onPressed: () {
+                    ref.read(themeModeProvider.notifier).toggle();
+                  },
+                ),
+                const SizedBox(height: 32),
               ],
             ),
-            trailing: Expanded(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0),
-                  child: IconButton(
-                    icon: Icon(
-                      currentThemeMode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode,
-                      size: 20,
-                    ),
-                    onPressed: () {
-                      ref.read(themeModeProvider.notifier).toggle();
-                    },
-                  ),
-                ),
-              ),
-            ),
-            destinations: const [
-              NavigationRailDestination(
-                icon: Icon(LineIcons.penNib),
-                selectedIcon: Icon(LineIcons.penNib),
-                label: Text('Journal'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(LineIcons.list),
-                selectedIcon: Icon(LineIcons.list),
-                label: Text('OCD Tracker'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(LineIcons.barChart),
-                selectedIcon: Icon(LineIcons.barChart),
-                label: Text('Analytics'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(LineIcons.cog),
-                selectedIcon: Icon(LineIcons.cog),
-                label: Text('Settings'),
-              ),
-            ],
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(
@@ -145,6 +148,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _NavIcon extends StatelessWidget {
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final ThemeData theme;
+
+  const _NavIcon({
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: isSelected ? theme.colorScheme.primary.withOpacity(0.1) : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            icon,
+            color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface.withOpacity(0.4),
+            size: 26,
+          ),
+        ),
       ),
     );
   }

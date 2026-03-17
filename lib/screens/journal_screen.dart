@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../providers/providers.dart';
 import '../models/models.dart';
 import '../database/db_helper.dart';
@@ -21,6 +22,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
   bool _isSaving = false;
   bool _hasUnsavedChanges = false;
   bool _initialLoadDone = false;
+  bool _isPreviewMode = false;
 
   @override
   void dispose() {
@@ -122,6 +124,31 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
           ],
         ),
         actions: [
+          Container(
+            height: 36,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.onSurface.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: const EdgeInsets.all(2),
+            child: Row(
+              children: [
+                _ModeToggle(
+                  icon: LineIcons.edit,
+                  isSelected: !_isPreviewMode,
+                  onTap: () => setState(() => _isPreviewMode = false),
+                  theme: theme,
+                ),
+                _ModeToggle(
+                  icon: LineIcons.eye,
+                  isSelected: _isPreviewMode,
+                  onTap: () => setState(() => _isPreviewMode = true),
+                  theme: theme,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
           ElevatedButton.icon(
             onPressed: _isSaving ? null : _save,
             icon: _isSaving 
@@ -202,36 +229,84 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
           Expanded(
             child: Container(
               color: theme.brightness == Brightness.dark ? const Color(0xFF050505) : Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(48, 48, 48, 0),
-                child: TextField(
-                  controller: _controller,
-                  maxLines: null,
-                  expands: true,
-                  onChanged: (value) {
-                    if (!_hasUnsavedChanges) {
-                      setState(() => _hasUnsavedChanges = true);
-                    }
-                  },
-                  style: GoogleFonts.inter(
-                    fontSize: 20,
-                    height: 1.8,
-                    color: theme.colorScheme.onSurface,
-                    fontWeight: FontWeight.w400,
+              child: _isPreviewMode 
+                ? Markdown(
+                    data: _controller.text.isEmpty ? '*No content to preview*' : _controller.text,
+                    padding: const EdgeInsets.all(48),
+                    styleSheet: MarkdownStyleSheet(
+                      p: GoogleFonts.inter(fontSize: 18, height: 1.8, color: theme.colorScheme.onSurface.withOpacity(0.8)),
+                      h1: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.w800, color: theme.colorScheme.primary),
+                      h2: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface),
+                      blockquote: const TextStyle(color: Colors.grey),
+                      blockquoteDecoration: BoxDecoration(
+                        border: Border(left: BorderSide(color: theme.colorScheme.primary, width: 4)),
+                      ),
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.fromLTRB(48, 48, 48, 0),
+                    child: TextField(
+                      controller: _controller,
+                      maxLines: null,
+                      expands: true,
+                      onChanged: (value) {
+                        if (!_hasUnsavedChanges) {
+                          setState(() => _hasUnsavedChanges = true);
+                        }
+                      },
+                      style: GoogleFonts.inter(
+                        fontSize: 20,
+                        height: 1.8,
+                        color: theme.colorScheme.onSurface,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Start writing... (Markdown supported)',
+                        hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.2)),
+                        filled: false,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
                   ),
-                  decoration: InputDecoration(
-                    hintText: 'Start writing...',
-                    hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.2)),
-                    filled: false,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ModeToggle extends StatelessWidget {
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final ThemeData theme;
+
+  const _ModeToggle({
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? theme.colorScheme.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Icon(
+          icon, 
+          size: 18, 
+          color: isSelected ? Colors.black : theme.colorScheme.onSurface.withOpacity(0.4)
+        ),
       ),
     );
   }

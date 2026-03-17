@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown/markdown.dart' as md;
 import '../providers/providers.dart';
 import '../models/models.dart';
 import '../database/db_helper.dart';
@@ -125,7 +126,8 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
         ),
         actions: [
           Container(
-            height: 36,
+            height: 32,
+            width: 80,
             decoration: BoxDecoration(
               color: theme.colorScheme.onSurface.withOpacity(0.05),
               borderRadius: BorderRadius.circular(8),
@@ -233,6 +235,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                 ? Markdown(
                     data: _controller.text.isEmpty ? '*No content to preview*' : _controller.text,
                     padding: const EdgeInsets.all(48),
+                    extensionSet: md.ExtensionSet.gitHubFlavored,
                     styleSheet: MarkdownStyleSheet(
                       p: GoogleFonts.inter(fontSize: 18, height: 1.8, color: theme.colorScheme.onSurface.withOpacity(0.8)),
                       h1: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.w800, color: theme.colorScheme.primary),
@@ -293,19 +296,33 @@ class _ModeToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? theme.colorScheme.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Icon(
-          icon, 
-          size: 18, 
-          color: isSelected ? Colors.black : theme.colorScheme.onSurface.withOpacity(0.4)
+    return Expanded(
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            decoration: BoxDecoration(
+              color: isSelected ? theme.colorScheme.primary : Colors.transparent,
+              borderRadius: BorderRadius.circular(6),
+              boxShadow: isSelected ? [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                )
+              ] : [],
+            ),
+            child: Center(
+              child: Icon(
+                icon, 
+                size: 18, 
+                color: isSelected ? Colors.black : theme.colorScheme.onSurface.withOpacity(0.4)
+              ),
+            ),
+          ),
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:window_manager/window_manager.dart';
 import 'theme/app_theme.dart';
 import 'screens/journal_screen.dart';
 import 'screens/ocd_tracker_screen.dart';
@@ -27,8 +28,24 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
 
 final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(ThemeModeNotifier.new);
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await windowManager.ensureInitialized();
+
+  WindowOptions windowOptions = const WindowOptions(
+    size: Size(1200, 800),
+    minimumSize: Size(1000, 600),
+    center: true,
+    backgroundColor: Colors.transparent,
+    skipTaskbar: false,
+    titleBarStyle: TitleBarStyle.hidden,
+  );
+  
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
+
   runApp(
     const ProviderScope(
       child: PatternsApp(),
@@ -84,7 +101,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             color: theme.scaffoldBackgroundColor,
             child: Column(
               children: [
-                const SizedBox(height: 32),
+                // Top drag area for macOS traffic lights integration
+                const SizedBox(
+                  height: 48,
+                  child: DragToMoveArea(child: SizedBox.expand()),
+                ),
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -147,9 +168,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: _screens[_selectedIndex],
+            child: Column(
+              children: [
+                // Top drag area for the rest of the window
+                const SizedBox(
+                  height: 40,
+                  child: DragToMoveArea(child: SizedBox.expand()),
+                ),
+                Expanded(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: _screens[_selectedIndex],
+                  ),
+                ),
+              ],
             ),
           ),
         ],

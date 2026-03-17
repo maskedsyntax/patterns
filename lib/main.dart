@@ -6,6 +6,8 @@ import 'theme/app_theme.dart';
 import 'screens/journal_screen.dart';
 import 'screens/ocd_tracker_screen.dart';
 
+final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
@@ -15,28 +17,32 @@ void main() {
   );
 }
 
-class PatternsApp extends StatelessWidget {
+class PatternsApp extends ConsumerWidget {
   const PatternsApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+    
     return MaterialApp(
       title: 'Patterns',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode,
       home: const HomeScreen(),
     );
   }
 }
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
@@ -48,6 +54,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
       body: Row(
         children: [
@@ -55,23 +63,41 @@ class _HomeScreenState extends State<HomeScreen> {
             selectedIndex: _selectedIndex,
             onDestinationSelected: (index) => setState(() => _selectedIndex = index),
             labelType: NavigationRailLabelType.none,
-            backgroundColor: AppTheme.backgroundColor,
-            indicatorColor: AppTheme.accentColor.withOpacity(0.1),
-            selectedIconTheme: const IconThemeData(color: AppTheme.accentColor),
-            unselectedIconTheme: IconThemeData(color: AppTheme.textSecondary.withOpacity(0.5)),
             leading: Column(
               children: [
                 const SizedBox(height: 20),
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.accentColor,
+                    color: theme.colorScheme.primary,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(LineIcons.brain, color: Colors.white, size: 28),
+                  child: const Icon(LineIcons.brain, color: Colors.black, size: 28),
                 ),
                 const SizedBox(height: 40),
               ],
+            ),
+            trailing: Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: IconButton(
+                    icon: Icon(
+                      ref.watch(themeModeProvider) == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode,
+                      size: 20,
+                    ),
+                    onPressed: () {
+                      final current = ref.read(themeModeProvider);
+                      if (current == ThemeMode.dark) {
+                        ref.read(themeModeProvider.notifier).state = ThemeMode.light;
+                      } else {
+                        ref.read(themeModeProvider.notifier).state = ThemeMode.dark;
+                      }
+                    },
+                  ),
+                ),
+              ),
             ),
             destinations: const [
               NavigationRailDestination(

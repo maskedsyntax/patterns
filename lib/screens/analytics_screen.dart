@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 import '../providers/providers.dart';
 import '../models/models.dart';
 
@@ -31,6 +32,15 @@ class AnalyticsScreen extends ConsumerWidget {
               // Process data for trend chart (last 10 events)
               final sortedOcds = List<OcdEntry>.from(ocds)..sort((a, b) => a.datetime.compareTo(b.datetime));
               final last10 = sortedOcds.length > 10 ? sortedOcds.sublist(sortedOcds.length - 10) : sortedOcds;
+
+              // Process data for heatmap
+              Map<DateTime, int> journalHeatMapData = {};
+              for (var entry in journals) {
+                try {
+                  final date = DateTime.parse(entry.date);
+                  journalHeatMapData[DateTime(date.year, date.month, date.day)] = 1;
+                } catch (_) {}
+              }
               
               return ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
@@ -45,6 +55,27 @@ class AnalyticsScreen extends ConsumerWidget {
                       const SizedBox(width: 20),
                       Expanded(child: _StatCard(title: 'Avg Distress', value: avgDistress.toStringAsFixed(1), icon: LineIcons.areaChart)),
                     ],
+                  ),
+                  const SizedBox(height: 48),
+
+                  _ChartCard(
+                    title: 'Journaling Consistency',
+                    subtitle: 'Activity over the past year',
+                    child: HeatMap(
+                      datasets: journalHeatMapData,
+                      colorMode: ColorMode.color,
+                      defaultColor: theme.dividerColor.withOpacity(0.1),
+                      textColor: theme.colorScheme.onSurface.withOpacity(0.6),
+                      showColorTip: false,
+                      showText: false,
+                      scrollable: true,
+                      size: 20,
+                      startDate: DateTime.now().subtract(const Duration(days: 365)),
+                      endDate: DateTime.now(),
+                      colorsets: {
+                        1: theme.colorScheme.primary.withOpacity(0.8),
+                      },
+                    ),
                   ),
                   const SizedBox(height: 48),
                   
@@ -137,8 +168,8 @@ class _ChartCard extends StatelessWidget {
         children: [
           Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
           Text(subtitle, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.4), fontSize: 12)),
-          const SizedBox(height: 32),
-          SizedBox(height: 200, child: child),
+          const SizedBox(height: 24),
+          child,
         ],
       ),
     );

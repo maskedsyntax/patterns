@@ -46,6 +46,7 @@ dependencies:
   fl_chart: ^1.2.0
   flutter_markdown: ^0.7.7+1
   window_manager: ^0.5.1
+  flutter_heatmap_calendar: ^1.0.5
 
 dev_dependencies:
   flutter_test:

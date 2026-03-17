@@ -14,13 +14,26 @@ class SettingsScreen extends ConsumerWidget {
   Future<void> _exportData(BuildContext context) async {
     try {
       final jsonStr = await DbHelper.instance.exportAll();
+      
+      // On macOS, it's often better to specify extensions and dialog title clearly
       final path = await FilePicker.platform.saveFile(
-        dialogTitle: 'Export Data',
+        dialogTitle: 'Save Patterns Export',
         fileName: 'patterns_export.json',
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        lockParentWindow: true,
       );
+
       if (path != null) {
-        final file = File(path);
+        // Ensure the path has .json extension if user removed it
+        String finalPath = path;
+        if (!finalPath.toLowerCase().endsWith('.json')) {
+          finalPath += '.json';
+        }
+
+        final file = File(finalPath);
         await file.writeAsString(jsonStr);
+        
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Data exported successfully'), behavior: SnackBarBehavior.floating),
@@ -28,6 +41,7 @@ class SettingsScreen extends ConsumerWidget {
         }
       }
     } catch (e) {
+      debugPrint('Export Error: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Export failed: $e'), behavior: SnackBarBehavior.floating),
@@ -58,8 +72,11 @@ class SettingsScreen extends ConsumerWidget {
     try {
       final result = await FilePicker.platform.pickFiles(
         dialogTitle: 'Select patterns_export.json',
-        type: FileType.any,
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        lockParentWindow: true,
       );
+      
       if (result != null && result.files.single.path != null) {
         final file = File(result.files.single.path!);
         final jsonStr = await file.readAsString();
@@ -73,6 +90,7 @@ class SettingsScreen extends ConsumerWidget {
         }
       }
     } catch (e) {
+      debugPrint('Import Error: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Import failed: $e'), behavior: SnackBarBehavior.floating),

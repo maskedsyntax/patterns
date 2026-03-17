@@ -13,14 +13,8 @@ class OcdTrackerScreen extends ConsumerStatefulWidget {
   ConsumerState<OcdTrackerScreen> createState() => _OcdTrackerScreenState();
 }
 
-class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
+class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
+  OcdType _selectedType = OcdType.obsession;
 
   @override
   Widget build(BuildContext context) {
@@ -30,27 +24,38 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> with Single
     return Scaffold(
       appBar: AppBar(
         title: const Text('OCD Tracker'),
-        bottom: TabBar(
-          controller: _tabController,
-          dividerColor: theme.dividerColor,
-          indicatorColor: theme.colorScheme.primary,
-          indicatorWeight: 2,
-          labelColor: theme.colorScheme.primary,
-          unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.4),
-          labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-          tabs: const [
-            Tab(text: 'Obsessions'),
-            Tab(text: 'Compulsions'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _OcdListView(type: OcdType.obsession, entries: ocdAsync),
-          _OcdListView(type: OcdType.compulsion, entries: ocdAsync),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Container(
+              width: 300,
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: theme.brightness == Brightness.dark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.all(4),
+              child: Row(
+                children: [
+                  _TypeOption(
+                    label: 'Obsessions',
+                    isSelected: _selectedType == OcdType.obsession,
+                    onTap: () => setState(() => _selectedType = OcdType.obsession),
+                    theme: theme,
+                  ),
+                  _TypeOption(
+                    label: 'Compulsions',
+                    isSelected: _selectedType == OcdType.compulsion,
+                    onTap: () => setState(() => _selectedType = OcdType.compulsion),
+                    theme: theme,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
+      body: _OcdListView(type: _selectedType, entries: ocdAsync),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddDialog(context),
         label: const Text('Track New'),
@@ -62,7 +67,48 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> with Single
   void _showAddDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => OcdEntryDialog(initialType: OcdType.values[_tabController.index]),
+      builder: (context) => OcdEntryDialog(initialType: _selectedType),
+    );
+  }
+}
+
+class _TypeOption extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final ThemeData theme;
+
+  const _TypeOption({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? theme.colorScheme.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: isSelected ? Colors.black : theme.colorScheme.onSurface.withOpacity(0.4),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../providers/providers.dart';
+import '../models/models.dart';
 
 class JournalScreen extends ConsumerStatefulWidget {
   const JournalScreen({super.key});
@@ -17,6 +18,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
   DateTime _selectedDate = DateTime.now();
   bool _isSaving = false;
   bool _hasUnsavedChanges = false;
+  bool _initialLoadDone = false;
 
   @override
   void dispose() {
@@ -47,7 +49,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
     }
   }
 
-  void _loadEntryForDate(DateTime date, List<dynamic> entries) {
+  void _loadEntryForDate(DateTime date, List<JournalEntry> entries) {
     final dateStr = DateFormat('yyyy-MM-dd').format(date);
     final existing = entries.where((e) => e.date == dateStr).firstOrNull;
     
@@ -63,6 +65,18 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
     final journalAsync = ref.watch(journalProvider);
     final theme = Theme.of(context);
     final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
+
+    // Listen for the first time data is available to populate today's entry
+    ref.listen<AsyncValue<List<JournalEntry>>>(journalProvider, (previous, next) {
+      if (!_initialLoadDone && next.hasValue) {
+        final entries = next.value!;
+        final existing = entries.where((e) => e.date == DateFormat('yyyy-MM-dd').format(_selectedDate)).firstOrNull;
+        if (existing != null) {
+          _controller.text = existing.content;
+        }
+        _initialLoadDone = true;
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -113,6 +127,16 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
             ),
             child: journalAsync.when(
               data: (entries) {
+                // If initial load didn't happen yet (e.g. state was already loaded), do it now
+                if (!_initialLoadDone) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      _loadEntryForDate(_selectedDate, entries);
+                      _initialLoadDone = true;
+                    }
+                  });
+                }
+
                 return ListView.builder(
                   itemCount: entries.length + 1,
                   itemBuilder: (context, index) {

@@ -101,26 +101,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             color: theme.scaffoldBackgroundColor,
             child: Column(
               children: [
-                // Top drag area for macOS traffic lights integration
                 const SizedBox(
                   height: 48,
                   child: DragToMoveArea(child: SizedBox.expand()),
                 ),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.colorScheme.primary.withOpacity(0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(LineIcons.brain, color: Colors.black, size: 28),
-                ),
+                _PatternsLogo(theme: theme),
                 const SizedBox(height: 48),
                 _NavIcon(
                   icon: LineIcons.penNib,
@@ -170,7 +155,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Expanded(
             child: Column(
               children: [
-                // Top drag area for the rest of the window
                 const SizedBox(
                   height: 40,
                   child: DragToMoveArea(child: SizedBox.expand()),
@@ -188,6 +172,64 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     );
   }
+}
+
+class _PatternsLogo extends StatelessWidget {
+  final ThemeData theme;
+  const _PatternsLogo({required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 52,
+      height: 52,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: theme.colorScheme.primary.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: CustomPaint(
+        painter: LogoPainter(),
+      ),
+    );
+  }
+}
+
+class LogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.5
+      ..strokeCap = StrokeCap.round;
+
+    final path = Path();
+    
+    // Abstract "P" and "Patterns" concept
+    // Draw three concentric arcs/circles indicating patterns and growth
+    canvas.drawArc(
+      Rect.fromLTWH(size.width * 0.25, size.height * 0.25, size.width * 0.5, size.height * 0.5),
+      0, 4.5, false, paint
+    );
+    
+    canvas.drawArc(
+      Rect.fromLTWH(size.width * 0.35, size.height * 0.35, size.width * 0.3, size.height * 0.3),
+      3, 4.5, false, paint
+    );
+
+    // Centered dot
+    canvas.drawCircle(Offset(size.width / 2, size.height / 2), 2, paint..style = PaintingStyle.fill);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
 class _NavIcon extends StatefulWidget {

@@ -77,7 +77,7 @@ class SettingsScreen extends ConsumerWidget {
       ),
       body: Center(
         child: Container(
-          maxWidth: 800,
+          constraints: const BoxConstraints(maxWidth: 800),
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
             children: [

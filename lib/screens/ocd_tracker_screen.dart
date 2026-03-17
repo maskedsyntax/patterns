@@ -272,7 +272,7 @@ class _OcdEntryDialogState extends ConsumerState<OcdEntryDialog> {
               ),
               segments: const [
                 ButtonSegment(value: OcdType.obsession, label: Text('Obsession'), icon: Icon(LineIcons.brain)),
-                ButtonSegment(value: OcdType.compulsion, label: Text('Compulsion'), icon: Icon(LineIcons.handPointer)),
+                ButtonSegment(value: OcdType.compulsion, label: Text('Compulsion'), icon: Icon(LineIcons.mouse)),
               ],
               selected: {_type},
               onSelectionChanged: (set) => setState(() => _type = set.first),

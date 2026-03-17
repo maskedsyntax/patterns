@@ -117,11 +117,20 @@ class SettingsScreen extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: DragToMoveArea(
-          child: AppBar(
-            title: const Text('Settings'),
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme.appBarTheme.backgroundColor,
+              border: Border(bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
+            ),
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: Text('Settings', style: TextStyle(color: theme.colorScheme.onSurface)),
+            ),
           ),
         ),
       ),
@@ -131,7 +140,7 @@ class SettingsScreen extends ConsumerWidget {
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
             children: [
-              Text('Appearance', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700)),
+              Text('Appearance', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface)),
               const SizedBox(height: 24),
               _SettingsCard(
                 child: Column(
@@ -175,21 +184,21 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 48),
-              Text('Data Management', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700)),
+              Text('Data Management', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface)),
               const SizedBox(height: 24),
               _SettingsItem(
                 title: 'Export Data',
                 subtitle: 'Save your records to a local JSON file',
                 icon: LineIcons.download,
                 onTap: () => _exportData(context),
-                trailing: const Icon(LineIcons.angleRight, size: 18),
+                trailing: Icon(LineIcons.angleRight, size: 18, color: theme.colorScheme.onSurface.withOpacity(0.3)),
               ),
               _SettingsItem(
                 title: 'Import Data',
                 subtitle: 'Restore entries from a JSON file',
                 icon: LineIcons.upload,
                 onTap: () => _importData(context, ref),
-                trailing: const Icon(LineIcons.angleRight, size: 18),
+                trailing: Icon(LineIcons.angleRight, size: 18, color: theme.colorScheme.onSurface.withOpacity(0.3)),
                 isDestructive: true,
               ),
               const SizedBox(height: 64),
@@ -259,7 +268,7 @@ class _SettingsRow extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+            Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: theme.colorScheme.onSurface)),
             const SizedBox(height: 2),
             Text(
               subtitle, 
@@ -303,7 +312,7 @@ class _ThemeOption extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: isSelected ? Colors.black : theme.colorScheme.onSurface.withOpacity(0.4),
+                color: isSelected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface.withOpacity(0.4),
               ),
             ),
           ),
@@ -360,7 +369,7 @@ class _SettingsItem extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                    Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: theme.colorScheme.onSurface)),
                     const SizedBox(height: 2),
                     Text(
                       subtitle, 

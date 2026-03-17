@@ -19,11 +19,20 @@ class AnalyticsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: DragToMoveArea(
-          child: AppBar(
-            title: const Text('Analytics'),
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme.appBarTheme.backgroundColor,
+              border: Border(bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
+            ),
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: Text('Analytics', style: TextStyle(color: theme.colorScheme.onSurface)),
+            ),
           ),
         ),
       ),
@@ -54,7 +63,7 @@ class AnalyticsScreen extends ConsumerWidget {
                   child: ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
                     children: [
-                      Text('Overview', style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
+                      Text('Overview', style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.5, color: theme.colorScheme.onSurface)),
                       const SizedBox(height: 32),
                       Row(
                         children: [
@@ -119,7 +128,7 @@ class AnalyticsScreen extends ConsumerWidget {
                         const SizedBox(height: 48),
                       ],
 
-                      Text('Breakdown', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700)),
+                      Text('Breakdown', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface)),
                       const SizedBox(height: 24),
                       Row(
                         children: [
@@ -184,7 +193,7 @@ class _ChartCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+          Text(title, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: theme.colorScheme.onSurface)),
           Text(subtitle, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.4), fontSize: 12)),
           const SizedBox(height: 24),
           SizedBox(height: height, child: child),

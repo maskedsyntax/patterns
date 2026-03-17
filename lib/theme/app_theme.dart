@@ -5,20 +5,19 @@ class AppTheme {
   static const Color primaryYellow = Color(0xFFFFD700);
   static const Color primaryYellowDark = Color(0xFFFFC107);
   
-  // Refined Dark Palette (Blackish)
+  // Refined Dark Palette
   static const Color darkBg = Color(0xFF000000);
   static const Color darkSurface = Color(0xFF111111);
-  static const Color darkCard = Color(0xFF161616);
   static const Color darkTextPrimary = Color(0xFFF5F5F7);
   static const Color darkTextSecondary = Color(0xFF86868B);
   static const Color darkBorder = Color(0xFF2C2C2E);
 
   // Refined Light Palette
-  static const Color lightBg = Color(0xFFFBFBFD);
-  static const Color lightSurface = Color(0xFFFFFFFF);
+  static const Color lightBg = Color(0xFFFFFFFF);
+  static const Color lightSurface = Color(0xFFF5F5F7);
   static const Color lightTextPrimary = Color(0xFF1D1D1F);
   static const Color lightTextSecondary = Color(0xFF86868B);
-  static const Color lightBorder = Color(0xFFD2D2D7);
+  static const Color lightBorder = Color(0xFFE5E5EA);
 
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
@@ -40,18 +39,12 @@ class AppTheme {
       displayColor: darkTextPrimary,
     ),
     cardTheme: CardThemeData(
-      color: darkCard,
+      color: darkSurface,
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: const BorderSide(color: darkBorder, width: 1),
       ),
-    ),
-    navigationRailTheme: const NavigationRailThemeData(
-      backgroundColor: darkBg,
-      selectedIconTheme: IconThemeData(color: primaryYellow, size: 24),
-      unselectedIconTheme: IconThemeData(color: darkTextSecondary, size: 24),
-      indicatorColor: Colors.transparent,
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: darkBg,
@@ -72,6 +65,13 @@ class AppTheme {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         textStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: primaryYellow,
+        side: const BorderSide(color: darkBorder),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -120,12 +120,6 @@ class AppTheme {
         side: const BorderSide(color: lightBorder, width: 1),
       ),
     ),
-    navigationRailTheme: const NavigationRailThemeData(
-      backgroundColor: lightBg,
-      selectedIconTheme: IconThemeData(color: primaryYellowDark, size: 24),
-      unselectedIconTheme: IconThemeData(color: lightTextSecondary, size: 24),
-      indicatorColor: Colors.transparent,
-    ),
     appBarTheme: AppBarTheme(
       backgroundColor: lightBg,
       elevation: 0,
@@ -147,9 +141,16 @@ class AppTheme {
         textStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
       ),
     ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: primaryYellowDark,
+        side: const BorderSide(color: lightBorder),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Colors.white,
+      fillColor: lightSurface,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: lightBorder),

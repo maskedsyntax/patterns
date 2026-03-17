@@ -25,7 +25,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
   bool _isSaving = false;
   bool _hasUnsavedChanges = false;
   bool _initialLoadDone = false;
-  bool _isPreviewMode = true; // Default to true
+  bool _isPreviewMode = true;
   bool _isFocusMode = false;
 
   @override
@@ -51,7 +51,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
       setState(() {
         _isSaving = false;
         _hasUnsavedChanges = false;
-        _isPreviewMode = true; // Switch back to preview after saving
+        _isPreviewMode = true;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Entry saved successfully'), behavior: SnackBarBehavior.floating),
@@ -67,7 +67,6 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
       _selectedDate = date;
       _controller.text = existing?.content ?? '';
       _hasUnsavedChanges = false;
-      // If entry doesn't exist, start in edit mode. If it does, respect forceEdit or default to preview.
       _isPreviewMode = (existing == null || forceEdit) ? false : true;
     });
   }
@@ -121,13 +120,13 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
     });
 
     return Scaffold(
-      backgroundColor: theme.brightness == Brightness.dark ? Colors.black : Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: DragToMoveArea(
           child: Container(
             decoration: BoxDecoration(
-              color: theme.brightness == Brightness.dark ? Colors.black : Colors.white,
+              color: theme.appBarTheme.backgroundColor,
               border: Border(bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
             ),
             child: AppBar(
@@ -168,7 +167,10 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(DateFormat('MMMM d, yyyy').format(_selectedDate), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                        Text(
+                          DateFormat('MMMM d, yyyy').format(_selectedDate), 
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)
+                        ),
                         Text(
                           _hasUnsavedChanges ? 'Unsaved changes' : 'Saved',
                           style: TextStyle(
@@ -213,12 +215,8 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                   height: 32,
                   child: ElevatedButton.icon(
                     onPressed: _isSaving ? null : _save,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                    ),
                     icon: _isSaving 
-                      ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                      ? SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: theme.colorScheme.onPrimary))
                       : const Icon(LineIcons.save, size: 16),
                     label: const Text('Save', style: TextStyle(fontSize: 13)),
                   ),
@@ -252,7 +250,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
             curve: Curves.easeInOut,
             width: _isFocusMode ? 0 : 280,
             decoration: BoxDecoration(
-              color: theme.colorScheme.surface, // Sidebar part of unified surface
+              color: theme.colorScheme.surface,
               border: Border(right: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
             ),
             child: SingleChildScrollView(
@@ -270,11 +268,6 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                           onPressed: () => _loadEntryForDate(DateTime.now(), journalAsync.value ?? [], forceEdit: true),
                           icon: const Icon(LineIcons.plus, size: 16),
                           label: const Text('Today'),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            side: BorderSide(color: theme.colorScheme.primary.withOpacity(0.3)),
-                          ),
                         ),
                       ),
                     ),
@@ -316,7 +309,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
           ),
           Expanded(
             child: Container(
-              color: theme.brightness == Brightness.dark ? Colors.black : Colors.white,
+              color: theme.scaffoldBackgroundColor,
               child: Center(
                 child: Container(
                   constraints: const BoxConstraints(maxWidth: 800),
@@ -403,7 +396,7 @@ class _ModeToggle extends StatelessWidget {
               child: Icon(
                 icon, 
                 size: 16, 
-                color: isSelected ? Colors.black : theme.colorScheme.onSurface.withOpacity(0.3)
+                color: isSelected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface.withOpacity(0.3)
               ),
             ),
           ),

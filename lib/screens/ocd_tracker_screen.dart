@@ -24,52 +24,63 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: DragToMoveArea(
-          child: AppBar(
-            title: const Text('OCD Tracker'),
-            actions: [
-              _HighDistressToggle(
-                isSelected: isHighDistressOnly,
-                onTap: () => ref.read(ocdHighDistressOnlyProvider.notifier).toggle(),
-                theme: theme,
-              ),
-              const SizedBox(width: 16),
-              Padding(
-                padding: const EdgeInsets.only(right: 16.0),
-                child: Container(
-                  width: 300,
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                    color: theme.brightness == Brightness.dark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.all(4),
-                  child: Row(
-                    children: [
-                      _TypeOption(
-                        label: 'Obsessions',
-                        isSelected: _selectedType == OcdType.obsession,
-                        onTap: () => setState(() => _selectedType = OcdType.obsession),
-                        theme: theme,
-                      ),
-                      _TypeOption(
-                        label: 'Compulsions',
-                        isSelected: _selectedType == OcdType.compulsion,
-                        onTap: () => setState(() => _selectedType = OcdType.compulsion),
-                        theme: theme,
-                      ),
-                    ],
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme.appBarTheme.backgroundColor,
+              border: Border(bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
+            ),
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: Text('OCD Tracker', style: TextStyle(color: theme.colorScheme.onSurface)),
+              actions: [
+                _HighDistressToggle(
+                  isSelected: isHighDistressOnly,
+                  onTap: () => ref.read(ocdHighDistressOnlyProvider.notifier).toggle(),
+                  theme: theme,
+                ),
+                const SizedBox(width: 16),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: Container(
+                    width: 300,
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.onSurface.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    child: Row(
+                      children: [
+                        _TypeOption(
+                          label: 'Obsessions',
+                          isSelected: _selectedType == OcdType.obsession,
+                          onTap: () => setState(() => _selectedType = OcdType.obsession),
+                          theme: theme,
+                        ),
+                        _TypeOption(
+                          label: 'Compulsions',
+                          isSelected: _selectedType == OcdType.compulsion,
+                          onTap: () => setState(() => _selectedType = OcdType.compulsion),
+                          theme: theme,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
       body: _OcdListView(type: _selectedType, entries: filteredOcdAsync),
       floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
         onPressed: () => _showAddDialog(context),
         label: const Text('Track New'),
         icon: const Icon(LineIcons.plus),
@@ -174,7 +185,7 @@ class _TypeOptionState extends State<_TypeOption> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: widget.isSelected ? Colors.black : widget.theme.colorScheme.onSurface.withOpacity(_isHovered ? 0.7 : 0.4),
+                  color: widget.isSelected ? widget.theme.colorScheme.onPrimary : widget.theme.colorScheme.onSurface.withOpacity(_isHovered ? 0.7 : 0.4),
                 ),
               ),
             ),
@@ -329,7 +340,7 @@ class _OcdCardState extends State<_OcdCard> {
                             const SizedBox(height: 4),
                             Text(
                               widget.entry.content, 
-                              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, height: 1.5)
+                              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, height: 1.5, color: widget.theme.colorScheme.onSurface)
                             ),
                             if (widget.entry.actionTaken != null && widget.entry.actionTaken!.isNotEmpty) ...[
                               const SizedBox(height: 20),
@@ -343,7 +354,7 @@ class _OcdCardState extends State<_OcdCard> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Text(widget.entry.actionTaken!, style: const TextStyle(fontSize: 15, height: 1.5)),
+                              Text(widget.entry.actionTaken!, style: TextStyle(fontSize: 15, height: 1.5, color: widget.theme.colorScheme.onSurface)),
                             ],
                             const SizedBox(height: 20),
                             Text(
@@ -419,7 +430,7 @@ class _OcdEntryDialogState extends ConsumerState<OcdEntryDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Track OCD Event', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700)),
+            Text('Track OCD Event', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface)),
             const SizedBox(height: 32),
             SegmentedButton<OcdType>(
               style: SegmentedButton.styleFrom(

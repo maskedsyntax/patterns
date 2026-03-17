@@ -22,6 +22,7 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
     final filteredOcdAsync = ref.watch(filteredOcdProvider);
     final isHighDistressOnly = ref.watch(ocdHighDistressOnlyProvider);
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -30,13 +31,13 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
         child: DragToMoveArea(
           child: Container(
             decoration: BoxDecoration(
-              color: theme.appBarTheme.backgroundColor,
+              color: isDark ? Colors.black : Colors.white,
               border: Border(bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
             ),
             child: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
-              title: Text('OCD Tracker', style: TextStyle(color: theme.colorScheme.onSurface)),
+              title: Text('OCD Tracker', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
               actions: [
                 _HighDistressToggle(
                   isSelected: isHighDistressOnly,
@@ -82,7 +83,7 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: theme.colorScheme.onPrimary,
         onPressed: () => _showAddDialog(context),
-        label: const Text('Track New'),
+        label: const Text('Track New', style: TextStyle(fontWeight: FontWeight.bold)),
         icon: const Icon(LineIcons.plus),
       ),
     );

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color primaryYellow = Color(0xFFFFD700);
-  static const Color primaryYellowDark = Color(0xFFFFC107);
+  static const Color primaryYellow = Color(0xFFFFD700); // Bright Yellow for Dark
+  static const Color primaryAmber = Color(0xFFB45309); // Darker Amber for Light (Accessibility)
   
   // Refined Dark Palette
   static const Color darkBg = Color(0xFF000000);
@@ -13,11 +13,11 @@ class AppTheme {
   static const Color darkBorder = Color(0xFF2C2C2E);
 
   // Refined Light Palette
-  static const Color lightBg = Color(0xFFFFFFFF);
-  static const Color lightSurface = Color(0xFFF5F5F7);
+  static const Color lightBg = Color(0xFFF2F2F7); // Slightly grey background
+  static const Color lightSurface = Color(0xFFFFFFFF); // Pure white surface for cards
   static const Color lightTextPrimary = Color(0xFF1D1D1F);
-  static const Color lightTextSecondary = Color(0xFF86868B);
-  static const Color lightBorder = Color(0xFFE5E5EA);
+  static const Color lightTextSecondary = Color(0xFF6E6E73);
+  static const Color lightBorder = Color(0xFFD1D1D6);
 
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
@@ -97,9 +97,9 @@ class AppTheme {
     useMaterial3: true,
     brightness: Brightness.light,
     colorScheme: ColorScheme.light(
-      primary: primaryYellowDark,
-      onPrimary: Colors.black,
-      secondary: primaryYellowDark,
+      primary: primaryAmber,
+      onPrimary: Colors.white,
+      secondary: primaryAmber,
       surface: lightSurface,
       background: lightBg,
       onSurface: lightTextPrimary,
@@ -133,8 +133,8 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: primaryYellowDark,
-        foregroundColor: Colors.black,
+        backgroundColor: primaryAmber,
+        foregroundColor: Colors.white,
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -143,7 +143,7 @@ class AppTheme {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: primaryYellowDark,
+        foregroundColor: primaryAmber,
         side: const BorderSide(color: lightBorder),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
@@ -161,7 +161,7 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: primaryYellowDark, width: 1.5),
+        borderSide: const BorderSide(color: primaryAmber, width: 1.5),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),

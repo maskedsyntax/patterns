@@ -17,6 +17,7 @@ class AnalyticsScreen extends ConsumerWidget {
     final journalAsync = ref.watch(journalProvider);
     final ocdAsync = ref.watch(ocdProvider);
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -25,13 +26,13 @@ class AnalyticsScreen extends ConsumerWidget {
         child: DragToMoveArea(
           child: Container(
             decoration: BoxDecoration(
-              color: theme.appBarTheme.backgroundColor,
+              color: isDark ? Colors.black : Colors.white,
               border: Border(bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
             ),
             child: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
-              title: Text('Analytics', style: TextStyle(color: theme.colorScheme.onSurface)),
+              title: Text('Analytics', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
             ),
           ),
         ),
@@ -44,11 +45,9 @@ class AnalyticsScreen extends ConsumerWidget {
               int totalCompulsions = ocds.where((e) => e.type == OcdType.compulsion).length;
               double avgDistress = ocds.isEmpty ? 0 : ocds.map((e) => e.distressLevel).reduce((a, b) => a + b) / ocds.length;
 
-              // Process data for trend chart (last 10 events)
               final sortedOcds = List<OcdEntry>.from(ocds)..sort((a, b) => a.datetime.compareTo(b.datetime));
               final last10 = sortedOcds.length > 10 ? sortedOcds.sublist(sortedOcds.length - 10) : sortedOcds;
 
-              // Process data for heatmap
               Map<DateTime, int> journalHeatMapData = {};
               for (var entry in journals) {
                 try {
@@ -63,27 +62,28 @@ class AnalyticsScreen extends ConsumerWidget {
                   child: ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
                     children: [
-                      Text('Overview', style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.5, color: theme.colorScheme.onSurface)),
-                      const SizedBox(height: 32),
+                      Text('Overview', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: -0.5, color: theme.colorScheme.onSurface)),
+                      const SizedBox(height: 24),
                       Row(
                         children: [
-                          Expanded(child: _StatCard(title: 'Journal Entries', value: journals.length.toString(), icon: LineIcons.book)),
-                          const SizedBox(width: 20),
-                          Expanded(child: _StatCard(title: 'OCD Events', value: ocds.length.toString(), icon: LineIcons.bullseye)),
-                          const SizedBox(width: 20),
-                          Expanded(child: _StatCard(title: 'Avg Distress', value: avgDistress.toStringAsFixed(1), icon: LineIcons.areaChart)),
+                          Expanded(child: _StatCard(title: 'Journal Entries', value: journals.length.toString(), icon: LineIcons.book, theme: theme)),
+                          const SizedBox(width: 16),
+                          Expanded(child: _StatCard(title: 'OCD Events', value: ocds.length.toString(), icon: LineIcons.bullseye, theme: theme)),
+                          const SizedBox(width: 16),
+                          Expanded(child: _StatCard(title: 'Avg Distress', value: avgDistress.toStringAsFixed(1), icon: LineIcons.areaChart, theme: theme)),
                         ],
                       ),
-                      const SizedBox(height: 48),
+                      const SizedBox(height: 32),
 
                       _ChartCard(
                         title: 'Journaling Consistency',
                         subtitle: 'Activity over the past year',
                         height: 220,
+                        theme: theme,
                         child: HeatMap(
                           datasets: journalHeatMapData,
                           colorMode: ColorMode.color,
-                          defaultColor: theme.dividerColor.withOpacity(0.1),
+                          defaultColor: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
                           textColor: theme.colorScheme.onSurface.withOpacity(0.6),
                           showColorTip: false,
                           showText: false,
@@ -96,7 +96,7 @@ class AnalyticsScreen extends ConsumerWidget {
                           },
                         ),
                       ),
-                      const SizedBox(height: 48),
+                      const SizedBox(height: 32),
                       
                       if (ocds.isNotEmpty) ...[
                         Row(
@@ -107,15 +107,17 @@ class AnalyticsScreen extends ConsumerWidget {
                               child: _ChartCard(
                                 title: 'Distress Trend',
                                 subtitle: 'Recent 10 events',
+                                theme: theme,
                                 child: _DistressTrendChart(entries: last10, theme: theme),
                               ),
                             ),
-                            const SizedBox(width: 24),
+                            const SizedBox(width: 20),
                             Expanded(
                               flex: 1,
                               child: _ChartCard(
                                 title: 'Distribution',
-                                subtitle: 'Obsessions vs Compulsions',
+                                subtitle: 'Obs vs Comp',
+                                theme: theme,
                                 child: _DistributionChart(
                                   obsessions: totalObsessions,
                                   compulsions: totalCompulsions,
@@ -125,11 +127,11 @@ class AnalyticsScreen extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 48),
+                        const SizedBox(height: 32),
                       ],
 
-                      Text('Breakdown', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface)),
-                      const SizedBox(height: 24),
+                      Text('Breakdown', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface)),
+                      const SizedBox(height: 16),
                       Row(
                         children: [
                           Expanded(
@@ -138,15 +140,17 @@ class AnalyticsScreen extends ConsumerWidget {
                               value: totalObsessions.toString(), 
                               icon: LineIcons.brain,
                               color: Colors.blueAccent,
+                              theme: theme,
                             )
                           ),
-                          const SizedBox(width: 20),
+                          const SizedBox(width: 16),
                           Expanded(
                             child: _StatCard(
                               title: 'Compulsions', 
                               value: totalCompulsions.toString(), 
                               icon: LineIcons.fingerprint,
                               color: Colors.orangeAccent,
+                              theme: theme,
                             )
                           ),
                         ],
@@ -172,29 +176,30 @@ class _ChartCard extends StatelessWidget {
   final String subtitle;
   final Widget child;
   final double height;
+  final ThemeData theme;
 
   const _ChartCard({
     required this.title, 
     required this.subtitle, 
     required this.child,
+    required this.theme,
     this.height = 240,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: theme.cardTheme.color,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: theme.dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: theme.colorScheme.onSurface)),
-          Text(subtitle, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.4), fontSize: 12)),
+          Text(title, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: theme.colorScheme.onSurface)),
+          Text(subtitle, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.4), fontSize: 11)),
           const SizedBox(height: 24),
           SizedBox(height: height, child: child),
         ],
@@ -217,7 +222,7 @@ class _DistressTrendChart extends StatelessWidget {
           show: true,
           drawVerticalLine: false,
           getDrawingHorizontalLine: (value) => FlLine(
-            color: theme.dividerColor.withOpacity(0.5),
+            color: theme.dividerColor.withOpacity(0.3),
             strokeWidth: 1,
           ),
         ),
@@ -289,22 +294,22 @@ class _DistributionChart extends StatelessWidget {
     
     return PieChart(
       PieChartData(
-        sectionsSpace: 4,
-        centerSpaceRadius: 40,
+        sectionsSpace: 2,
+        centerSpaceRadius: 30,
         sections: [
           PieChartSectionData(
-            color: Colors.blueAccent,
+            color: Colors.blueAccent.withOpacity(0.8),
             value: obsessions.toDouble(),
             title: 'Obs',
-            radius: 50,
-            titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+            radius: 40,
+            titleStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           PieChartSectionData(
-            color: Colors.orangeAccent,
+            color: Colors.orangeAccent.withOpacity(0.8),
             value: compulsions.toDouble(),
             title: 'Comp',
-            radius: 50,
-            titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+            radius: 40,
+            titleStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ],
       ),
@@ -317,48 +322,48 @@ class _StatCard extends StatelessWidget {
   final String value;
   final IconData icon;
   final Color? color;
+  final ThemeData theme;
 
-  const _StatCard({required this.title, required this.value, required this.icon, this.color});
+  const _StatCard({required this.title, required this.value, required this.icon, required this.theme, this.color});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.all(32.0),
+      padding: const EdgeInsets.all(24.0),
       decoration: BoxDecoration(
         color: theme.cardTheme.color,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: theme.dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: (color ?? theme.colorScheme.primary).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, size: 24, color: color ?? theme.colorScheme.primary),
+            child: Icon(icon, size: 20, color: color ?? theme.colorScheme.primary),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           Text(
             value, 
             style: GoogleFonts.inter(
-              fontSize: 36, 
+              fontSize: 28, 
               fontWeight: FontWeight.w800, 
               color: theme.colorScheme.onSurface,
               letterSpacing: -1,
             )
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
             title.toUpperCase(), 
             style: TextStyle(
               color: theme.colorScheme.onSurface.withOpacity(0.4),
-              fontSize: 11,
+              fontSize: 9,
               fontWeight: FontWeight.w800,
-              letterSpacing: 1.1,
+              letterSpacing: 1.0,
             )
           ),
         ],

@@ -115,6 +115,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final themeMode = ref.watch(themeModeProvider);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -123,13 +124,13 @@ class SettingsScreen extends ConsumerWidget {
         child: DragToMoveArea(
           child: Container(
             decoration: BoxDecoration(
-              color: theme.appBarTheme.backgroundColor,
+              color: isDark ? Colors.black : Colors.white,
               border: Border(bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
             ),
             child: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
-              title: Text('Settings', style: TextStyle(color: theme.colorScheme.onSurface)),
+              title: Text('Settings', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
             ),
           ),
         ),
@@ -143,17 +144,19 @@ class SettingsScreen extends ConsumerWidget {
               Text('Appearance', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface)),
               const SizedBox(height: 24),
               _SettingsCard(
+                theme: theme,
                 child: Column(
                   children: [
                     _SettingsRow(
                       title: 'Theme Mode',
                       subtitle: 'Current: ${themeMode.name.toUpperCase()}',
                       icon: LineIcons.palette,
+                      theme: theme,
                     ),
                     const SizedBox(height: 20),
                     Container(
                       decoration: BoxDecoration(
-                        color: theme.brightness == Brightness.dark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+                        color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       padding: const EdgeInsets.all(4),
@@ -192,6 +195,7 @@ class SettingsScreen extends ConsumerWidget {
                 icon: LineIcons.download,
                 onTap: () => _exportData(context),
                 trailing: Icon(LineIcons.angleRight, size: 18, color: theme.colorScheme.onSurface.withOpacity(0.3)),
+                theme: theme,
               ),
               _SettingsItem(
                 title: 'Import Data',
@@ -200,6 +204,7 @@ class SettingsScreen extends ConsumerWidget {
                 onTap: () => _importData(context, ref),
                 trailing: Icon(LineIcons.angleRight, size: 18, color: theme.colorScheme.onSurface.withOpacity(0.3)),
                 isDestructive: true,
+                theme: theme,
               ),
               const SizedBox(height: 64),
               Center(
@@ -227,11 +232,11 @@ class SettingsScreen extends ConsumerWidget {
 
 class _SettingsCard extends StatelessWidget {
   final Widget child;
-  const _SettingsCard({required this.child});
+  final ThemeData theme;
+  const _SettingsCard({required this.child, required this.theme});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -248,12 +253,12 @@ class _SettingsRow extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
+  final ThemeData theme;
 
-  const _SettingsRow({required this.title, required this.subtitle, required this.icon});
+  const _SettingsRow({required this.title, required this.subtitle, required this.icon, required this.theme});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Row(
       children: [
         Container(
@@ -329,11 +334,13 @@ class _SettingsItem extends StatelessWidget {
   final Widget? trailing;
   final VoidCallback? onTap;
   final bool isDestructive;
+  final ThemeData theme;
 
   const _SettingsItem({
     required this.title,
     required this.subtitle,
     required this.icon,
+    required this.theme,
     this.trailing,
     this.onTap,
     this.isDestructive = false,
@@ -341,7 +348,6 @@ class _SettingsItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: InkWell(

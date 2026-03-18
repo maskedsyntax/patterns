@@ -1,5 +1,18 @@
-# Patterns
-### Clarity for the mind through structured reflection.
+<p align="center">
+  <img src="assets/logo.png" width="128" alt="Patterns Logo">
+</p>
+
+<h1 align="center">Patterns</h1>
+
+<p align="center">
+  <strong>Clarity for the mind through structured reflection.</strong>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-%2302569B.svg?style=flat&logo=Flutter&logoColor=white" alt="Flutter">
+  <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
+  <img src="https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-lightgrey.svg" alt="Platform">
+</p>
 
 Patterns is a focused desktop application designed to assist with daily journaling and tracking obsessive-compulsive patterns. By providing a clean, structured environment to record thoughts and behaviors, it helps you identify trends and prepare clear information for personal reflection or professional consultations.
 

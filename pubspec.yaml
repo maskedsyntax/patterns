@@ -48,9 +48,11 @@ dependencies:
   window_manager: ^0.5.1
   flutter_heatmap_calendar: ^1.0.5
   flutter_quill: ^11.5.0
+  package_info_plus: ^8.2.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.4
+  flutter_distributor: ^0.4.1
   flutter_test:
     sdk: flutter
 

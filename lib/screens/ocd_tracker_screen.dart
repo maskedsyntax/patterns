@@ -301,68 +301,81 @@ class _OcdCardState extends State<_OcdCard> {
                 ] : [],
               ),
               child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Container(
-                      width: 6,
-                      color: _getDistressColor(widget.entry.distressLevel),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  DateFormat('MMM d, h:mm a').format(widget.entry.datetime),
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700, 
-                                    color: widget.theme.colorScheme.onSurface.withOpacity(0.8),
-                                    fontSize: 13,
+                borderRadius: BorderRadius.circular(16),
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        width: 6,
+                        color: _getDistressColor(widget.entry.distressLevel),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    DateFormat('MMM d, h:mm a').format(widget.entry.datetime),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700, 
+                                      color: widget.theme.colorScheme.onSurface.withOpacity(0.8),
+                                      fontSize: 13,
+                                    ),
                                   ),
-                                ),
-                                const Spacer(),
-                                Text(
-                                  'Distress ${widget.entry.distressLevel}/10',
-                                  style: TextStyle(
-                                    color: _getDistressColor(widget.entry.distressLevel),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
+                                  const Spacer(),
+                                  Text(
+                                    'Distress ${widget.entry.distressLevel}/10',
+                                    style: TextStyle(
+                                      color: _getDistressColor(widget.entry.distressLevel),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 16),
-                                IconButton(
-                                  visualDensity: VisualDensity.compact,
-                                  mouseCursor: SystemMouseCursors.click,
-                                  icon: const Icon(LineIcons.trash, size: 18, color: Colors.redAccent),
-                                  onPressed: () => ref.read(ocdProvider.notifier).deleteEntry(widget.entry.id!),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              widget.type == OcdType.obsession ? 'OBSESSION' : 'COMPULSION',
-                              style: TextStyle(
-                                color: widget.theme.colorScheme.primary.withOpacity(0.6),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1.2,
+                                  const SizedBox(width: 16),
+                                  IconButton(
+                                    visualDensity: VisualDensity.compact,
+                                    mouseCursor: SystemMouseCursors.click,
+                                    icon: const Icon(LineIcons.trash, size: 18, color: Colors.redAccent),
+                                    onPressed: () => ref.read(ocdProvider.notifier).deleteEntry(widget.entry.id!),
+                                  ),
+                                ],
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              widget.entry.content, 
-                              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, height: 1.5, color: widget.theme.colorScheme.onSurface)
-                            ),
-                            if (widget.entry.actionTaken != null && widget.entry.actionTaken!.isNotEmpty) ...[
+                              const SizedBox(height: 16),
+                              Text(
+                                widget.type == OcdType.obsession ? 'OBSESSION' : 'COMPULSION',
+                                style: TextStyle(
+                                  color: widget.theme.colorScheme.primary.withOpacity(0.6),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                widget.entry.content, 
+                                style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, height: 1.5, color: widget.theme.colorScheme.onSurface)
+                              ),
+                              if (widget.entry.actionTaken != null && widget.entry.actionTaken!.isNotEmpty) ...[
+                                const SizedBox(height: 20),
+                                Text(
+                                  'ACTION TAKEN',
+                                  style: TextStyle(
+                                    color: widget.theme.colorScheme.onSurface.withOpacity(0.3),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(widget.entry.actionTaken!, style: TextStyle(fontSize: 15, height: 1.5, color: widget.theme.colorScheme.onSurface)),
+                              ],
                               const SizedBox(height: 20),
                               Text(
-                                'ACTION TAKEN',
+                                'STRATEGY / RESPONSE',
                                 style: TextStyle(
                                   color: widget.theme.colorScheme.onSurface.withOpacity(0.3),
                                   fontSize: 10,
@@ -371,33 +384,21 @@ class _OcdCardState extends State<_OcdCard> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Text(widget.entry.actionTaken!, style: TextStyle(fontSize: 15, height: 1.5, color: widget.theme.colorScheme.onSurface)),
-                            ],
-                            const SizedBox(height: 20),
-                            Text(
-                              'STRATEGY / RESPONSE',
-                              style: TextStyle(
-                                color: widget.theme.colorScheme.onSurface.withOpacity(0.3),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1.2,
+                              Text(
+                                widget.entry.response, 
+                                style: GoogleFonts.inter(
+                                  fontSize: 15, 
+                                  height: 1.5, 
+                                  fontStyle: FontStyle.italic,
+                                  color: widget.theme.colorScheme.onSurface.withOpacity(0.7),
+                                )
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              widget.entry.response, 
-                              style: GoogleFonts.inter(
-                                fontSize: 15, 
-                                height: 1.5, 
-                                fontStyle: FontStyle.italic,
-                                color: widget.theme.colorScheme.onSurface.withOpacity(0.7),
-                              )
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

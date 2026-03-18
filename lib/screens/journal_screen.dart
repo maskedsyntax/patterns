@@ -392,12 +392,13 @@ class _JournalTileState extends State<_JournalTile> {
                   Text(
                     DateFormat('MMM d, yyyy').format(DateTime.parse(widget.entry.date)),
                     style: TextStyle(
-                      color: widget.isSelected ? (isDark ? widget.theme.colorScheme.primary : widget.theme.colorScheme.primary) : widget.theme.colorScheme.onSurface.withOpacity(0.8),
+                      color: widget.isSelected 
+                          ? (isDark ? widget.theme.colorScheme.primary : Colors.black) 
+                          : widget.theme.colorScheme.onSurface.withOpacity(0.8),
                       fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w500,
                       fontSize: 13,
                     ),
-                  ),
-                  const SizedBox(height: 4),
+                  ),                  const SizedBox(height: 4),
                   Text(
                     widget.entry.content,
                     maxLines: 1,

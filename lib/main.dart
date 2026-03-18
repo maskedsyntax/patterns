@@ -222,8 +222,11 @@ class _NavIconState extends State<_NavIcon> {
                   widget.icon,
                   color: widget.isSelected 
                       ? widget.theme.colorScheme.primary 
-                      : widget.theme.colorScheme.onSurface.withOpacity(_isHovered ? 0.7 : 0.3),
-                  size: 24,
+                      : widget.theme.colorScheme.onSurface.withOpacity(
+                          widget.theme.brightness == Brightness.dark 
+                              ? (_isHovered ? 0.7 : 0.3) 
+                              : (_isHovered ? 0.8 : 0.5) // Darker for light mode
+                        ),                  size: 24,
                 ),
               ),
             ),

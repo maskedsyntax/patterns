@@ -64,14 +64,15 @@ class AppTheme {
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        textStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
+        textStyle: GoogleFonts.inter(fontWeight: FontWeight.w700, letterSpacing: -0.2),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: primaryYellow,
-        side: const BorderSide(color: darkBorder),
+        side: const BorderSide(color: primaryYellow, width: 1.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        textStyle: GoogleFonts.inter(fontWeight: FontWeight.w700, letterSpacing: -0.2),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -87,7 +88,7 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: primaryYellow, width: 1.5),
+        borderSide: const BorderSide(color: primaryYellow, width: 2.0),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),
@@ -127,7 +128,7 @@ class AppTheme {
       centerTitle: false,
       titleTextStyle: GoogleFonts.inter(
         fontSize: 17,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         color: lightTextPrimary,
       ),
     ),
@@ -138,14 +139,15 @@ class AppTheme {
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        textStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
+        textStyle: GoogleFonts.inter(fontWeight: FontWeight.w700, letterSpacing: -0.2),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: primaryYellow,
-        side: const BorderSide(color: lightBorder),
+        foregroundColor: Colors.black, // Darker text for visibility on light bg
+        side: const BorderSide(color: primaryYellow, width: 2.0),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        textStyle: GoogleFonts.inter(fontWeight: FontWeight.w700, letterSpacing: -0.2),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -161,7 +163,7 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: primaryYellow, width: 1.5),
+        borderSide: const BorderSide(color: primaryYellow, width: 2.0),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),

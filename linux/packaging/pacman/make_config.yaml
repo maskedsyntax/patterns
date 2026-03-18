@@ -1,8 +1,7 @@
 display_name: Patterns
+package_name: patterns
 description: Clarity for the mind through structured reflection.
-maintainer:
-  name: maskedsyntax
-  email: aftaab@aftaab.xyz
+maintainer: maskedsyntax <aftaab@aftaab.xyz>
 license: MIT
 url: https://github.com/maskedsyntax/patterns
 packager: maskedsyntax

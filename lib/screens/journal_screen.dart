@@ -213,60 +213,62 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
             width: _isFocusMode ? 0 : 280,
-            decoration: BoxDecoration(
-              color: isDark ? theme.colorScheme.surface : theme.scaffoldBackgroundColor,
-              border: Border(right: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
-            ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              physics: const NeverScrollableScrollPhysics(),
-              child: SizedBox(
-                width: 280,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: () => _loadEntryForDate(DateTime.now(), journalAsync.value ?? []),
-                          icon: const Icon(LineIcons.plus, size: 16),
-                          label: const Text('Today'),
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? theme.colorScheme.surface : theme.scaffoldBackgroundColor,
+                border: Border(right: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const NeverScrollableScrollPhysics(),
+                child: SizedBox(
+                  width: 280,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () => _loadEntryForDate(DateTime.now(), journalAsync.value ?? []),
+                            icon: const Icon(LineIcons.plus, size: 16),
+                            label: const Text('Today'),
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: filteredJournalAsync.when(
-                        data: (entries) {
-                          if (!_initialLoadDone && journalAsync.hasValue) {
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              if (mounted) {
-                                _loadEntryForDate(_selectedDate, journalAsync.value!);
-                                _initialLoadDone = true;
-                              }
-                            });
-                          }
+                      Expanded(
+                        child: filteredJournalAsync.when(
+                          data: (entries) {
+                            if (!_initialLoadDone && journalAsync.hasValue) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (mounted) {
+                                  _loadEntryForDate(_selectedDate, journalAsync.value!);
+                                  _initialLoadDone = true;
+                                }
+                              });
+                            }
 
-                          return ListView.builder(
-                            itemCount: entries.length,
-                            padding: const EdgeInsets.only(bottom: 8),
-                            itemBuilder: (context, index) {
-                              final entry = entries[index];
-                              return _JournalTile(
-                                entry: entry,
-                                isSelected: entry.date == dateStr,
-                                onTap: () => _loadEntryForDate(DateTime.parse(entry.date), journalAsync.value ?? []),
-                                onDelete: () => _deleteEntry(entry.date),
-                                theme: theme,
-                              );
-                            },
-                          );
-                        },
-                        loading: () => const Center(child: CircularProgressIndicator()),
-                        error: (e, s) => Center(child: Text('Error: $e')),
+                            return ListView.builder(
+                              itemCount: entries.length,
+                              padding: const EdgeInsets.only(bottom: 8),
+                              itemBuilder: (context, index) {
+                                final entry = entries[index];
+                                return _JournalTile(
+                                  entry: entry,
+                                  isSelected: entry.date == dateStr,
+                                  onTap: () => _loadEntryForDate(DateTime.parse(entry.date), journalAsync.value ?? []),
+                                  onDelete: () => _deleteEntry(entry.date),
+                                  theme: theme,
+                                );
+                              },
+                            );
+                          },
+                          loading: () => const Center(child: CircularProgressIndicator()),
+                          error: (e, s) => Center(child: Text('Error: $e')),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -365,13 +367,8 @@ class _JournalTileState extends State<_JournalTile> {
               ],
             );
           },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Container(
             decoration: BoxDecoration(
-              color: widget.isSelected 
-                  ? widget.theme.colorScheme.primary.withOpacity(isDark ? 0.15 : 0.1) 
-                  : (_isHovered ? widget.theme.colorScheme.onSurface.withOpacity(0.05) : Colors.transparent),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: widget.isSelected 
@@ -380,28 +377,38 @@ class _JournalTileState extends State<_JournalTile> {
                 width: 1,
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  DateFormat('MMM d, yyyy').format(DateTime.parse(widget.entry.date)),
-                  style: TextStyle(
-                    color: widget.isSelected ? (isDark ? widget.theme.colorScheme.primary : widget.theme.colorScheme.primary) : widget.theme.colorScheme.onSurface.withOpacity(0.8),
-                    fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w500,
-                    fontSize: 13,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: widget.isSelected 
+                    ? widget.theme.colorScheme.primary.withOpacity(isDark ? 0.15 : 0.1) 
+                    : (_isHovered ? widget.theme.colorScheme.onSurface.withOpacity(0.05) : Colors.transparent),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    DateFormat('MMM d, yyyy').format(DateTime.parse(widget.entry.date)),
+                    style: TextStyle(
+                      color: widget.isSelected ? (isDark ? widget.theme.colorScheme.primary : widget.theme.colorScheme.primary) : widget.theme.colorScheme.onSurface.withOpacity(0.8),
+                      fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w500,
+                      fontSize: 13,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  widget.entry.content,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: widget.theme.colorScheme.onSurface.withOpacity(widget.isSelected ? 0.6 : 0.3),
-                    fontSize: 12,
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.entry.content,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: widget.theme.colorScheme.onSurface.withOpacity(widget.isSelected ? 0.6 : 0.3),
+                      fontSize: 12,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

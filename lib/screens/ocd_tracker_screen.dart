@@ -112,30 +112,35 @@ class _HighDistressToggle extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Container(
           decoration: BoxDecoration(
-            color: isSelected ? Colors.redAccent.withOpacity(0.1) : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: isSelected ? Colors.redAccent.withOpacity(0.5) : theme.dividerColor),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                LineIcons.exclamationTriangle, 
-                size: 18, 
-                color: isSelected ? Colors.redAccent : theme.colorScheme.onSurface.withOpacity(0.4)
-              ),
-              if (isSelected) ...[
-                const SizedBox(width: 8),
-                const Text(
-                  'HIGH DISTRESS', 
-                  style: TextStyle(color: Colors.redAccent, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: isSelected ? Colors.redAccent.withOpacity(0.1) : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  LineIcons.exclamationTriangle, 
+                  size: 18, 
+                  color: isSelected ? Colors.redAccent : theme.colorScheme.onSurface.withOpacity(0.4)
                 ),
-              ]
-            ],
+                if (isSelected) ...[
+                  const SizedBox(width: 8),
+                  const Text(
+                    'HIGH DISTRESS', 
+                    style: TextStyle(color: Colors.redAccent, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)
+                  ),
+                ]
+              ],
+            ),
           ),
         ),
       ),
@@ -172,22 +177,28 @@ class _TypeOptionState extends State<_TypeOption> {
         onExit: (_) => setState(() => _isHovered = false),
         child: GestureDetector(
           onTap: widget.onTap,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Container(
             decoration: BoxDecoration(
-              color: widget.isSelected 
-                  ? widget.theme.colorScheme.primary 
-                  : (_isHovered ? widget.theme.colorScheme.onSurface.withOpacity(0.05) : Colors.transparent),
+              color: widget.isSelected ? widget.theme.colorScheme.primary : Colors.transparent,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Center(
-              child: Text(
-                widget.label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: widget.isSelected ? widget.theme.colorScheme.onPrimary : widget.theme.colorScheme.onSurface.withOpacity(_isHovered ? 0.7 : 0.4),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: !widget.isSelected && _isHovered 
+                    ? widget.theme.colorScheme.onSurface.withOpacity(0.05) 
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Text(
+                  widget.label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: widget.isSelected ? widget.theme.colorScheme.onPrimary : widget.theme.colorScheme.onSurface.withOpacity(_isHovered ? 0.7 : 0.4),
+                  ),
                 ),
               ),
             ),
@@ -269,23 +280,27 @@ class _OcdCardState extends State<_OcdCard> {
         child: MouseRegion(
           onEnter: (_) => setState(() => _isHovered = true),
           onExit: (_) => setState(() => _isHovered = false),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
+          child: Container(
             decoration: BoxDecoration(
               color: widget.theme.cardTheme.color,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: _isHovered ? widget.theme.colorScheme.primary.withOpacity(0.3) : widget.theme.dividerColor,
               ),
-              boxShadow: _isHovered ? [
-                BoxShadow(
-                  color: widget.theme.colorScheme.primary.withOpacity(0.05),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                )
-              ] : [],
             ),
-            child: ClipRRect(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: _isHovered ? [
+                  BoxShadow(
+                    color: widget.theme.colorScheme.primary.withOpacity(0.05),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  )
+                ] : [],
+              ),
+              child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: IntrinsicHeight(
                 child: Row(

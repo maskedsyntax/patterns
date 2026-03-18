@@ -201,22 +201,30 @@ class _NavIconState extends State<_NavIcon> {
           onExit: (_) => setState(() => _isHovered = false),
           child: GestureDetector(
             onTap: widget.onTap,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 44,
-              height: 44,
+            child: Container(
               decoration: BoxDecoration(
                 color: widget.isSelected 
                     ? widget.theme.colorScheme.primary.withOpacity(0.15) 
-                    : (_isHovered ? widget.theme.colorScheme.onSurface.withOpacity(0.05) : Colors.transparent),
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(
-                widget.icon,
-                color: widget.isSelected 
-                    ? widget.theme.colorScheme.primary 
-                    : widget.theme.colorScheme.onSurface.withOpacity(_isHovered ? 0.7 : 0.3),
-                size: 24,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: !widget.isSelected && _isHovered 
+                      ? widget.theme.colorScheme.onSurface.withOpacity(0.05) 
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  widget.icon,
+                  color: widget.isSelected 
+                      ? widget.theme.colorScheme.primary 
+                      : widget.theme.colorScheme.onSurface.withOpacity(_isHovered ? 0.7 : 0.3),
+                  size: 24,
+                ),
               ),
             ),
           ),

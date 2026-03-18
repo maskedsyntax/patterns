@@ -4,8 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:markdown/markdown.dart' as md;
 import 'package:window_manager/window_manager.dart';
 import '../providers/providers.dart';
 import '../models/models.dart';
@@ -25,7 +23,6 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
   bool _isSaving = false;
   bool _hasUnsavedChanges = false;
   bool _initialLoadDone = false;
-  bool _isPreviewMode = true;
   bool _isFocusMode = false;
 
   @override
@@ -51,7 +48,6 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
       setState(() {
         _isSaving = false;
         _hasUnsavedChanges = false;
-        _isPreviewMode = true;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Entry saved successfully'), behavior: SnackBarBehavior.floating),
@@ -59,7 +55,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
     }
   }
 
-  void _loadEntryForDate(DateTime date, List<JournalEntry> entries, {bool forceEdit = false}) {
+  void _loadEntryForDate(DateTime date, List<JournalEntry> entries) {
     final dateStr = DateFormat('yyyy-MM-dd').format(date);
     final existing = entries.where((e) => e.date == dateStr).firstOrNull;
     
@@ -67,7 +63,6 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
       _selectedDate = date;
       _controller.text = existing?.content ?? '';
       _hasUnsavedChanges = false;
-      _isPreviewMode = (existing == null || forceEdit) ? false : true;
     });
   }
 
@@ -93,7 +88,6 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
       ref.invalidate(journalProvider);
       if (date == DateFormat('yyyy-MM-dd').format(_selectedDate)) {
         _controller.clear();
-        _isPreviewMode = false;
       }
     }
   }
@@ -108,14 +102,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
 
     ref.listen<AsyncValue<List<JournalEntry>>>(journalProvider, (previous, next) {
       if (!_initialLoadDone && next.hasValue) {
-        final entries = next.value!;
-        final existing = entries.where((e) => e.date == DateFormat('yyyy-MM-dd').format(_selectedDate)).firstOrNull;
-        if (existing != null) {
-          _controller.text = existing.content;
-          _isPreviewMode = true;
-        } else {
-          _isPreviewMode = false;
-        }
+        _loadEntryForDate(_selectedDate, next.value!);
         _initialLoadDone = true;
       }
     });
@@ -187,31 +174,6 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                 ],
               ),
               actions: [
-                Container(
-                  height: 28,
-                  width: 64,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurface.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  padding: const EdgeInsets.all(2),
-                  child: Row(
-                    children: [
-                      _ModeToggle(
-                        icon: LineIcons.edit,
-                        isSelected: !_isPreviewMode,
-                        onTap: () => setState(() => _isPreviewMode = false),
-                        theme: theme,
-                      ),
-                      _ModeToggle(
-                        icon: LineIcons.eye,
-                        isSelected: _isPreviewMode,
-                        onTap: () => setState(() => _isPreviewMode = true),
-                        theme: theme,
-                      ),
-                    ],
-                  ),
-                ),
                 const SizedBox(width: 12),
                 SizedBox(
                   height: 28,
@@ -267,7 +229,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                       child: SizedBox(
                         width: double.infinity,
                         child: OutlinedButton.icon(
-                          onPressed: () => _loadEntryForDate(DateTime.now(), journalAsync.value ?? [], forceEdit: true),
+                          onPressed: () => _loadEntryForDate(DateTime.now(), journalAsync.value ?? []),
                           icon: const Icon(LineIcons.plus, size: 16),
                           label: const Text('Today'),
                         ),
@@ -315,94 +277,36 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
               child: Center(
                 child: Container(
                   constraints: const BoxConstraints(maxWidth: 800),
-                  child: _isPreviewMode 
-                    ? Markdown(
-                        data: _controller.text.isEmpty ? '*No content to preview*' : _controller.text,
-                        padding: const EdgeInsets.all(48),
-                        extensionSet: md.ExtensionSet.gitHubFlavored,
-                        styleSheet: MarkdownStyleSheet(
-                          p: GoogleFonts.inter(fontSize: 18, height: 1.8, color: theme.colorScheme.onSurface.withOpacity(0.8)),
-                          h1: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.w800, color: theme.colorScheme.primary),
-                          h2: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface),
-                          blockquote: const TextStyle(color: Colors.grey),
-                          blockquoteDecoration: BoxDecoration(
-                            border: Border(left: BorderSide(color: theme.colorScheme.primary, width: 4)),
-                          ),
-                        ),
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.fromLTRB(48, 48, 48, 0),
-                        child: TextField(
-                          controller: _controller,
-                          maxLines: null,
-                          expands: true,
-                          onChanged: (value) {
-                            if (!_hasUnsavedChanges) {
-                              setState(() => _hasUnsavedChanges = true);
-                            }
-                          },
-                          style: GoogleFonts.inter(
-                            fontSize: 19,
-                            height: 1.7,
-                            color: theme.colorScheme.onSurface,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: 'Start writing...',
-                            hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.1)),
-                            filled: false,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                        ),
-                      ),
+                  padding: const EdgeInsets.fromLTRB(48, 48, 48, 0),
+                  child: TextField(
+                    controller: _controller,
+                    maxLines: null,
+                    expands: true,
+                    onChanged: (value) {
+                      if (!_hasUnsavedChanges) {
+                        setState(() => _hasUnsavedChanges = true);
+                      }
+                    },
+                    style: GoogleFonts.inter(
+                      fontSize: 19,
+                      height: 1.7,
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Start writing...',
+                      hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.1)),
+                      filled: false,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ModeToggle extends StatelessWidget {
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onTap;
-  final ThemeData theme;
-
-  const _ModeToggle({
-    required this.icon,
-    required this.isSelected,
-    required this.onTap,
-    required this.theme,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: onTap,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-            decoration: BoxDecoration(
-              color: isSelected ? theme.colorScheme.primary : Colors.transparent,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Center(
-              child: Icon(
-                icon, 
-                size: 16, 
-                color: isSelected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface.withOpacity(0.3)
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

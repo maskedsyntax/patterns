@@ -10,11 +10,3 @@ releases:
         package:
           platform: linux
           target: deb
-      - name: linux-rpm
-        package:
-          platform: linux
-          target: rpm
-      - name: linux-pacman
-        package:
-          platform: linux
-          target: pacman

@@ -122,7 +122,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
               backgroundColor: Colors.transparent,
               elevation: 0,
               leading: IconButton(
-                icon: Icon(_isFocusMode ? LineIcons.expand : LineIcons.compress, size: 20),
+                icon: Icon(_isFocusMode ? LineIcons.compress : LineIcons.expand, size: 20),
                 tooltip: _isFocusMode ? 'Exit Focus Mode' : 'Enter Focus Mode',
                 onPressed: () => setState(() => _isFocusMode = !_isFocusMode),
               ),

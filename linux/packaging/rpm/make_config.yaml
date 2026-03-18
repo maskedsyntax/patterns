@@ -1,0 +1,10 @@
+display_name: Patterns
+description: Clarity for the mind through structured reflection.
+summary: Clarity for the mind through structured reflection.
+maintainer:
+  name: maskedsyntax
+  email: aftaab@aftaab.xyz
+license: MIT
+url: https://github.com/maskedsyntax/patterns
+vendor: maskedsyntax
+group: Applications/Productivity

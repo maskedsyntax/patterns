@@ -1,0 +1,7 @@
+display_name: Patterns
+description: Clarity for the mind through structured reflection.
+maintainer:
+  name: maskedsyntax
+  email: aftaab@aftaab.xyz
+priority: optional
+section: utils

@@ -7,14 +7,14 @@ class AppTheme {
   
   // Refined Dark Palette
   static const Color darkBg = Color(0xFF000000);
-  static const Color darkSurface = Color(0xFF111111);
+  static const Color darkSurface = Color(0xFF000000);
   static const Color darkTextPrimary = Color(0xFFF5F5F7);
   static const Color darkTextSecondary = Color(0xFF86868B);
   static const Color darkBorder = Color(0xFF2C2C2E);
 
   // Refined Light Palette
-  static const Color lightBg = Color(0xFFF2F2F7); // Slightly grey background
-  static const Color lightSurface = Color(0xFFFFFFFF); // Pure white surface for cards
+  static const Color lightBg = Color(0xFFFFFFFF); // Pure white background
+  static const Color lightSurface = Color(0xFFFFFFFF); // Pure white surface
   static const Color lightTextPrimary = Color(0xFF1D1D1F);
   static const Color lightTextSecondary = Color(0xFF6E6E73);
   static const Color lightBorder = Color(0xFFD1D1D6);

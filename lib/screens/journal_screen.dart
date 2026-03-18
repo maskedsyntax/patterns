@@ -123,7 +123,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
+        preferredSize: const Size.fromHeight(48),
         child: DragToMoveArea(
           child: Container(
             decoration: BoxDecoration(
@@ -131,6 +131,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
               border: Border(bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
             ),
             child: AppBar(
+              toolbarHeight: 48,
               backgroundColor: Colors.transparent,
               elevation: 0,
               leading: IconButton(
@@ -145,7 +146,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                   if (!_isFocusMode)
                     Center(
                       child: Container(
-                        height: 34,
+                        height: 30,
                         width: 250,
                         child: TextField(
                           controller: _searchController,
@@ -170,12 +171,12 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                       children: [
                         Text(
                           DateFormat('MMMM d, yyyy').format(_selectedDate), 
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)
                         ),
                         Text(
-                          _hasUnsavedChanges ? 'Unsaved changes' : 'Saved',
+                          _hasUnsavedChanges ? 'Unsaved' : 'Saved',
                           style: TextStyle(
-                            fontSize: 10, 
+                            fontSize: 9, 
                             fontWeight: FontWeight.w500,
                             color: _hasUnsavedChanges ? theme.colorScheme.primary : theme.colorScheme.onSurface.withOpacity(0.3),
                           ),
@@ -187,8 +188,8 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
               ),
               actions: [
                 Container(
-                  height: 30,
-                  width: 70,
+                  height: 28,
+                  width: 64,
                   decoration: BoxDecoration(
                     color: theme.colorScheme.onSurface.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(6),
@@ -211,21 +212,21 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 SizedBox(
-                  height: 32,
+                  height: 28,
                   child: ElevatedButton.icon(
                     onPressed: _isSaving ? null : _save,
                     icon: _isSaving 
-                      ? SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: theme.colorScheme.onPrimary))
-                      : const Icon(LineIcons.save, size: 16),
-                    label: const Text('Save', style: TextStyle(fontSize: 13)),
+                      ? SizedBox(width: 10, height: 10, child: CircularProgressIndicator(strokeWidth: 2, color: theme.colorScheme.onPrimary))
+                      : const Icon(LineIcons.save, size: 14),
+                    label: const Text('Save', style: TextStyle(fontSize: 12)),
                   ),
                 ),
                 const SizedBox(width: 8),
                 IconButton(
                   mouseCursor: SystemMouseCursors.click,
-                  icon: Icon(LineIcons.calendar, size: 20, color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                  icon: Icon(LineIcons.calendar, size: 18, color: theme.colorScheme.onSurface.withOpacity(0.6)),
                   onPressed: () async {
                     final picked = await showDatePicker(
                       context: context,
@@ -238,7 +239,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                     }
                   },
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
               ],
             ),
           ),

@@ -106,8 +106,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 48, child: DragToMoveArea(child: SizedBox.expand())),
-                _PatternsLogo(theme: theme),
-                const SizedBox(height: 48),
+                const SizedBox(height: 8),
                 _NavIcon(
                   icon: LineIcons.penNib,
                   isSelected: _selectedIndex == 0,
@@ -164,59 +163,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     );
   }
-}
-
-class _PatternsLogo extends StatelessWidget {
-  final ThemeData theme;
-  const _PatternsLogo({required this.theme});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 44,
-      height: 44,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primary,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: theme.colorScheme.primary.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: CustomPaint(
-        painter: LogoPainter(),
-      ),
-    );
-  }
-}
-
-class LogoPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..strokeCap = StrokeCap.round;
-
-    canvas.drawArc(
-      Rect.fromLTWH(size.width * 0.25, size.height * 0.25, size.width * 0.5, size.height * 0.5),
-      0, 4.5, false, paint
-    );
-    
-    canvas.drawArc(
-      Rect.fromLTWH(size.width * 0.35, size.height * 0.35, size.width * 0.3, size.height * 0.3),
-      3, 4.5, false, paint
-    );
-
-    canvas.drawCircle(Offset(size.width / 2, size.height / 2), 1.5, paint..style = PaintingStyle.fill);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
 class _NavIcon extends StatefulWidget {

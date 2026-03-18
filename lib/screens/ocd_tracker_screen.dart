@@ -27,7 +27,7 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
+        preferredSize: const Size.fromHeight(48),
         child: DragToMoveArea(
           child: Container(
             decoration: BoxDecoration(
@@ -35,26 +35,27 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
               border: Border(bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
             ),
             child: AppBar(
+              toolbarHeight: 48,
               backgroundColor: Colors.transparent,
               elevation: 0,
-              title: Text('OCD Tracker', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
+              title: Text('OCD Tracker', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
               actions: [
                 _HighDistressToggle(
                   isSelected: isHighDistressOnly,
                   onTap: () => ref.read(ocdHighDistressOnlyProvider.notifier).toggle(),
                   theme: theme,
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
+                  padding: const EdgeInsets.only(right: 12.0),
                   child: Container(
-                    width: 300,
-                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    width: 260,
+                    margin: const EdgeInsets.symmetric(vertical: 6),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.onSurface.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    padding: const EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(3),
                     child: Row(
                       children: [
                         _TypeOption(

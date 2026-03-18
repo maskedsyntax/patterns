@@ -120,7 +120,7 @@ class SettingsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
+        preferredSize: const Size.fromHeight(48),
         child: DragToMoveArea(
           child: Container(
             decoration: BoxDecoration(
@@ -128,9 +128,10 @@ class SettingsScreen extends ConsumerWidget {
               border: Border(bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
             ),
             child: AppBar(
+              toolbarHeight: 48,
               backgroundColor: Colors.transparent,
               elevation: 0,
-              title: Text('Settings', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
+              title: Text('Settings', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
             ),
           ),
         ),

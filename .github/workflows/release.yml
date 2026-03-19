@@ -55,6 +55,8 @@ jobs:
       - name: Upload binaries to release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/**/*.{dmg,deb}
+          files: |
+            dist/**/*.dmg
+            dist/**/*.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

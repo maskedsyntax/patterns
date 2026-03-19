@@ -1,7 +1,9 @@
 display_name: Patterns
 package_name: patterns
 description: Clarity for the mind through structured reflection.
-maintainer: maskedsyntax <aftaab@aftaab.xyz>
+maintainer:
+  name: maskedsyntax
+  email: aftaab@aftaab.xyz
 installed_size: 0
 priority: optional
 section: utils

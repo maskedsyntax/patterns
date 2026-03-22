@@ -16,7 +16,7 @@ class FeaturesSection extends StatelessWidget {
     final textColor = isDark ? WebTheme.darkText : WebTheme.lightText;
     final secondaryText =
         isDark ? WebTheme.darkTextSecondary : WebTheme.lightTextSecondary;
-    final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryAmber;
+    final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
 
     final features = [
       _FeatureData(

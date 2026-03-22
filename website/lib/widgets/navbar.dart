@@ -41,7 +41,7 @@ class _NavbarState extends State<Navbar> {
     final isDark = widget.isDark;
     final bg = isDark ? WebTheme.darkBg : WebTheme.lightBg;
     final textColor = isDark ? WebTheme.darkText : WebTheme.lightText;
-    final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryAmber;
+    final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -183,7 +183,7 @@ class _NavbarState extends State<Navbar> {
                 const SizedBox(height: 12),
                 _GithubButton(
                     accent:
-                        isDark ? WebTheme.primaryYellow : WebTheme.primaryAmber),
+                        isDark ? WebTheme.primaryYellow : WebTheme.primaryGold),
               ],
             ),
           ),

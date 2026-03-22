@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class WebTheme {
   static const Color primaryYellow = Color(0xFFFFD700);
+  static const Color primaryGold = Color(0xFFB8960F);
   static const Color primaryAmber = Color(0xFFB45309);
 
   // Dark palette
@@ -99,9 +100,9 @@ class WebTheme {
     useMaterial3: true,
     brightness: Brightness.light,
     colorScheme: const ColorScheme.light(
-      primary: primaryYellow,
+      primary: primaryGold,
       onPrimary: Colors.black,
-      secondary: primaryAmber,
+      secondary: primaryGold,
       surface: lightSurface,
       onSurface: lightText,
       outline: lightBorder,

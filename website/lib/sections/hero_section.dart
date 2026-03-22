@@ -20,7 +20,7 @@ class HeroSection extends StatelessWidget {
     final textColor = isDark ? WebTheme.darkText : WebTheme.lightText;
     final secondaryText =
         isDark ? WebTheme.darkTextSecondary : WebTheme.lightTextSecondary;
-    final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryAmber;
+    final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Container(
@@ -164,7 +164,7 @@ class _AppPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final bg = isDark ? WebTheme.darkSurface : WebTheme.lightSurface;
     final border = isDark ? WebTheme.darkBorder : WebTheme.lightBorder;
-    final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryAmber;
+    final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
     final text = isDark ? WebTheme.darkText : WebTheme.lightText;
     final textSec = isDark ? WebTheme.darkTextSecondary : WebTheme.lightTextSecondary;
     final surfaceAlt = isDark ? WebTheme.darkSurfaceAlt : WebTheme.lightSurfaceAlt;

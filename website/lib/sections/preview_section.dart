@@ -25,7 +25,7 @@ class _PreviewSectionState extends State<PreviewSection> {
         ? WebTheme.darkTextSecondary
         : WebTheme.lightTextSecondary;
     final accent =
-        widget.isDark ? WebTheme.primaryYellow : WebTheme.primaryAmber;
+        widget.isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
 
     final tabs = ['Journal', 'OCD Tracker', 'Analytics'];
 
@@ -182,7 +182,7 @@ class _PreviewMockup extends StatelessWidget {
   Widget build(BuildContext context) {
     final bg = isDark ? WebTheme.darkSurface : WebTheme.lightSurface;
     final border = isDark ? WebTheme.darkBorder : WebTheme.lightBorder;
-    final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryAmber;
+    final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
     final text = isDark ? WebTheme.darkText : WebTheme.lightText;
     final textSec =
         isDark ? WebTheme.darkTextSecondary : WebTheme.lightTextSecondary;

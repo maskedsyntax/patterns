@@ -7,6 +7,7 @@ import 'package:line_icons/line_icons.dart';
 import 'package:window_manager/window_manager.dart';
 import '../database/db_helper.dart';
 import '../providers/providers.dart';
+import '../widgets/window_controls.dart';
 import '../main.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -132,6 +133,7 @@ class SettingsScreen extends ConsumerWidget {
               backgroundColor: Colors.transparent,
               elevation: 0,
               title: Text('Settings', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
+              actions: const [WindowControls()],
             ),
           ),
         ),

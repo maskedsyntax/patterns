@@ -8,6 +8,7 @@ import 'package:window_manager/window_manager.dart';
 import '../providers/providers.dart';
 import '../models/models.dart';
 import '../database/db_helper.dart';
+import '../widgets/window_controls.dart';
 
 class JournalScreen extends ConsumerStatefulWidget {
   const JournalScreen({super.key});
@@ -201,7 +202,8 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                     }
                   },
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 4),
+                const WindowControls(),
               ],
             ),
           ),

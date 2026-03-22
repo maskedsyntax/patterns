@@ -8,6 +8,7 @@ import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 import 'package:window_manager/window_manager.dart';
 import '../providers/providers.dart';
 import '../models/models.dart';
+import '../widgets/window_controls.dart';
 
 class AnalyticsScreen extends ConsumerWidget {
   const AnalyticsScreen({super.key});
@@ -34,6 +35,7 @@ class AnalyticsScreen extends ConsumerWidget {
               backgroundColor: Colors.transparent,
               elevation: 0,
               title: Text('Analytics', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
+              actions: const [WindowControls()],
             ),
           ),
         ),

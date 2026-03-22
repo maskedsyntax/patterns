@@ -6,6 +6,7 @@ import 'package:line_icons/line_icons.dart';
 import 'package:window_manager/window_manager.dart';
 import '../models/models.dart';
 import '../providers/providers.dart';
+import '../widgets/window_controls.dart';
 
 class OcdTrackerScreen extends ConsumerStatefulWidget {
   const OcdTrackerScreen({super.key});
@@ -74,6 +75,7 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
                     ),
                   ),
                 ),
+                const WindowControls(),
               ],
             ),
           ),

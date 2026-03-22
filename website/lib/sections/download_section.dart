@@ -1,28 +1,78 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/web_theme.dart';
 import '../widgets/responsive.dart';
 import '../widgets/animated_on_scroll.dart';
 
-class DownloadSection extends StatelessWidget {
+class DownloadSection extends StatefulWidget {
   final bool isDark;
 
   const DownloadSection({super.key, required this.isDark});
 
   @override
+  State<DownloadSection> createState() => _DownloadSectionState();
+}
+
+class _DownloadSectionState extends State<DownloadSection> {
+  String? _macUrl;
+  String? _linuxUrl;
+  String? _version;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchReleaseAssets();
+  }
+
+  Future<void> _fetchReleaseAssets() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://api.github.com/repos/maskedsyntax/patterns/releases/latest'),
+        headers: {'Accept': 'application/vnd.github+json'},
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final tagName = data['tag_name'] as String?;
+        final assets = data['assets'] as List;
+        for (final asset in assets) {
+          final name = asset['name'] as String;
+          final url = asset['browser_download_url'] as String;
+          if (name.endsWith('.dmg')) {
+            _macUrl = url;
+          } else if (name.endsWith('.deb')) {
+            _linuxUrl = url;
+          }
+        }
+        _version = tagName;
+      }
+    } catch (_) {
+      // Fallback to releases page if API fails
+    }
+    if (mounted) setState(() => _loading = false);
+  }
+
+  void _download(String? assetUrl) {
+    final url = assetUrl ?? 'https://github.com/maskedsyntax/patterns/releases/latest';
+    launchUrl(Uri.parse(url));
+  }
+
+  @override
   Widget build(BuildContext context) {
     final screen = Responsive.getScreenSize(context);
     final isMobile = screen == ScreenSize.mobile;
-    final textColor = isDark ? WebTheme.darkText : WebTheme.lightText;
+    final textColor = widget.isDark ? WebTheme.darkText : WebTheme.lightText;
     final secondaryText =
-        isDark ? WebTheme.darkTextSecondary : WebTheme.lightTextSecondary;
-    final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
-    final border = isDark ? WebTheme.darkBorder : WebTheme.lightBorder;
+        widget.isDark ? WebTheme.darkTextSecondary : WebTheme.lightTextSecondary;
+    final accent = widget.isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
+    final border = widget.isDark ? WebTheme.darkBorder : WebTheme.lightBorder;
 
     return Container(
       width: double.infinity,
-      color: isDark ? WebTheme.darkBg : WebTheme.lightBg,
+      color: widget.isDark ? WebTheme.darkBg : WebTheme.lightBg,
       child: ContentContainer(
         padding: Responsive.sectionPadding(context),
         child: AnimatedOnScroll(
@@ -62,27 +112,26 @@ class DownloadSection extends StatelessWidget {
                       icon: Icons.desktop_mac_rounded,
                       format: '.dmg',
                       description: 'macOS 12 Monterey or later',
-                      url:
-                          'https://github.com/maskedsyntax/patterns/releases/latest',
-                      isDark: isDark,
+                      onDownload: () => _download(_macUrl),
+                      isDark: widget.isDark,
                       accent: accent,
                       textColor: textColor,
                       secondaryText: secondaryText,
                       border: border,
+                      loading: _loading,
                     ),
                     _DownloadCard(
                       platform: 'Linux',
                       icon: Icons.terminal_rounded,
                       format: '.deb',
                       description: 'Ubuntu, Debian, and derivatives',
-                      url:
-                          'https://github.com/maskedsyntax/patterns/releases/latest',
-                      isDark: isDark,
+                      onDownload: () => _download(_linuxUrl),
+                      isDark: widget.isDark,
                       accent: accent,
                       textColor: textColor,
                       secondaryText: secondaryText,
                       border: border,
-                      isBeta: true,
+                      loading: _loading,
                     ),
                   ];
 
@@ -111,6 +160,13 @@ class DownloadSection extends StatelessWidget {
                   );
                 },
               ),
+              if (_version != null) ...[
+                const SizedBox(height: 16),
+                Text(
+                  'Latest: $_version',
+                  style: GoogleFonts.inter(fontSize: 12, color: secondaryText),
+                ),
+              ],
               const SizedBox(height: 32),
               // Source code link
               GestureDetector(
@@ -152,26 +208,26 @@ class _DownloadCard extends StatefulWidget {
   final IconData icon;
   final String format;
   final String description;
-  final String url;
+  final VoidCallback onDownload;
   final bool isDark;
   final Color accent;
   final Color textColor;
   final Color secondaryText;
   final Color border;
-  final bool isBeta;
+  final bool loading;
 
   const _DownloadCard({
     required this.platform,
     required this.icon,
     required this.format,
     required this.description,
-    required this.url,
+    required this.onDownload,
     required this.isDark,
     required this.accent,
     required this.textColor,
     required this.secondaryText,
     required this.border,
-    this.isBeta = false,
+    this.loading = false,
   });
 
   @override
@@ -191,10 +247,8 @@ class _DownloadCardState extends State<_DownloadCard> {
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: GestureDetector(
-        onTap: () => launchUrl(Uri.parse(widget.url)),
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: AnimatedContainer(
+        onTap: widget.onDownload,
+        child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           constraints: const BoxConstraints(maxWidth: 400),
           padding: const EdgeInsets.all(32),
@@ -209,45 +263,15 @@ class _DownloadCardState extends State<_DownloadCard> {
           ),
           child: Column(
             children: [
-              Icon(widget.icon, size: 40,
-                  color: widget.isBeta
-                      ? widget.secondaryText
-                      : widget.accent),
+              Icon(widget.icon, size: 40, color: widget.accent),
               const SizedBox(height: 16),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    widget.platform,
-                    style: GoogleFonts.inter(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: widget.textColor,
-                    ),
-                  ),
-                  if (widget.isBeta) ...[
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: widget.accent.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                            color: widget.accent.withValues(alpha: 0.3)),
-                      ),
-                      child: Text(
-                        'BETA',
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: widget.accent,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
+              Text(
+                widget.platform,
+                style: GoogleFonts.inter(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: widget.textColor,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
@@ -256,50 +280,41 @@ class _DownloadCardState extends State<_DownloadCard> {
                     fontSize: 13, color: widget.secondaryText),
               ),
               const SizedBox(height: 20),
-              if (widget.isBeta)
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: widget.secondaryText.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    'Coming Soon',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: widget.secondaryText,
-                    ),
-                  ),
-                )
-              else
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: widget.accent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.download_rounded,
-                          size: 16, color: Colors.black),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Download ${widget.format}',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: widget.accent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.loading)
+                      SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
                           color: Colors.black,
                         ),
+                      )
+                    else
+                      const Icon(Icons.download_rounded,
+                          size: 16, color: Colors.black),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Download ${widget.format}',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+              ),
             ],
-          ),
           ),
         ),
       ),

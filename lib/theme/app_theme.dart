@@ -3,7 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   static const Color primaryYellow = Color(0xFFFFD700); // Bright Yellow for Dark
-  static const Color primaryAmber = Color(0xFFB45309); // Darker Amber for Light (Accessibility)
+  static const Color primaryGold = Color(0xFFB8960F); // Deep Gold for Light (readable on white)
+  static const Color primaryAmber = Color(0xFFB45309); // Darker Amber (unused, kept for reference)
   
   // Refined Dark Palette
   static const Color darkBg = Color(0xFF000000);
@@ -98,9 +99,9 @@ class AppTheme {
     useMaterial3: true,
     brightness: Brightness.light,
     colorScheme: ColorScheme.light(
-      primary: primaryYellow,
+      primary: primaryGold,
       onPrimary: Colors.black,
-      secondary: primaryYellow,
+      secondary: primaryGold,
       surface: lightSurface,
       background: lightBg,
       onSurface: lightTextPrimary,
@@ -134,7 +135,7 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: primaryYellow,
+        backgroundColor: primaryGold,
         foregroundColor: Colors.black,
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -144,8 +145,8 @@ class AppTheme {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.black, // Darker text for visibility on light bg
-        side: const BorderSide(color: primaryYellow, width: 2.0),
+        foregroundColor: Colors.black,
+        side: const BorderSide(color: primaryGold, width: 2.0),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         textStyle: GoogleFonts.inter(fontWeight: FontWeight.w700, letterSpacing: -0.2),
       ),
@@ -163,7 +164,7 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: primaryYellow, width: 2.0),
+        borderSide: const BorderSide(color: primaryGold, width: 2.0),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),

@@ -9,6 +9,7 @@ PRODUCT_NAME = patterns
 
 // The application's bundle identifier
 PRODUCT_BUNDLE_IDENTIFIER = com.maskedsyntax.patterns
+PRODUCT_BUNDLE_IDENTIFIER[config=Debug] = com.maskedsyntax.patterns.debug
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2026 Patterns. All rights reserved.

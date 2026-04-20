@@ -44,7 +44,7 @@ dependencies:
   path: ^1.9.1
   file_picker: ^10.3.10
   fl_chart: ^1.2.0
-  flutter_markdown: ^0.7.7+1
+  flutter_markdown_plus: ^1.0.7
   window_manager: ^0.5.1
   flutter_heatmap_calendar: ^1.0.5
   flutter_quill: ^11.5.0

@@ -7,6 +7,7 @@ import 'sections/preview_section.dart';
 import 'sections/privacy_section.dart';
 import 'sections/download_section.dart';
 import 'sections/footer_section.dart';
+import 'screens/privacy_page.dart';
 
 void main() {
   runApp(const PatternsWebsite());
@@ -30,16 +31,29 @@ class _PatternsWebsiteState extends State<PatternsWebsite> {
       theme: WebTheme.lightTheme,
       darkTheme: WebTheme.darkTheme,
       themeMode: _themeMode,
-      home: _HomePage(
-        isDark: _themeMode == ThemeMode.dark,
-        onThemeToggle: () {
-          setState(() {
-            _themeMode = _themeMode == ThemeMode.dark
-                ? ThemeMode.light
-                : ThemeMode.dark;
-          });
-        },
-      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => _HomePage(
+              isDark: _themeMode == ThemeMode.dark,
+              onThemeToggle: () {
+                setState(() {
+                  _themeMode = _themeMode == ThemeMode.dark
+                      ? ThemeMode.light
+                      : ThemeMode.dark;
+                });
+              },
+            ),
+        '/privacy': (context) => PrivacyPage(
+              isDark: _themeMode == ThemeMode.dark,
+              onThemeToggle: () {
+                setState(() {
+                  _themeMode = _themeMode == ThemeMode.dark
+                      ? ThemeMode.light
+                      : ThemeMode.dark;
+                });
+              },
+            ),
+      },
     );
   }
 }

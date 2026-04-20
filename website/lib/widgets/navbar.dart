@@ -89,25 +89,25 @@ class _NavbarState extends State<Navbar> {
                   if (!isMobile) ...[
                     _NavLink(
                       label: 'Features',
-                      onTap: () => _scrollTo(widget.sectionKeys['features']!),
+                      onTap: () => _scrollTo('features'),
                       color: textColor,
                     ),
                     const SizedBox(width: 32),
                     _NavLink(
                       label: 'Preview',
-                      onTap: () => _scrollTo(widget.sectionKeys['preview']!),
+                      onTap: () => _scrollTo('preview'),
                       color: textColor,
                     ),
                     const SizedBox(width: 32),
                     _NavLink(
                       label: 'Privacy',
-                      onTap: () => _scrollTo(widget.sectionKeys['privacy']!),
+                      onTap: () => _scrollTo('privacy'),
                       color: textColor,
                     ),
                     const SizedBox(width: 32),
                     _NavLink(
                       label: 'Download',
-                      onTap: () => _scrollTo(widget.sectionKeys['download']!),
+                      onTap: () => _scrollTo('download'),
                       color: textColor,
                     ),
                     const SizedBox(width: 24),
@@ -297,6 +297,24 @@ class _GithubButtonState extends State<_GithubButton> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(Icons.star_rounded, size: 16, color: Colors.black),
+                const SizedBox(width: 6),
+                Text(
+                  'Star on GitHub',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+ns.star_rounded, size: 16, color: Colors.black),
                 const SizedBox(width: 6),
                 Text(
                   'Star on GitHub',

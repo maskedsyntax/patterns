@@ -35,9 +35,11 @@ class AppTheme {
     ),
     scaffoldBackgroundColor: darkBg,
     dividerColor: darkBorder,
-    textTheme: GoogleFonts.interTextTheme().apply(
+    fontFamily: 'Inter',
+    textTheme: const TextTheme().apply(
       bodyColor: darkTextPrimary,
       displayColor: darkTextPrimary,
+      fontFamily: 'Inter',
     ),
     cardTheme: CardThemeData(
       color: darkSurface,
@@ -47,15 +49,16 @@ class AppTheme {
         side: const BorderSide(color: darkBorder, width: 1),
       ),
     ),
-    appBarTheme: AppBarTheme(
+    appBarTheme: const AppBarTheme(
       backgroundColor: darkBg,
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: false,
-      titleTextStyle: GoogleFonts.inter(
+      titleTextStyle: TextStyle(
         fontSize: 17,
         fontWeight: FontWeight.w600,
         color: darkTextPrimary,
+        fontFamily: 'Inter',
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -65,7 +68,7 @@ class AppTheme {
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        textStyle: GoogleFonts.inter(fontWeight: FontWeight.w700, letterSpacing: -0.2),
+        textStyle: const TextStyle(fontWeight: FontWeight.w700, letterSpacing: -0.2, fontFamily: 'Inter'),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -73,7 +76,7 @@ class AppTheme {
         foregroundColor: primaryYellow,
         side: const BorderSide(color: primaryYellow, width: 1.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        textStyle: GoogleFonts.inter(fontWeight: FontWeight.w700, letterSpacing: -0.2),
+        textStyle: const TextStyle(fontWeight: FontWeight.w700, letterSpacing: -0.2, fontFamily: 'Inter'),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -110,9 +113,11 @@ class AppTheme {
     ),
     scaffoldBackgroundColor: lightBg,
     dividerColor: lightBorder,
-    textTheme: GoogleFonts.interTextTheme().apply(
+    fontFamily: 'Inter',
+    textTheme: const TextTheme().apply(
       bodyColor: lightTextPrimary,
       displayColor: lightTextPrimary,
+      fontFamily: 'Inter',
     ),
     cardTheme: CardThemeData(
       color: lightSurface,
@@ -122,15 +127,16 @@ class AppTheme {
         side: const BorderSide(color: lightBorder, width: 1),
       ),
     ),
-    appBarTheme: AppBarTheme(
+    appBarTheme: const AppBarTheme(
       backgroundColor: lightBg,
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: false,
-      titleTextStyle: GoogleFonts.inter(
+      titleTextStyle: TextStyle(
         fontSize: 17,
         fontWeight: FontWeight.w700,
         color: lightTextPrimary,
+        fontFamily: 'Inter',
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -140,7 +146,7 @@ class AppTheme {
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        textStyle: GoogleFonts.inter(fontWeight: FontWeight.w700, letterSpacing: -0.2),
+        textStyle: const TextStyle(fontWeight: FontWeight.w700, letterSpacing: -0.2, fontFamily: 'Inter'),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -148,7 +154,7 @@ class AppTheme {
         foregroundColor: Colors.black,
         side: const BorderSide(color: primaryGold, width: 2.0),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        textStyle: GoogleFonts.inter(fontWeight: FontWeight.w700, letterSpacing: -0.2),
+        textStyle: const TextStyle(fontWeight: FontWeight.w700, letterSpacing: -0.2, fontFamily: 'Inter'),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(

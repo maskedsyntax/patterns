@@ -303,12 +303,17 @@ class _DownloadCardState extends State<_DownloadCard> {
                       const Icon(Icons.download_rounded,
                           size: 16, color: Colors.black),
                     const SizedBox(width: 8),
-                    Text(
-                      'Download ${widget.format}',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                    Flexible(
+                      child: Text(
+                        'Download ${widget.format}',
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
                   ],

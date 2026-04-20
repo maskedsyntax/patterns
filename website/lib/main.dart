@@ -4,7 +4,6 @@ import 'widgets/navbar.dart';
 import 'sections/hero_section.dart';
 import 'sections/features_section.dart';
 import 'sections/preview_section.dart';
-import 'sections/privacy_section.dart';
 import 'sections/download_section.dart';
 import 'sections/footer_section.dart';
 import 'screens/privacy_page.dart';
@@ -74,14 +73,12 @@ class _HomePageState extends State<_HomePage> {
   final _heroKey = GlobalKey();
   final _featuresKey = GlobalKey();
   final _previewKey = GlobalKey();
-  final _privacyKey = GlobalKey();
   final _downloadKey = GlobalKey();
 
   Map<String, GlobalKey> get _sectionKeys => {
         'hero': _heroKey,
         'features': _featuresKey,
         'preview': _previewKey,
-        'privacy': _privacyKey,
         'download': _downloadKey,
       };
 
@@ -125,9 +122,6 @@ class _HomePageState extends State<_HomePage> {
                   Container(
                       key: _previewKey,
                       child: PreviewSection(isDark: widget.isDark)),
-                  Container(
-                      key: _privacyKey,
-                      child: PrivacySection(isDark: widget.isDark)),
                   Container(
                       key: _downloadKey,
                       child: DownloadSection(isDark: widget.isDark)),

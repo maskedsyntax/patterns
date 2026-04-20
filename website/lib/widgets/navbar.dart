@@ -89,25 +89,25 @@ class _NavbarState extends State<Navbar> {
                   if (!isMobile) ...[
                     _NavLink(
                       label: 'Features',
-                      onTap: () => _scrollTo('features'),
+                      onTap: () => _scrollTo(widget.sectionKeys['features']!),
                       color: textColor,
                     ),
                     const SizedBox(width: 32),
                     _NavLink(
                       label: 'Preview',
-                      onTap: () => _scrollTo('preview'),
+                      onTap: () => _scrollTo(widget.sectionKeys['preview']!),
                       color: textColor,
                     ),
                     const SizedBox(width: 32),
                     _NavLink(
                       label: 'Privacy',
-                      onTap: () => _scrollTo('privacy'),
+                      onTap: () => Navigator.of(context).pushNamed('/privacy'),
                       color: textColor,
                     ),
                     const SizedBox(width: 32),
                     _NavLink(
                       label: 'Download',
-                      onTap: () => _scrollTo('download'),
+                      onTap: () => _scrollTo(widget.sectionKeys['download']!),
                       color: textColor,
                     ),
                     const SizedBox(width: 24),
@@ -172,7 +172,10 @@ class _NavbarState extends State<Navbar> {
                 ),
                 _MobileNavLink(
                   label: 'Privacy',
-                  onTap: () => _scrollTo(widget.sectionKeys['privacy']!),
+                  onTap: () {
+                    setState(() => _mobileMenuOpen = false);
+                    Navigator.of(context).pushNamed('/privacy');
+                  },
                   color: textColor,
                 ),
                 _MobileNavLink(
@@ -297,24 +300,6 @@ class _GithubButtonState extends State<_GithubButton> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(Icons.star_rounded, size: 16, color: Colors.black),
-                const SizedBox(width: 6),
-                Text(
-                  'Star on GitHub',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-ns.star_rounded, size: 16, color: Colors.black),
                 const SizedBox(width: 6),
                 Text(
                   'Star on GitHub',

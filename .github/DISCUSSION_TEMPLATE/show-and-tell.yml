@@ -1,0 +1,26 @@
+name: Show and Tell
+description: Show off what you've built or how you use Patterns.
+title: "[Showcase]: "
+labels: ["showcase"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Show and Tell! 🎉
+        We’d love to see how you use **Patterns** or any custom extensions or tools you've built.
+
+  - type: textarea
+    id: project-description
+    attributes:
+      label: Description
+      description: What are you sharing?
+      placeholder: I've been using Patterns to track...
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: More Details
+      description: Share more information or links here.
+      placeholder: You can find more details at...

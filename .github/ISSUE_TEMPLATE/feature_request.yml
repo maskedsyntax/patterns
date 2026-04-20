@@ -1,0 +1,35 @@
+name: Feature Request
+description: Propose a new feature for Patterns.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Share your ideas! 💡
+        We're always looking for ways to make **Patterns** even more helpful for journaling and tracking.
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: What is your idea?
+      placeholder: I would like to see...
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-solved
+    attributes:
+      label: Problem This Feature Solves
+      description: How will this make your life easier?
+      placeholder: It's hard to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternative-solutions
+    attributes:
+      label: Alternative Solutions
+      description: Have you considered other ways to achieve this?
+      placeholder: I currently do this by...

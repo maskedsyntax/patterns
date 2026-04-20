@@ -40,3 +40,12 @@ When an obsession or compulsion occurs, use the "Track New" button. Choose the e
 ## Privacy and Data
 
 Patterns is an offline-first application. All your data is stored locally on your own computer. No information is ever uploaded to the cloud or shared with third parties. Your reflections and personal data remain entirely under your control.
+
+## Community
+
+We’d love to have you as part of our community! 
+
+- **[GitHub Discussions](https://github.com/maskedsyntax/patterns/discussions):** Ask questions, share ideas, and connect with other users.
+- **[Issues](https://github.com/maskedsyntax/patterns/issues):** Report bugs or request technical improvements.
+
+Please remember to be kind and respectful to others in our community.

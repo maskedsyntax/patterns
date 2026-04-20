@@ -1,0 +1,37 @@
+name: Ideas
+description: Share ideas for new features or improvements.
+title: "[Idea]: "
+labels: ["idea"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Welcome! 🚀
+        We’re excited to hear your ideas for **Patterns**. Use this template to suggest new features, UI improvements, or any other enhancements.
+
+  - type: textarea
+    id: idea-description
+    attributes:
+      label: Idea Description
+      description: A clear and concise description of what you want to happen.
+      placeholder: I would love to see a feature that...
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: Why would this be useful for you or other users?
+      placeholder: This would help me by...
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: alternatives
+    attributes:
+      label: Have you considered alternatives?
+      description: Are there other ways to achieve this?
+      options:
+        - label: Yes, but this would be more intuitive.
+        - label: No, this is a unique requirement.

@@ -1,0 +1,26 @@
+name: Q&A
+description: Ask a question about the project.
+title: "[Question]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Need help? 👋
+        Ask anything about **Patterns**. We're here to help you get the most out of the app.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What are you wondering about?
+      placeholder: How do I...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any other information that might help us answer your question.
+      placeholder: I am using the macOS version...

@@ -63,25 +63,25 @@ class AnalyticsScreen extends ConsumerWidget {
                 child: Container(
                   constraints: const BoxConstraints(maxWidth: 1000),
                   child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
+                    padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
                     children: [
-                      Text('Overview', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: -0.5, color: theme.colorScheme.onSurface)),
-                      const SizedBox(height: 24),
+                      Text('Overview', style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: -0.5, color: theme.colorScheme.onSurface)),
+                      const SizedBox(height: 16),
                       Row(
                         children: [
                           Expanded(child: _StatCard(title: 'Journal Entries', value: journals.length.toString(), icon: LineIcons.book, theme: theme)),
-                          const SizedBox(width: 16),
+                          const SizedBox(width: 12),
                           Expanded(child: _StatCard(title: 'OCD Events', value: ocds.length.toString(), icon: LineIcons.bullseye, theme: theme)),
-                          const SizedBox(width: 16),
+                          const SizedBox(width: 12),
                           Expanded(child: _StatCard(title: 'Avg Distress', value: avgDistress.toStringAsFixed(1), icon: LineIcons.areaChart, theme: theme)),
                         ],
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
 
                       _ChartCard(
                         title: 'Journaling Consistency',
                         subtitle: 'Activity over the past year',
-                        height: 220,
+                        height: 180,
                         theme: theme,
                         child: HeatMap(
                           datasets: journalHeatMapData,
@@ -91,7 +91,7 @@ class AnalyticsScreen extends ConsumerWidget {
                           showColorTip: false,
                           showText: false,
                           scrollable: true,
-                          size: 18,
+                          size: 16,
                           startDate: DateTime.now().subtract(const Duration(days: 365)),
                           endDate: DateTime.now(),
                           colorsets: {
@@ -99,7 +99,7 @@ class AnalyticsScreen extends ConsumerWidget {
                           },
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
                       
                       if (ocds.isNotEmpty) ...[
                         Row(
@@ -110,16 +110,18 @@ class AnalyticsScreen extends ConsumerWidget {
                               child: _ChartCard(
                                 title: 'Distress Trend',
                                 subtitle: 'Recent 10 events',
+                                height: 200,
                                 theme: theme,
                                 child: _DistressTrendChart(entries: last10, theme: theme),
                               ),
                             ),
-                            const SizedBox(width: 20),
+                            const SizedBox(width: 16),
                             Expanded(
                               flex: 1,
                               child: _ChartCard(
                                 title: 'Distribution',
                                 subtitle: 'Obs vs Comp',
+                                height: 200,
                                 theme: theme,
                                 child: _DistributionChart(
                                   obsessions: totalObsessions,
@@ -130,11 +132,11 @@ class AnalyticsScreen extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 24),
                       ],
 
-                      Text('Breakdown', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface)),
-                      const SizedBox(height: 16),
+                      Text('Breakdown', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface)),
+                      const SizedBox(height: 12),
                       Row(
                         children: [
                           Expanded(
@@ -143,16 +145,18 @@ class AnalyticsScreen extends ConsumerWidget {
                               value: totalObsessions.toString(), 
                               icon: LineIcons.brain,
                               color: Colors.blueAccent,
+                              padding: 16,
                               theme: theme,
                             )
                           ),
-                          const SizedBox(width: 16),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: _StatCard(
                               title: 'Compulsions', 
                               value: totalCompulsions.toString(), 
                               icon: LineIcons.fingerprint,
                               color: Colors.orangeAccent,
+                              padding: 16,
                               theme: theme,
                             )
                           ),
@@ -236,9 +240,16 @@ class _DistressTrendChart extends StatelessWidget {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
+              reservedSize: 28,
+              interval: 1,
               getTitlesWidget: (value, meta) {
-                if (value.toInt() < 0 || value.toInt() >= entries.length) return const SizedBox();
-                final date = entries[value.toInt()].datetime;
+                final i = value.toInt();
+                if (i < 0 || i >= entries.length) return const SizedBox();
+                // Show at most ~5 labels: first, last, and evenly spaced in between.
+                final step = (entries.length / 5).ceil().clamp(1, entries.length);
+                final isEdge = i == 0 || i == entries.length - 1;
+                if (!isEdge && i % step != 0) return const SizedBox();
+                final date = entries[i].datetime;
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Text(
@@ -325,14 +336,22 @@ class _StatCard extends StatelessWidget {
   final String value;
   final IconData icon;
   final Color? color;
+  final double padding;
   final ThemeData theme;
 
-  const _StatCard({required this.title, required this.value, required this.icon, required this.theme, this.color});
+  const _StatCard({
+    required this.title, 
+    required this.value, 
+    required this.icon, 
+    required this.theme, 
+    this.color,
+    this.padding = 24.0,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24.0),
+      padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
         color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(16),
@@ -349,11 +368,11 @@ class _StatCard extends StatelessWidget {
             ),
             child: Icon(icon, size: 20, color: color ?? theme.colorScheme.primary),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: padding == 24.0 ? 20 : 12),
           Text(
             value, 
             style: GoogleFonts.inter(
-              fontSize: 28, 
+              fontSize: padding == 24.0 ? 28 : 22, 
               fontWeight: FontWeight.w800, 
               color: theme.colorScheme.onSurface,
               letterSpacing: -1,

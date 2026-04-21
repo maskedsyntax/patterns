@@ -30,11 +30,9 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app requires access to the photo library for journaling purposes.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>This app requires access to the camera for journaling purposes.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app requires access to the microphone for journaling purposes.</string>
+	<string>Photo library access is required only if you attach images to journal entries.</string>
 </dict>
 </plist>

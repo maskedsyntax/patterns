@@ -16,7 +16,8 @@ class OcdTrackerScreen extends ConsumerStatefulWidget {
 }
 
 class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
-  OcdType _selectedType = OcdType.obsession;
+  // null = show both (All); otherwise filter to a single type.
+  OcdType? _selectedType;
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +61,12 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _TypeOption(
+                          label: 'All',
+                          isSelected: _selectedType == null,
+                          onTap: () => setState(() => _selectedType = null),
+                          theme: theme,
+                        ),
+                        _TypeOption(
                           label: 'Obsessions',
                           isSelected: _selectedType == OcdType.obsession,
                           onTap: () => setState(() => _selectedType = OcdType.obsession),
@@ -95,7 +102,7 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
   void _showAddDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => OcdEntryDialog(initialType: _selectedType),
+      builder: (context) => OcdEntryDialog(initialType: _selectedType ?? OcdType.obsession),
     );
   }
 }
@@ -204,7 +211,7 @@ class _TypeOptionState extends State<_TypeOption> {
 }
 
 class _OcdListView extends ConsumerWidget {
-  final OcdType type;
+  final OcdType? type;
   final AsyncValue<List<OcdEntry>> entries;
 
   const _OcdListView({required this.type, required this.entries});
@@ -212,10 +219,11 @@ class _OcdListView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    
+
     return entries.when(
       data: (data) {
-        final filtered = data.where((e) => e.type == type).toList();
+        final filtered =
+            type == null ? data : data.where((e) => e.type == type).toList();
         if (filtered.isEmpty) {
           return Center(
             child: Column(
@@ -224,7 +232,7 @@ class _OcdListView extends ConsumerWidget {
                 Icon(LineIcons.clipboard, size: 64, color: theme.colorScheme.onSurface.withOpacity(0.1)),
                 const SizedBox(height: 16),
                 Text(
-                  'No entries found', 
+                  'No entries found',
                   style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.3), fontWeight: FontWeight.w500)
                 ),
               ],
@@ -236,7 +244,7 @@ class _OcdListView extends ConsumerWidget {
           itemCount: filtered.length,
           itemBuilder: (context, index) {
             final entry = filtered[index];
-            return _OcdCard(entry: entry, type: type, theme: theme);
+            return _OcdCard(entry: entry, theme: theme);
           },
         );
       },
@@ -248,10 +256,9 @@ class _OcdListView extends ConsumerWidget {
 
 class _OcdCard extends StatefulWidget {
   final OcdEntry entry;
-  final OcdType type;
   final ThemeData theme;
 
-  const _OcdCard({required this.entry, required this.type, required this.theme});
+  const _OcdCard({required this.entry, required this.theme});
 
   @override
   State<_OcdCard> createState() => _OcdCardState();
@@ -340,7 +347,7 @@ class _OcdCardState extends State<_OcdCard> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                widget.type == OcdType.obsession ? 'OBSESSION' : 'COMPULSION',
+                                widget.entry.type == OcdType.obsession ? 'OBSESSION' : 'COMPULSION',
                                 style: TextStyle(
                                   color: widget.theme.colorScheme.primary.withOpacity(0.6),
                                   fontSize: 10,

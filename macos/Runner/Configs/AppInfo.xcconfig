@@ -5,7 +5,7 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
-PRODUCT_NAME = patterns
+PRODUCT_NAME = Patterns - Journal & OCD Tracker
 
 // The application's bundle identifier
 PRODUCT_BUNDLE_IDENTIFIER = com.maskedsyntax.patterns
@@ -13,3 +13,5 @@ PRODUCT_BUNDLE_IDENTIFIER[config=Debug] = com.maskedsyntax.patterns.debug
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2026 Patterns. All rights reserved.
+
+DEVELOPMENT_TEAM = GVGJLY2H53

@@ -2,8 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme/web_theme.dart';
 import '../widgets/responsive.dart';
+import '../utils/analytics_service.dart';
 
 /// Wider “stage” so icons span more of the viewport on large monitors; still
 /// centered so they do not hug the far left/right window edges on 4K.
@@ -376,13 +378,20 @@ class HeroSection extends StatelessWidget {
                     _PrimaryButton(
                       label: 'Download for Free',
                       icon: Icons.download_rounded,
-                      onTap: onDownloadTap,
+                      onTap: () {
+                        AnalyticsService.logEvent('hero_download_click');
+                        onDownloadTap();
+                      },
                       accent: accent,
                     ),
                     _SecondaryButton(
                       label: 'View on GitHub',
                       icon: Icons.code_rounded,
-                      onTap: () {},
+                      onTap: () {
+                        AnalyticsService.logGitHubClick();
+                        launchUrl(Uri.parse(
+                            'https://github.com/maskedsyntax/patterns'));
+                      },
                       isDark: isDark,
                       accent: accent,
                     ),

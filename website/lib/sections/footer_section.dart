@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/web_theme.dart';
 import '../widgets/responsive.dart';
+import '../utils/analytics_service.dart';
 
 class FooterSection extends StatelessWidget {
   final bool isDark;
@@ -168,7 +169,11 @@ class _FooterLinkState extends State<_FooterLink> {
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: GestureDetector(
-        onTap: () => launchUrl(Uri.parse(widget.url)),
+        onTap: () {
+          AnalyticsService.logEvent('footer_link_click',
+              parameters: {'label': widget.label});
+          launchUrl(Uri.parse(widget.url));
+        },
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: Text(

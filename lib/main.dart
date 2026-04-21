@@ -30,18 +30,20 @@ final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(ThemeMo
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  GoogleFonts.config.allowRuntimeFetching = false;
   await windowManager.ensureInitialized();
 
   WindowOptions windowOptions = const WindowOptions(
-    size: Size(1200, 800),
-    minimumSize: Size(1000, 600),
+    size: Size(1440, 900),
+    minimumSize: Size(1440, 900),
     center: true,
     backgroundColor: Colors.transparent,
     skipTaskbar: false,
-    titleBarStyle: TitleBarStyle.hidden,
+    titleBarStyle: TitleBarStyle.normal,
   );
   
   windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.setResizable(false);
     await windowManager.show();
     await windowManager.focus();
   });

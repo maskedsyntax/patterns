@@ -2,6 +2,10 @@ output: dist/
 releases:
   - name: release
     jobs:
+      - name: macos-pkg
+        package:
+          platform: macos
+          target: pkg
       - name: macos-dmg
         package:
           platform: macos

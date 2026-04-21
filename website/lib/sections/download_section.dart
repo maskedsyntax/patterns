@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../theme/web_theme.dart';
 import '../widgets/responsive.dart';
 import '../widgets/animated_on_scroll.dart';
+import '../utils/analytics_service.dart';
 
 class DownloadSection extends StatefulWidget {
   final bool isDark;
@@ -55,7 +56,8 @@ class _DownloadSectionState extends State<DownloadSection> {
     if (mounted) setState(() => _loading = false);
   }
 
-  void _download(String? assetUrl) {
+  void _download(String? assetUrl, String platform) {
+    AnalyticsService.logDownload(platform, _version ?? 'unknown');
     final url = assetUrl ?? 'https://github.com/maskedsyntax/patterns/releases/latest';
     launchUrl(Uri.parse(url));
   }
@@ -112,7 +114,7 @@ class _DownloadSectionState extends State<DownloadSection> {
                       icon: Icons.desktop_mac_rounded,
                       format: '.dmg',
                       description: 'macOS 12 Monterey or later',
-                      onDownload: () => _download(_macUrl),
+                      onDownload: () => _download(_macUrl, 'macOS'),
                       isDark: widget.isDark,
                       accent: accent,
                       textColor: textColor,
@@ -125,7 +127,7 @@ class _DownloadSectionState extends State<DownloadSection> {
                       icon: Icons.terminal_rounded,
                       format: '.deb',
                       description: 'Ubuntu, Debian, and derivatives',
-                      onDownload: () => _download(_linuxUrl),
+                      onDownload: () => _download(_linuxUrl, 'Linux'),
                       isDark: widget.isDark,
                       accent: accent,
                       textColor: textColor,
@@ -170,8 +172,11 @@ class _DownloadSectionState extends State<DownloadSection> {
               const SizedBox(height: 32),
               // Source code link
               GestureDetector(
-                onTap: () => launchUrl(
-                    Uri.parse('https://github.com/maskedsyntax/patterns')),
+                onTap: () {
+                  AnalyticsService.logGitHubClick();
+                  launchUrl(
+                      Uri.parse('https://github.com/maskedsyntax/patterns'));
+                },
                 child: MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: Text.rich(

@@ -16,6 +16,16 @@
 
 Patterns is a focused desktop application designed to assist with daily journaling and tracking obsessive-compulsive patterns. By providing a clean, structured environment to record thoughts and behaviors, it helps you identify trends and prepare clear information for personal reflection or professional consultations.
 
+## Screenshots
+
+<p align="center">
+  <img src="assets/screenshots/journal.png" width="100%" alt="Journal Screen">
+</p>
+
+<p align="center">
+  <img src="assets/screenshots/ocd_tracker.png" width="100%" alt="OCD Tracker Screen">
+</p>
+
 ## What Patterns Does
 
 The application is built around two core activities:

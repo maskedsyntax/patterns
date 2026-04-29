@@ -38,11 +38,16 @@ jobs:
       - name: Install flutter_distributor
         run: dart pub global activate flutter_distributor
 
+      - name: Add Pub cache to PATH
+        shell: pwsh
+        run: |
+          "$env:PUB_CACHE\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+
       - name: Get dependencies
         run: flutter pub get
 
       - name: Build Windows installer
-        run: dart pub global run flutter_distributor release --name release --jobs windows-exe
+        run: flutter_distributor release --name release --jobs windows-exe
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4

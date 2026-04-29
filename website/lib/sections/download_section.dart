@@ -22,6 +22,7 @@ class _DownloadSectionState extends State<DownloadSection> {
       'https://apps.apple.com/us/app/patterns-ocd-journaling/id6762611172?mt=12';
 
   String? _linuxUrl;
+  String? _windowsUrl;
   String? _version;
   bool _loading = true;
 
@@ -34,7 +35,9 @@ class _DownloadSectionState extends State<DownloadSection> {
   Future<void> _fetchReleaseAssets() async {
     try {
       final response = await http.get(
-        Uri.parse('https://api.github.com/repos/maskedsyntax/patterns/releases/latest'),
+        Uri.parse(
+          'https://api.github.com/repos/maskedsyntax/patterns/releases/latest',
+        ),
         headers: {'Accept': 'application/vnd.github+json'},
       );
       if (response.statusCode == 200) {
@@ -46,6 +49,9 @@ class _DownloadSectionState extends State<DownloadSection> {
           final url = asset['browser_download_url'] as String;
           if (name.endsWith('.deb')) {
             _linuxUrl = url;
+          }
+          if (name.endsWith('.zip')) {
+            _windowsUrl = url;
           }
         }
         _version = tagName;
@@ -65,10 +71,7 @@ class _DownloadSectionState extends State<DownloadSection> {
 
   void _openMacAppStore() {
     AnalyticsService.logDownload('macOS', _version ?? 'unknown');
-    launchUrl(
-      Uri.parse(_macAppStoreUrl),
-      webOnlyWindowName: '_blank',
-    );
+    launchUrl(Uri.parse(_macAppStoreUrl), webOnlyWindowName: '_blank');
   }
 
   @override
@@ -76,9 +79,12 @@ class _DownloadSectionState extends State<DownloadSection> {
     final screen = Responsive.getScreenSize(context);
     final isMobile = screen == ScreenSize.mobile;
     final textColor = widget.isDark ? WebTheme.darkText : WebTheme.lightText;
-    final secondaryText =
-        widget.isDark ? WebTheme.darkTextSecondary : WebTheme.lightTextSecondary;
-    final accent = widget.isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
+    final secondaryText = widget.isDark
+        ? WebTheme.darkTextSecondary
+        : WebTheme.lightTextSecondary;
+    final accent = widget.isDark
+        ? WebTheme.primaryYellow
+        : WebTheme.primaryGold;
     final border = widget.isDark ? WebTheme.darkBorder : WebTheme.lightBorder;
 
     return Container(
@@ -145,15 +151,30 @@ class _DownloadSectionState extends State<DownloadSection> {
                       border: border,
                       loading: _loading,
                     ),
+                    _DownloadCard(
+                      platform: 'Windows',
+                      icon: Icons.desktop_windows_rounded,
+                      format: '.zip',
+                      description: 'Windows 10 or later',
+                      onDownload: () => _download(_windowsUrl, 'Windows'),
+                      isDark: widget.isDark,
+                      accent: accent,
+                      textColor: textColor,
+                      secondaryText: secondaryText,
+                      border: border,
+                      loading: _loading,
+                    ),
                   ];
 
                   if (isMobile) {
                     return Column(
                       children: cards
-                          .map((c) => Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
-                                child: c,
-                              ))
+                          .map(
+                            (c) => Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: c,
+                            ),
+                          )
                           .toList(),
                     );
                   }
@@ -161,13 +182,16 @@ class _DownloadSectionState extends State<DownloadSection> {
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: cards
-                        .map((c) => Expanded(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 12),
-                                child: c,
+                        .map(
+                          (c) => Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
                               ),
-                            ))
+                              child: c,
+                            ),
+                          ),
+                        )
                         .toList(),
                   );
                 },
@@ -185,7 +209,8 @@ class _DownloadSectionState extends State<DownloadSection> {
                 onTap: () {
                   AnalyticsService.logGitHubClick();
                   launchUrl(
-                      Uri.parse('https://github.com/maskedsyntax/patterns'));
+                    Uri.parse('https://github.com/maskedsyntax/patterns'),
+                  );
                 },
                 child: MouseRegion(
                   cursor: SystemMouseCursors.click,
@@ -193,7 +218,9 @@ class _DownloadSectionState extends State<DownloadSection> {
                     TextSpan(
                       text: 'Or build from source on ',
                       style: GoogleFonts.inter(
-                          fontSize: 14, color: secondaryText),
+                        fontSize: 14,
+                        color: secondaryText,
+                      ),
                       children: [
                         TextSpan(
                           text: 'GitHub',
@@ -256,8 +283,9 @@ class _DownloadCardState extends State<_DownloadCard> {
 
   @override
   Widget build(BuildContext context) {
-    final surfaceAlt =
-        widget.isDark ? WebTheme.darkSurfaceAlt : WebTheme.lightSurfaceAlt;
+    final surfaceAlt = widget.isDark
+        ? WebTheme.darkSurfaceAlt
+        : WebTheme.lightSurfaceAlt;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -294,12 +322,16 @@ class _DownloadCardState extends State<_DownloadCard> {
               Text(
                 widget.description,
                 style: GoogleFonts.inter(
-                    fontSize: 13, color: widget.secondaryText),
+                  fontSize: 13,
+                  color: widget.secondaryText,
+                ),
               ),
               const SizedBox(height: 20),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: widget.accent,
                   borderRadius: BorderRadius.circular(10),
@@ -317,8 +349,11 @@ class _DownloadCardState extends State<_DownloadCard> {
                         ),
                       )
                     else
-                      const Icon(Icons.download_rounded,
-                          size: 16, color: Colors.black),
+                      const Icon(
+                        Icons.download_rounded,
+                        size: 16,
+                        color: Colors.black,
+                      ),
                     const SizedBox(width: 8),
                     Flexible(
                       child: Text(

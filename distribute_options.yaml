@@ -14,7 +14,7 @@ releases:
         package:
           platform: linux
           target: deb
-      - name: windows-zip
+      - name: windows-exe
         package:
           platform: windows
-          target: zip
+          target: exe

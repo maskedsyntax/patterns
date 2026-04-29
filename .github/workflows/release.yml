@@ -25,7 +25,7 @@ jobs:
             jobs: linux-deb
           - os: windows-latest
             platform: windows
-            jobs: windows-zip
+            jobs: windows-exe
 
     steps:
       - uses: actions/checkout@v4
@@ -39,6 +39,10 @@ jobs:
       - name: Install appdmg (macOS)
         if: matrix.platform == 'macos'
         run: npm install -g appdmg
+
+      - name: Install Inno Setup (Windows)
+        if: matrix.platform == 'windows'
+        run: choco install innosetup --yes --no-progress
 
       - uses: subosito/flutter-action@v2
         with:
@@ -70,6 +74,6 @@ jobs:
           files: |
             dist/**/*.dmg
             dist/**/*.deb
-            dist/**/*.zip
+            dist/**/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

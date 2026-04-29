@@ -1,0 +1,10 @@
+app_id: 705529F1-7C82-44E0-8AEA-0F26CD4F08B2
+display_name: Patterns
+publisher_name: Masked Syntax
+publisher_url: https://github.com/maskedsyntax/patterns
+executable_name: patterns.exe
+setup_icon_file: windows/runner/resources/app_icon.ico
+create_desktop_icon: true
+privileges_required: lowest
+locales:
+  - en

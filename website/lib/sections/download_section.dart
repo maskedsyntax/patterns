@@ -50,7 +50,7 @@ class _DownloadSectionState extends State<DownloadSection> {
           if (name.endsWith('.deb')) {
             _linuxUrl = url;
           }
-          if (name.endsWith('.zip')) {
+          if (name.endsWith('.exe')) {
             _windowsUrl = url;
           }
         }
@@ -154,7 +154,7 @@ class _DownloadSectionState extends State<DownloadSection> {
                     _DownloadCard(
                       platform: 'Windows',
                       icon: Icons.desktop_windows_rounded,
-                      format: '.zip',
+                      format: '.exe',
                       description: 'Windows 10 or later',
                       onDownload: () => _download(_windowsUrl, 'Windows'),
                       isDark: widget.isDark,

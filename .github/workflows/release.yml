@@ -67,6 +67,45 @@ jobs:
       - name: Distribute ${{ matrix.platform }}
         run: flutter_distributor release --name release --jobs ${{ matrix.jobs }}
 
+      - name: Smoke test Windows installer
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem -Path dist -Recurse -Filter *.exe | Select-Object -First 1
+          if (-not $installer) {
+            throw "No Windows installer was produced."
+          }
+
+          $installDir = Join-Path $env:RUNNER_TEMP "patterns-smoke"
+          $installLog = Join-Path $env:RUNNER_TEMP "patterns-install.log"
+          $installArgs = @(
+            "/VERYSILENT",
+            "/SUPPRESSMSGBOXES",
+            "/NORESTART",
+            "/DIR=$installDir",
+            "/LOG=$installLog"
+          )
+
+          $install = Start-Process -FilePath $installer.FullName -ArgumentList $installArgs -Wait -PassThru
+          if ($install.ExitCode -ne 0) {
+            if (Test-Path $installLog) {
+              Get-Content $installLog
+            }
+            throw "Installer failed with exit code $($install.ExitCode)."
+          }
+
+          $app = Join-Path $installDir "patterns.exe"
+          if (-not (Test-Path $app)) {
+            throw "Installed executable was not found at $app."
+          }
+
+          $process = Start-Process -FilePath $app -WorkingDirectory $installDir -PassThru
+          Start-Sleep -Seconds 8
+          if ($process.HasExited) {
+            throw "Installed app exited during smoke test with code $($process.ExitCode)."
+          }
+          Stop-Process -Id $process.Id -Force
+
       - name: Upload packaged artifact
         uses: actions/upload-artifact@v4
         with:

@@ -18,7 +18,9 @@ class DownloadSection extends StatefulWidget {
 }
 
 class _DownloadSectionState extends State<DownloadSection> {
-  String? _macUrl;
+  static const _macAppStoreUrl =
+      'https://apps.apple.com/us/app/patterns-ocd-journaling/id6762611172?mt=12';
+
   String? _linuxUrl;
   String? _version;
   bool _loading = true;
@@ -42,9 +44,7 @@ class _DownloadSectionState extends State<DownloadSection> {
         for (final asset in assets) {
           final name = asset['name'] as String;
           final url = asset['browser_download_url'] as String;
-          if (name.endsWith('.dmg')) {
-            _macUrl = url;
-          } else if (name.endsWith('.deb')) {
+          if (name.endsWith('.deb')) {
             _linuxUrl = url;
           }
         }
@@ -58,8 +58,17 @@ class _DownloadSectionState extends State<DownloadSection> {
 
   void _download(String? assetUrl, String platform) {
     AnalyticsService.logDownload(platform, _version ?? 'unknown');
-    final url = assetUrl ?? 'https://github.com/maskedsyntax/patterns/releases/latest';
+    final url =
+        assetUrl ?? 'https://github.com/maskedsyntax/patterns/releases/latest';
     launchUrl(Uri.parse(url));
+  }
+
+  void _openMacAppStore() {
+    AnalyticsService.logDownload('macOS', _version ?? 'unknown');
+    launchUrl(
+      Uri.parse(_macAppStoreUrl),
+      webOnlyWindowName: '_blank',
+    );
   }
 
   @override
@@ -114,13 +123,14 @@ class _DownloadSectionState extends State<DownloadSection> {
                       icon: Icons.desktop_mac_rounded,
                       format: '.dmg',
                       description: 'macOS 12 Monterey or later',
-                      onDownload: () => _download(_macUrl, 'macOS'),
+                      buttonLabel: 'Open App Store',
+                      onDownload: _openMacAppStore,
                       isDark: widget.isDark,
                       accent: accent,
                       textColor: textColor,
                       secondaryText: secondaryText,
                       border: border,
-                      loading: _loading,
+                      loading: false,
                     ),
                     _DownloadCard(
                       platform: 'Linux',
@@ -213,6 +223,7 @@ class _DownloadCard extends StatefulWidget {
   final IconData icon;
   final String format;
   final String description;
+  final String? buttonLabel;
   final VoidCallback onDownload;
   final bool isDark;
   final Color accent;
@@ -226,6 +237,7 @@ class _DownloadCard extends StatefulWidget {
     required this.icon,
     required this.format,
     required this.description,
+    this.buttonLabel,
     required this.onDownload,
     required this.isDark,
     required this.accent,
@@ -310,7 +322,7 @@ class _DownloadCardState extends State<_DownloadCard> {
                     const SizedBox(width: 8),
                     Flexible(
                       child: Text(
-                        'Download ${widget.format}',
+                        widget.buttonLabel ?? 'Download ${widget.format}',
                         maxLines: 1,
                         softWrap: false,
                         overflow: TextOverflow.ellipsis,

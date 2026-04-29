@@ -1,0 +1,63 @@
+name: Windows Installer
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: GitHub Release tag to upload the Windows installer to
+        required: true
+        default: v1.1.0
+      upload_to_release:
+        description: Upload the installer to the selected GitHub Release
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+permissions:
+  contents: write
+
+jobs:
+  windows-installer:
+    name: Build Windows Installer
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Inno Setup
+        run: choco install innosetup --yes --no-progress
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install flutter_distributor
+        run: dart pub global activate flutter_distributor
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build Windows installer
+        shell: bash
+        run: |
+          export PATH="$PATH":"$HOME/.pub-cache/bin"
+          flutter_distributor release --name release --jobs windows-exe
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: patterns-windows-installer
+          path: dist/**/*.exe
+
+      - name: Upload installer to GitHub Release
+        if: inputs.upload_to_release == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ inputs.release_tag }}
+          files: dist/**/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

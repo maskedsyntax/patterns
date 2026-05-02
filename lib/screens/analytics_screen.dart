@@ -34,9 +34,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 116),
           children: [
-            FadeSlideIn(
-              child: Text('Insights', style: _screenTitle(theme)),
-            ),
+            FadeSlideIn(child: Text('Insights', style: _screenTitle(theme))),
             const SizedBox(height: 18),
             FadeSlideIn(
               delay: const Duration(milliseconds: 60),
@@ -510,18 +508,55 @@ class _RatioBar extends StatelessWidget {
 
 String _commonTrigger(List<OcdEntry> entries) {
   if (entries.isEmpty) return 'None yet';
-  final words = <String, int>{};
+
+  final scores = <String, int>{};
+  final displayForms = <String, Map<String, int>>{};
+
   for (final entry in entries) {
-    for (final word in entry.content.toLowerCase().split(RegExp(r'\W+'))) {
-      if (word.length < 4) continue;
-      words[word] = (words[word] ?? 0) + 1;
+    final tokens = _meaningfulTokens(entry.content);
+
+    for (final token in tokens) {
+      _recordTriggerCandidate(
+        key: token.stem,
+        display: token.original,
+        scores: scores,
+        displayForms: displayForms,
+      );
+    }
+
+    for (var i = 0; i < tokens.length - 1; i++) {
+      final first = tokens[i];
+      final second = tokens[i + 1];
+      _recordTriggerCandidate(
+        key: '${first.stem} ${second.stem}',
+        display: '${first.original} ${second.original}',
+        scores: scores,
+        displayForms: displayForms,
+      );
     }
   }
-  if (words.isEmpty) return 'Not clear';
-  final sorted = words.entries.toList()
-    ..sort((a, b) => b.value.compareTo(a.value));
-  return sorted.first.key;
+
+  if (scores.isEmpty) return 'Not clear';
+
+  final sorted = scores.entries.toList()
+    ..sort((a, b) {
+      final countCompare = b.value.compareTo(a.value);
+      if (countCompare != 0) return countCompare;
+
+      final phraseCompare = b.key
+          .split(' ')
+          .length
+          .compareTo(a.key.split(' ').length);
+      if (phraseCompare != 0) return phraseCompare;
+
+      return a.key.compareTo(b.key);
+    });
+
+  return _bestDisplayForm(displayForms[sorted.first.key] ?? const {});
 }
+
+String commonTriggerForTesting(List<OcdEntry> entries) =>
+    _commonTrigger(entries);
 
 String _triggerPatternCopy(List<OcdEntry> entries) {
   if (entries.isEmpty) {
@@ -532,6 +567,168 @@ String _triggerPatternCopy(List<OcdEntry> entries) {
     return 'There is not a strong repeated trigger yet.';
   }
   return 'A repeated theme around "$trigger" appears in this range.';
+}
+
+const Set<String> _triggerStopWords = {
+  'a',
+  'an',
+  'and',
+  'are',
+  'as',
+  'at',
+  'be',
+  'because',
+  'been',
+  'but',
+  'by',
+  'did',
+  'do',
+  'does',
+  'doing',
+  'for',
+  'from',
+  'had',
+  'has',
+  'have',
+  'having',
+  'he',
+  'her',
+  'here',
+  'hers',
+  'him',
+  'his',
+  'i',
+  'if',
+  'in',
+  'into',
+  'is',
+  'it',
+  'its',
+  'me',
+  'my',
+  'of',
+  'on',
+  'or',
+  'our',
+  'she',
+  'so',
+  'than',
+  'that',
+  'the',
+  'their',
+  'them',
+  'then',
+  'there',
+  'they',
+  'this',
+  'to',
+  'too',
+  'was',
+  'we',
+  'were',
+  'when',
+  'where',
+  'which',
+  'who',
+  'will',
+  'with',
+  'you',
+  'your',
+  'about',
+  'again',
+  'always',
+  'feel',
+  'feeling',
+  'felt',
+  'just',
+  'like',
+  'maybe',
+  'ocd',
+  'really',
+  'something',
+  'still',
+  'thing',
+  'things',
+  'think',
+  'thinking',
+  'thought',
+  'thoughts',
+  'today',
+  'very',
+};
+
+List<_TriggerToken> _meaningfulTokens(String text) {
+  final words = RegExp(
+    r"[a-zA-Z][a-zA-Z']*",
+  ).allMatches(text.toLowerCase()).map((match) => match.group(0)!);
+
+  return [
+    for (final word in words)
+      if (_isMeaningfulTriggerWord(word))
+        _TriggerToken(original: word, stem: _stemWord(word)),
+  ];
+}
+
+bool _isMeaningfulTriggerWord(String word) {
+  if (word.length < 4) return false;
+  if (_triggerStopWords.contains(word)) return false;
+  return true;
+}
+
+String _stemWord(String word) {
+  if (word.length > 5 && word.endsWith('ing')) {
+    return _trimDoubleConsonant(word.substring(0, word.length - 3));
+  }
+  if (word.length > 4 && word.endsWith('ed')) {
+    return _trimDoubleConsonant(word.substring(0, word.length - 2));
+  }
+  if (word.length > 5 && word.endsWith('es')) {
+    return word.substring(0, word.length - 2);
+  }
+  if (word.length > 4 && word.endsWith('s') && !word.endsWith('ss')) {
+    return word.substring(0, word.length - 1);
+  }
+  return word;
+}
+
+String _trimDoubleConsonant(String stem) {
+  if (stem.length < 2) return stem;
+
+  final last = stem[stem.length - 1];
+  final previous = stem[stem.length - 2];
+  if (last == previous && !'aeiou'.contains(last)) {
+    return stem.substring(0, stem.length - 1);
+  }
+  return stem;
+}
+
+void _recordTriggerCandidate({
+  required String key,
+  required String display,
+  required Map<String, int> scores,
+  required Map<String, Map<String, int>> displayForms,
+}) {
+  scores[key] = (scores[key] ?? 0) + 1;
+  final forms = displayForms.putIfAbsent(key, () => {});
+  forms[display] = (forms[display] ?? 0) + 1;
+}
+
+String _bestDisplayForm(Map<String, int> forms) {
+  if (forms.isEmpty) return 'Not clear';
+  final sorted = forms.entries.toList()
+    ..sort((a, b) {
+      final countCompare = b.value.compareTo(a.value);
+      if (countCompare != 0) return countCompare;
+      return a.key.compareTo(b.key);
+    });
+  return sorted.first.key;
+}
+
+class _TriggerToken {
+  final String original;
+  final String stem;
+
+  const _TriggerToken({required this.original, required this.stem});
 }
 
 TextStyle _screenTitle(ThemeData theme) {

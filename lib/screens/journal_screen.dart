@@ -191,11 +191,48 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
   }
 }
 
-class JournalScreen extends ConsumerWidget {
+class JournalScreen extends ConsumerStatefulWidget {
   const JournalScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<JournalScreen> createState() => _JournalScreenState();
+}
+
+class _JournalScreenState extends ConsumerState<JournalScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocus = FocusNode();
+  bool _isSearching = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.text = ref.read(journalSearchQueryProvider);
+    if (_searchController.text.isNotEmpty) _isSearching = true;
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocus.dispose();
+    super.dispose();
+  }
+
+  void _enterSearch() {
+    setState(() => _isSearching = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _searchFocus.requestFocus();
+    });
+  }
+
+  void _exitSearch() {
+    _searchFocus.unfocus();
+    _searchController.clear();
+    ref.read(journalSearchQueryProvider.notifier).query = '';
+    setState(() => _isSearching = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final entriesAsync = ref.watch(filteredJournalProvider);
 
@@ -205,67 +242,108 @@ class JournalScreen extends ConsumerWidget {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
-              child: Row(
-                children: [
-                  Expanded(child: Text('Journal', style: _screenTitle(theme))),
-                  _RoundIconButton(
-                    icon: LineIcons.search,
-                    semanticLabel: 'Search journal',
-                    onTap: () => _showSearchSheet(context, ref),
-                  ),
-                  const SizedBox(width: 10),
-                  _RoundIconButton(
-                    icon: LineIcons.calendar,
-                    semanticLabel: 'Choose date',
-                    onTap: () => _pickDate(context),
-                  ),
-                ],
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 220),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: child,
+                ),
+                child: _isSearching
+                    ? _InlineSearchBar(
+                        key: const ValueKey('search'),
+                        controller: _searchController,
+                        focusNode: _searchFocus,
+                        onChanged: (value) => ref
+                            .read(journalSearchQueryProvider.notifier)
+                            .query = value,
+                        onCancel: _exitSearch,
+                      )
+                    : Row(
+                        key: const ValueKey('header'),
+                        children: [
+                          Expanded(
+                            child: Text('Journal', style: _screenTitle(theme)),
+                          ),
+                          _RoundIconButton(
+                            icon: LineIcons.search,
+                            semanticLabel: 'Search journal',
+                            onTap: _enterSearch,
+                          ),
+                          const SizedBox(width: 10),
+                          _RoundIconButton(
+                            icon: LineIcons.calendar,
+                            semanticLabel: 'Choose date',
+                            onTap: () => _pickDate(context),
+                          ),
+                        ],
+                      ),
               ),
             ),
-            SizedBox(
-              height: 54,
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) {
-                  final date = DateTime.now().subtract(Duration(days: index));
-                  return _DatePill(
-                    label: index == 0
-                        ? 'Today'
-                        : DateFormat('E d').format(date),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => JournalEntryEditor(date: date),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              child: _isSearching
+                  ? const SizedBox.shrink()
+                  : SizedBox(
+                      height: 54,
+                      child: ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index) {
+                          final date = DateTime.now().subtract(
+                            Duration(days: index),
+                          );
+                          return _DatePill(
+                            label: index == 0
+                                ? 'Today'
+                                : DateFormat('E d').format(date),
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) =>
+                                    JournalEntryEditor(date: date),
+                              ),
+                            ),
+                          );
+                        },
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(width: 8),
+                        itemCount: 10,
                       ),
                     ),
-                  );
-                },
-                separatorBuilder: (context, index) => const SizedBox(width: 8),
-                itemCount: 10,
-              ),
             ),
             Expanded(
               child: entriesAsync.when(
                 data: (entries) {
                   final sorted = List<JournalEntry>.from(entries)
                     ..sort((a, b) => b.date.compareTo(a.date));
+                  final query = ref.watch(journalSearchQueryProvider);
                   return ListView(
                     padding: const EdgeInsets.fromLTRB(20, 12, 20, 116),
                     children: [
-                      _TodayEntryCard(
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) =>
-                                JournalEntryEditor(date: DateTime.now()),
+                      if (!_isSearching) ...[
+                        _TodayEntryCard(
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) =>
+                                  JournalEntryEditor(date: DateTime.now()),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 16),
+                      ],
                       if (sorted.isEmpty)
                         _EmptyState(
-                          icon: LineIcons.penNib,
-                          title: 'No journal entries yet',
-                          body: 'A few quiet lines are enough to begin.',
+                          icon: _isSearching && query.isNotEmpty
+                              ? LineIcons.search
+                              : LineIcons.penNib,
+                          title: _isSearching && query.isNotEmpty
+                              ? 'No matches'
+                              : 'No journal entries yet',
+                          body: _isSearching && query.isNotEmpty
+                              ? 'Nothing matches "$query".'
+                              : 'A few quiet lines are enough to begin.',
                         )
                       else
                         ...sorted.map(
@@ -284,44 +362,6 @@ class JournalScreen extends ConsumerWidget {
     );
   }
 
-  void _showSearchSheet(BuildContext context, WidgetRef ref) {
-    final controller = TextEditingController(
-      text: ref.read(journalSearchQueryProvider),
-    );
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: _BottomPanel(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Search journal',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: controller,
-                autofocus: true,
-                decoration: const InputDecoration(hintText: 'Search entries'),
-                onChanged: (value) =>
-                    ref.read(journalSearchQueryProvider.notifier).query = value,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Future<void> _pickDate(BuildContext context) async {
     final picked = await showModalBottomSheet<DateTime>(
       context: context,
@@ -332,6 +372,114 @@ class JournalScreen extends ConsumerWidget {
     if (picked == null || !context.mounted) return;
     Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (_) => JournalEntryEditor(date: picked)),
+    );
+  }
+}
+
+class _InlineSearchBar extends StatefulWidget {
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onCancel;
+
+  const _InlineSearchBar({
+    super.key,
+    required this.controller,
+    required this.focusNode,
+    required this.onChanged,
+    required this.onCancel,
+  });
+
+  @override
+  State<_InlineSearchBar> createState() => _InlineSearchBarState();
+}
+
+class _InlineSearchBarState extends State<_InlineSearchBar> {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onControllerChange);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerChange);
+    super.dispose();
+  }
+
+  void _onControllerChange() => setState(() {});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 44,
+            decoration: _softDecoration(theme, radius: 18),
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Row(
+              children: [
+                Icon(
+                  LineIcons.search,
+                  size: 18,
+                  color: AppTheme.textSecondary,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: TextField(
+                    controller: widget.controller,
+                    focusNode: widget.focusNode,
+                    onChanged: widget.onChanged,
+                    textInputAction: TextInputAction.search,
+                    style: theme.textTheme.bodyLarge,
+                    decoration: InputDecoration(
+                      isCollapsed: true,
+                      hintText: 'Search entries',
+                      hintStyle: TextStyle(
+                        color: AppTheme.textSecondary.withValues(alpha: 0.7),
+                      ),
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      filled: false,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ),
+                if (widget.controller.text.isNotEmpty)
+                  GestureDetector(
+                    onTap: () {
+                      widget.controller.clear();
+                      widget.onChanged('');
+                    },
+                    child: Icon(
+                      Icons.cancel,
+                      size: 18,
+                      color: AppTheme.textSecondary.withValues(alpha: 0.8),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        TextButton(
+          onPressed: widget.onCancel,
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            foregroundColor: theme.colorScheme.primary,
+          ),
+          child: const Text(
+            'Cancel',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
+      ],
     );
   }
 }

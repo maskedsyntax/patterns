@@ -287,7 +287,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
               child: _isSearching
                   ? const SizedBox.shrink()
                   : SizedBox(
-                      height: 54,
+                      height: 52,
                       child: ListView.separated(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         scrollDirection: Axis.horizontal,
@@ -296,9 +296,8 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                             Duration(days: index),
                           );
                           return _DatePill(
-                            label: index == 0
-                                ? 'Today'
-                                : DateFormat('E d').format(date),
+                            date: date,
+                            isToday: index == 0,
                             onTap: () => Navigator.of(context).push(
                               MaterialPageRoute<void>(
                                 builder: (_) =>
@@ -777,27 +776,74 @@ class _RecentSkeleton extends StatelessWidget {
 }
 
 class _DatePill extends StatelessWidget {
-  final String label;
+  final DateTime date;
+  final bool isToday;
   final VoidCallback onTap;
 
-  const _DatePill({required this.label, required this.onTap});
+  const _DatePill({
+    required this.date,
+    required this.isToday,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final accent = theme.colorScheme.primary;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(18),
-      onTap: onTap,
-      child: Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: _softDecoration(theme, radius: 18),
-        child: Text(
-          label,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w700,
+    final weekday = DateFormat('EEE').format(date);
+    final dayLabel = DateFormat('MMM dd').format(date);
+
+    return Center(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: onTap,
+        child: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          decoration: BoxDecoration(
+            color: accent.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: accent.withValues(alpha: 0.45),
+              width: 1,
+            ),
           ),
+          child: isToday
+              ? Text(
+                  'Today',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: accent,
+                    letterSpacing: -0.1,
+                  ),
+                )
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      weekday,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textSecondary,
+                        letterSpacing: 0.5,
+                        height: 1.1,
+                      ),
+                    ),
+                    Text(
+                      dayLabel,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface,
+                        letterSpacing: -0.1,
+                        height: 1.1,
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );

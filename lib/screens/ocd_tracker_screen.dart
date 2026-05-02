@@ -32,21 +32,7 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
-              child: Row(
-                children: [
-                  Expanded(child: Text('Track', style: _screenTitle(theme))),
-                  TextButton.icon(
-                    onPressed: widget.onAdd,
-                    icon: const Icon(LineIcons.plus, size: 16),
-                    label: const Text('Track New Event'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: theme.colorScheme.primary,
-                      visualDensity: VisualDensity.compact,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                    ),
-                  ),
-                ],
-              ),
+              child: Text('Track', style: _screenTitle(theme)),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),

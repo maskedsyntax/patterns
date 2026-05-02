@@ -11,14 +11,12 @@ import '../theme/app_theme.dart';
 class TodayScreen extends ConsumerStatefulWidget {
   final VoidCallback onJournal;
   final VoidCallback onTrack;
-  final VoidCallback onAdd;
   final VoidCallback onSettings;
 
   const TodayScreen({
     super.key,
     required this.onJournal,
     required this.onTrack,
-    required this.onAdd,
     required this.onSettings,
   });
 
@@ -27,14 +25,16 @@ class TodayScreen extends ConsumerStatefulWidget {
 }
 
 class _TodayScreenState extends ConsumerState<TodayScreen> {
-  double _distress = 3;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final journalAsync = ref.watch(journalProvider);
     final ocdAsync = ref.watch(ocdProvider);
     final dateLabel = DateFormat('EEEE, MMMM d').format(DateTime.now());
+    final todayKey = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final hasJournalToday =
+        journalAsync.asData?.value.any((entry) => entry.date == todayKey) ??
+        false;
 
     return Scaffold(
       body: SafeArea(
@@ -55,12 +55,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                   ),
                 ),
                 _RoundIconButton(
-                  icon: LineIcons.plus,
-                  onTap: widget.onAdd,
-                  semanticLabel: 'Add entry',
-                ),
-                const SizedBox(width: 10),
-                _RoundIconButton(
                   icon: LineIcons.cog,
                   onTap: widget.onSettings,
                   semanticLabel: 'Settings',
@@ -72,37 +66,30 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Icon(
+                    LineIcons.feather,
+                    color: theme.colorScheme.primary,
+                    size: 24,
+                  ),
+                  const SizedBox(height: 18),
                   Text(
-                    'How are you feeling right now?',
+                    hasJournalToday
+                        ? 'You showed up today.'
+                        : 'A quiet note for today.',
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w800,
-                      height: 1.25,
+                      height: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 26),
-                  Row(
-                    children: [
-                      Text('0', style: _muted(theme, 13)),
-                      Expanded(
-                        child: Slider(
-                          value: _distress,
-                          min: 0,
-                          max: 10,
-                          divisions: 10,
-                          onChanged: (value) =>
-                              setState(() => _distress = value),
-                        ),
-                      ),
-                      Text('10', style: _muted(theme, 13)),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 12),
                   Text(
-                    'Distress ${_distress.round()}/10',
-                    style: TextStyle(
-                      color: _distressColor(_distress.round()),
-                      fontWeight: FontWeight.w800,
-                    ),
+                    hasJournalToday
+                        ? 'Let the rest of the day be lighter. You do not need to solve every thought.'
+                        : 'You do not have to solve the pattern right now. Just notice one thing gently.',
+                    style: _muted(
+                      theme,
+                      16,
+                    ).copyWith(height: 1.55, color: AppTheme.textSecondary),
                   ),
                 ],
               ),
@@ -223,17 +210,6 @@ class JournalScreen extends ConsumerWidget {
                 children: [
                   Expanded(child: Text('Journal', style: _screenTitle(theme))),
                   _RoundIconButton(
-                    icon: LineIcons.plus,
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) =>
-                            JournalEntryEditor(date: DateTime.now()),
-                      ),
-                    ),
-                    semanticLabel: 'New Entry',
-                  ),
-                  const SizedBox(width: 10),
-                  _RoundIconButton(
                     icon: LineIcons.search,
                     semanticLabel: 'Search journal',
                     onTap: () => _showSearchSheet(context, ref),
@@ -351,6 +327,7 @@ class JournalScreen extends ConsumerWidget {
     final picked = await showModalBottomSheet<DateTime>(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (context) => _DatePickerSheet(initialDate: DateTime.now()),
     );
     if (picked == null || !context.mounted) return;
@@ -692,33 +669,40 @@ class _DatePickerSheetState extends State<_DatePickerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final maxHeight = MediaQuery.sizeOf(context).height * 0.78;
+
     return _BottomPanel(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Choose date',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: maxHeight),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Choose date',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 12),
+              CalendarDatePicker(
+                initialDate: _date,
+                firstDate: DateTime(2000),
+                lastDate: DateTime.now(),
+                onDateChanged: (date) => _date = date,
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context, _date),
+                  child: const Text('Open entry'),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          CalendarDatePicker(
-            initialDate: _date,
-            firstDate: DateTime(2000),
-            lastDate: DateTime.now(),
-            onDateChanged: (date) => _date = date,
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => Navigator.pop(context, _date),
-              child: const Text('Open entry'),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -858,10 +842,4 @@ BoxDecoration _softDecoration(ThemeData theme, {required double radius}) {
     borderRadius: BorderRadius.circular(radius),
     border: Border.all(color: theme.dividerColor.withValues(alpha: 0.9)),
   );
-}
-
-Color _distressColor(int level) {
-  if (level <= 3) return AppTheme.softGreen;
-  if (level <= 7) return AppTheme.warmYellow;
-  return AppTheme.mutedRed;
 }

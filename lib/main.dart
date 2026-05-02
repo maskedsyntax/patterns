@@ -200,7 +200,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final today = TodayScreen(
       onJournal: () => _openJournalEditor(context),
       onTrack: () => _openOcdFlow(context),
-      onAdd: () => _showAddSheet(context),
       onSettings: () => Navigator.of(
         context,
       ).push(MaterialPageRoute<void>(builder: (_) => const SettingsScreen())),
@@ -229,7 +228,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Positioned(
             left: 20,
             right: 20,
-            bottom: 18,
+            bottom: 8,
             child: SafeArea(
               minimum: EdgeInsets.zero,
               child: _FloatingTabBar(
@@ -238,6 +237,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
           ),
+          if (_selectedTab == _Tab.home || _selectedTab == _Tab.journal)
+            Positioned(
+              right: 28,
+              bottom: 92,
+              child: SafeArea(
+                minimum: EdgeInsets.zero,
+                child: _FloatingPenButton(
+                  onTap: _selectedTab == _Tab.journal
+                      ? () => _openJournalEditor(context)
+                      : () => _showAddSheet(context),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -350,6 +362,50 @@ class _FloatingTabBar extends StatelessWidget {
                 onTap: () => onSelected(_Tab.insights),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FloatingPenButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _FloatingPenButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Semantics(
+      button: true,
+      label: 'Add entry',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: onTap,
+        child: Container(
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: theme.scaffoldBackgroundColor.withValues(alpha: 0.55),
+              width: 3,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.24),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Icon(
+            LineIcons.penNib,
+            color: theme.colorScheme.onPrimary,
+            size: 23,
           ),
         ),
       ),

@@ -238,16 +238,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
           ),
-          if (_selectedTab == _Tab.home || _selectedTab == _Tab.journal)
+          if (_selectedTab == _Tab.home ||
+              _selectedTab == _Tab.journal ||
+              _selectedTab == _Tab.track)
             Positioned(
               right: 28,
               bottom: 92,
               child: SafeArea(
                 minimum: EdgeInsets.zero,
                 child: _FloatingPenButton(
-                  onTap: _selectedTab == _Tab.journal
-                      ? () => _openJournalEditor(context)
-                      : () => _showAddSheet(context),
+                  icon: _selectedTab == _Tab.track
+                      ? Icons.add_rounded
+                      : LineIcons.penNib,
+                  semanticLabel: _selectedTab == _Tab.track
+                      ? 'Track OCD event'
+                      : 'Add entry',
+                  onTap: switch (_selectedTab) {
+                    _Tab.journal => () => _openJournalEditor(context),
+                    _Tab.track => () => _openOcdFlow(context),
+                    _ => () => _showAddSheet(context),
+                  },
                 ),
               ),
             ),
@@ -303,6 +313,22 @@ class _FloatingTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final gradientColors = isDark
+        ? [
+            Colors.white.withValues(alpha: 0.10),
+            theme.colorScheme.surface.withValues(alpha: 0.44),
+            Colors.black.withValues(alpha: 0.10),
+          ]
+        : [
+            Colors.white.withValues(alpha: 0.32),
+            Colors.white.withValues(alpha: 0.18),
+            Colors.white.withValues(alpha: 0.10),
+          ];
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.12)
+        : Colors.white.withValues(alpha: 0.55);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(30),
@@ -315,17 +341,13 @@ class _FloatingTabBar extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Colors.white.withValues(alpha: 0.10),
-                theme.colorScheme.surface.withValues(alpha: 0.44),
-                Colors.black.withValues(alpha: 0.10),
-              ],
+              colors: gradientColors,
             ),
             borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+            border: Border.all(color: borderColor),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.20),
+                color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.08),
                 blurRadius: 26,
                 offset: const Offset(0, 14),
               ),
@@ -372,8 +394,14 @@ class _FloatingTabBar extends StatelessWidget {
 
 class _FloatingPenButton extends StatelessWidget {
   final VoidCallback onTap;
+  final IconData icon;
+  final String semanticLabel;
 
-  const _FloatingPenButton({required this.onTap});
+  const _FloatingPenButton({
+    required this.onTap,
+    this.icon = LineIcons.penNib,
+    this.semanticLabel = 'Add entry',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -381,7 +409,7 @@ class _FloatingPenButton extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: 'Add entry',
+      label: semanticLabel,
       child: InkWell(
         borderRadius: BorderRadius.circular(999),
         onTap: onTap,
@@ -404,9 +432,9 @@ class _FloatingPenButton extends StatelessWidget {
             ],
           ),
           child: Icon(
-            LineIcons.penNib,
+            icon,
             color: theme.colorScheme.onPrimary,
-            size: 23,
+            size: 26,
           ),
         ),
       ),
@@ -430,7 +458,10 @@ class _TabItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final color = active ? theme.colorScheme.primary : AppTheme.textSecondary;
+    final inactiveColor = theme.brightness == Brightness.dark
+        ? AppTheme.textSecondary
+        : AppTheme.lightTextPrimary.withValues(alpha: 0.72);
+    final color = active ? theme.colorScheme.primary : inactiveColor;
 
     return Expanded(
       child: InkWell(

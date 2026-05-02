@@ -1,421 +1,867 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:window_manager/window_manager.dart';
-import '../providers/providers.dart';
+
 import '../models/models.dart';
-import '../database/db_helper.dart';
-import '../widgets/window_controls.dart';
+import '../providers/providers.dart';
+import '../theme/app_theme.dart';
 
-class JournalScreen extends ConsumerStatefulWidget {
-  const JournalScreen({super.key});
+class TodayScreen extends ConsumerStatefulWidget {
+  final VoidCallback onJournal;
+  final VoidCallback onTrack;
+  final VoidCallback onAdd;
+  final VoidCallback onSettings;
 
-  @override
-  ConsumerState<JournalScreen> createState() => _JournalScreenState();
-}
-
-class _JournalScreenState extends ConsumerState<JournalScreen> {
-  final TextEditingController _controller = TextEditingController();
-  final TextEditingController _searchController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
-  bool _isSaving = false;
-  bool _hasUnsavedChanges = false;
-  bool _initialLoadDone = false;
-  bool _isFocusMode = false;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _save() async {
-    if (_controller.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cannot save an empty entry'), behavior: SnackBarBehavior.floating),
-      );
-      return;
-    }
-    
-    setState(() => _isSaving = true);
-    final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
-    await ref.read(journalProvider.notifier).saveEntry(dateStr, _controller.text);
-    
-    if (mounted) {
-      setState(() {
-        _isSaving = false;
-        _hasUnsavedChanges = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Entry saved successfully'), behavior: SnackBarBehavior.floating),
-      );
-    }
-  }
-
-  void _loadEntryForDate(DateTime date, List<JournalEntry> entries) {
-    final dateStr = DateFormat('yyyy-MM-dd').format(date);
-    final existing = entries.where((e) => e.date == dateStr).firstOrNull;
-    
-    setState(() {
-      _selectedDate = date;
-      _controller.text = existing?.content ?? '';
-      _hasUnsavedChanges = false;
-    });
-  }
-
-  Future<void> _deleteEntry(String date) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Entry?'),
-        content: const Text('This will permanently remove this journal entry.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
-            onPressed: () => Navigator.pop(context, true), 
-            child: const Text('Delete')
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      await DbHelper.instance.deleteJournalEntry(date);
-      ref.invalidate(journalProvider);
-      if (date == DateFormat('yyyy-MM-dd').format(_selectedDate)) {
-        _controller.clear();
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final journalAsync = ref.watch(journalProvider);
-    final filteredJournalAsync = ref.watch(filteredJournalProvider);
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
-
-    ref.listen<AsyncValue<List<JournalEntry>>>(journalProvider, (previous, next) {
-      if (!_initialLoadDone && next.hasValue) {
-        _loadEntryForDate(_selectedDate, next.value!);
-        _initialLoadDone = true;
-      }
-    });
-
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(48),
-        child: DragToMoveArea(
-          child: Container(
-            decoration: BoxDecoration(
-              color: isDark ? Colors.black : Colors.white,
-              border: Border(bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
-            ),
-            child: AppBar(
-              toolbarHeight: 48,
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              leading: IconButton(
-                icon: Icon(_isFocusMode ? LineIcons.compress : LineIcons.expand, size: 20),
-                tooltip: _isFocusMode ? 'Exit Focus Mode' : 'Enter Focus Mode',
-                onPressed: () => setState(() => _isFocusMode = !_isFocusMode),
-              ),
-              titleSpacing: 0,
-              title: Stack(
-                alignment: Alignment.center,
-                children: [
-                  if (!_isFocusMode)
-                    Center(
-                      child: Container(
-                        height: 30,
-                        width: 250,
-                        child: TextField(
-                          controller: _searchController,
-                          onChanged: (value) => ref.read(journalSearchQueryProvider.notifier).query = value,
-                          style: TextStyle(fontSize: 13, color: theme.colorScheme.onSurface),
-                          decoration: InputDecoration(
-                            hintText: 'Search journals...',
-                            prefixIcon: Icon(LineIcons.search, size: 16, color: theme.colorScheme.onSurface.withOpacity(0.4)),
-                            contentPadding: EdgeInsets.zero,
-                            fillColor: theme.colorScheme.onSurface.withOpacity(0.05),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                          ),
-                        ),
-                      ),
-                    ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          DateFormat('MMMM d, yyyy').format(_selectedDate), 
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)
-                        ),
-                        Text(
-                          _hasUnsavedChanges ? 'Unsaved' : 'Saved',
-                          style: TextStyle(
-                            fontSize: 9, 
-                            fontWeight: FontWeight.w500,
-                            color: _hasUnsavedChanges ? theme.colorScheme.primary : theme.colorScheme.onSurface.withOpacity(0.3),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                const SizedBox(width: 12),
-                SizedBox(
-                  height: 28,
-                  child: ElevatedButton.icon(
-                    onPressed: _isSaving ? null : _save,
-                    icon: _isSaving 
-                      ? SizedBox(width: 10, height: 10, child: CircularProgressIndicator(strokeWidth: 2, color: theme.colorScheme.onPrimary))
-                      : const Icon(LineIcons.save, size: 14),
-                    label: const Text('Save', style: TextStyle(fontSize: 12)),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  mouseCursor: SystemMouseCursors.click,
-                  icon: Icon(LineIcons.calendar, size: 18, color: theme.colorScheme.onSurface.withOpacity(0.6)),
-                  onPressed: () async {
-                    final picked = await showDatePicker(
-                      context: context,
-                      initialDate: _selectedDate,
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime.now(),
-                    );
-                    if (picked != null) {
-                      _loadEntryForDate(picked, journalAsync.value ?? []);
-                    }
-                  },
-                ),
-                const SizedBox(width: 4),
-                const WindowControls(),
-              ],
-            ),
-          ),
-        ),
-      ),
-      body: Row(
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            width: _isFocusMode ? 0 : 280,
-            child: Container(
-              decoration: BoxDecoration(
-                color: isDark ? theme.colorScheme.surface : theme.scaffoldBackgroundColor,
-                border: Border(right: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
-              ),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                physics: const NeverScrollableScrollPhysics(),
-                child: SizedBox(
-                  width: 280,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton.icon(
-                            onPressed: () => _loadEntryForDate(DateTime.now(), journalAsync.value ?? []),
-                            icon: const Icon(LineIcons.plus, size: 16),
-                            label: const Text('Today'),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: filteredJournalAsync.when(
-                          data: (entries) {
-                            if (!_initialLoadDone && journalAsync.hasValue) {
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                if (mounted) {
-                                  _loadEntryForDate(_selectedDate, journalAsync.value!);
-                                  _initialLoadDone = true;
-                                }
-                              });
-                            }
-
-                            return ListView.builder(
-                              itemCount: entries.length,
-                              padding: const EdgeInsets.only(bottom: 8),
-                              itemBuilder: (context, index) {
-                                final entry = entries[index];
-                                return _JournalTile(
-                                  entry: entry,
-                                  isSelected: entry.date == dateStr,
-                                  onTap: () => _loadEntryForDate(DateTime.parse(entry.date), journalAsync.value ?? []),
-                                  onDelete: () => _deleteEntry(entry.date),
-                                  theme: theme,
-                                );
-                              },
-                            );
-                          },
-                          loading: () => const Center(child: CircularProgressIndicator()),
-                          error: (e, s) => Center(child: Text('Error: $e')),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              color: isDark ? Colors.black : Colors.white,
-              child: Center(
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  padding: const EdgeInsets.fromLTRB(48, 48, 48, 0),
-                  child: TextField(
-                    controller: _controller,
-                    maxLines: null,
-                    expands: true,
-                    onChanged: (value) {
-                      if (!_hasUnsavedChanges) {
-                        setState(() => _hasUnsavedChanges = true);
-                      }
-                    },
-                    style: GoogleFonts.inter(
-                      fontSize: 19,
-                      height: 1.7,
-                      color: theme.colorScheme.onSurface,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'Start writing...',
-                      hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.1)),
-                      filled: false,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _JournalTile extends StatefulWidget {
-  final JournalEntry entry;
-  final bool isSelected;
-  final VoidCallback onTap;
-  final VoidCallback onDelete;
-  final ThemeData theme;
-
-  const _JournalTile({
-    required this.entry,
-    required this.isSelected,
-    required this.onTap,
-    required this.onDelete,
-    required this.theme,
+  const TodayScreen({
+    super.key,
+    required this.onJournal,
+    required this.onTrack,
+    required this.onAdd,
+    required this.onSettings,
   });
 
   @override
-  State<_JournalTile> createState() => _JournalTileState();
+  ConsumerState<TodayScreen> createState() => _TodayScreenState();
 }
 
-class _JournalTileState extends State<_JournalTile> {
-  bool _isHovered = false;
+class _TodayScreenState extends ConsumerState<TodayScreen> {
+  double _distress = 3;
 
   @override
   Widget build(BuildContext context) {
-    final isDark = widget.theme.brightness == Brightness.dark;
-    
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (_) => setState(() => _isHovered = true),
-        onExit: (_) => setState(() => _isHovered = false),
-        child: GestureDetector(
-          onTap: widget.onTap,
-          onSecondaryTapDown: (details) {
-            final offset = details.globalPosition;
-            showMenu(
-              context: context,
-              position: RelativeRect.fromLTRB(offset.dx, offset.dy, offset.dx + 1, offset.dy + 1),
-              items: [
-                PopupMenuItem(
-                  onTap: widget.onDelete,
-                  child: const Row(
+    final theme = Theme.of(context);
+    final journalAsync = ref.watch(journalProvider);
+    final ocdAsync = ref.watch(ocdProvider);
+    final dateLabel = DateFormat('EEEE, MMMM d').format(DateTime.now());
+
+    return Scaffold(
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 116),
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(LineIcons.trash, size: 18, color: Colors.redAccent),
-                      SizedBox(width: 12),
-                      Text('Delete Entry', style: TextStyle(color: Colors.redAccent)),
+                      Text('Today', style: _screenTitle(theme)),
+                      const SizedBox(height: 5),
+                      Text(dateLabel, style: _muted(theme, 15)),
                     ],
                   ),
                 ),
+                _RoundIconButton(
+                  icon: LineIcons.plus,
+                  onTap: widget.onAdd,
+                  semanticLabel: 'Add entry',
+                ),
+                const SizedBox(width: 10),
+                _RoundIconButton(
+                  icon: LineIcons.cog,
+                  onTap: widget.onSettings,
+                  semanticLabel: 'Settings',
+                ),
               ],
-            );
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: widget.isSelected 
-                    ? widget.theme.colorScheme.primary.withOpacity(0.5) 
-                    : Colors.transparent,
-                width: 1,
-              ),
             ),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: widget.isSelected 
-                    ? widget.theme.colorScheme.primary.withOpacity(isDark ? 0.15 : 0.1) 
-                    : (_isHovered ? widget.theme.colorScheme.onSurface.withOpacity(0.05) : Colors.transparent),
-                borderRadius: BorderRadius.circular(8),
-              ),
+            const SizedBox(height: 28),
+            _Card(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    DateFormat('MMM d, yyyy').format(DateTime.parse(widget.entry.date)),
-                    style: TextStyle(
-                      color: widget.isSelected 
-                          ? (isDark ? widget.theme.colorScheme.primary : Colors.black) 
-                          : widget.theme.colorScheme.onSurface.withOpacity(0.8),
-                      fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w500,
-                      fontSize: 13,
+                    'How are you feeling right now?',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      height: 1.25,
                     ),
-                  ),                  const SizedBox(height: 4),
+                  ),
+                  const SizedBox(height: 26),
+                  Row(
+                    children: [
+                      Text('0', style: _muted(theme, 13)),
+                      Expanded(
+                        child: Slider(
+                          value: _distress,
+                          min: 0,
+                          max: 10,
+                          divisions: 10,
+                          onChanged: (value) =>
+                              setState(() => _distress = value),
+                        ),
+                      ),
+                      Text('10', style: _muted(theme, 13)),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
                   Text(
-                    widget.entry.content,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    'Distress ${_distress.round()}/10',
                     style: TextStyle(
-                      color: widget.theme.colorScheme.onSurface.withOpacity(widget.isSelected ? 0.6 : 0.3),
-                      fontSize: 12,
+                      color: _distressColor(_distress.round()),
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ],
               ),
             ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Expanded(
+                  child: _ActionCard(
+                    icon: LineIcons.penNib,
+                    title: 'Write\nJournal',
+                    onTap: widget.onJournal,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: _ActionCard(
+                    icon: LineIcons.bullseye,
+                    title: 'Track OCD\nEvent',
+                    onTap: widget.onTrack,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 28),
+            Text(
+              'Recent Activity',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 12),
+            journalAsync.when(
+              data: (entries) => _RecentRow(
+                icon: LineIcons.bookOpen,
+                title: 'Last journal entry',
+                value: entries.isEmpty
+                    ? 'No entries yet'
+                    : DateFormat(
+                        'MMM d',
+                      ).format(DateTime.parse(entries.last.date)),
+              ),
+              loading: () => const _RecentSkeleton(),
+              error: (error, stackTrace) => const _RecentRow(
+                icon: LineIcons.bookOpen,
+                title: 'Last journal entry',
+                value: 'Unavailable',
+              ),
+            ),
+            const SizedBox(height: 10),
+            ocdAsync.when(
+              data: (entries) => _RecentRow(
+                icon: LineIcons.bullseye,
+                title: 'Last OCD event',
+                value: entries.isEmpty
+                    ? 'No events yet'
+                    : DateFormat(
+                        'MMM d, h:mm a',
+                      ).format(entries.first.datetime),
+              ),
+              loading: () => const _RecentSkeleton(),
+              error: (error, stackTrace) => const _RecentRow(
+                icon: LineIcons.bullseye,
+                title: 'Last OCD event',
+                value: 'Unavailable',
+              ),
+            ),
+            const SizedBox(height: 10),
+            journalAsync.when(
+              data: (entries) => _RecentRow(
+                icon: LineIcons.calendarCheck,
+                title: 'Consistency',
+                value: _streakLabel(entries),
+              ),
+              loading: () => const _RecentSkeleton(),
+              error: (error, stackTrace) => const _RecentRow(
+                icon: LineIcons.calendarCheck,
+                title: 'Consistency',
+                value: 'Unavailable',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _streakLabel(List<JournalEntry> entries) {
+    if (entries.isEmpty) return 'Start with one entry';
+    final dates = entries.map((e) => e.date).toSet();
+    var cursor = DateTime.now();
+    var streak = 0;
+    while (dates.contains(DateFormat('yyyy-MM-dd').format(cursor))) {
+      streak++;
+      cursor = cursor.subtract(const Duration(days: 1));
+    }
+    if (streak == 0) return 'Last entry saved';
+    if (streak == 1) return '1 day streak';
+    return '$streak day streak';
+  }
+}
+
+class JournalScreen extends ConsumerWidget {
+  const JournalScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final entriesAsync = ref.watch(filteredJournalProvider);
+
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
+              child: Row(
+                children: [
+                  Expanded(child: Text('Journal', style: _screenTitle(theme))),
+                  _RoundIconButton(
+                    icon: LineIcons.plus,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) =>
+                            JournalEntryEditor(date: DateTime.now()),
+                      ),
+                    ),
+                    semanticLabel: 'New Entry',
+                  ),
+                  const SizedBox(width: 10),
+                  _RoundIconButton(
+                    icon: LineIcons.search,
+                    semanticLabel: 'Search journal',
+                    onTap: () => _showSearchSheet(context, ref),
+                  ),
+                  const SizedBox(width: 10),
+                  _RoundIconButton(
+                    icon: LineIcons.calendar,
+                    semanticLabel: 'Choose date',
+                    onTap: () => _pickDate(context),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 54,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) {
+                  final date = DateTime.now().subtract(Duration(days: index));
+                  return _DatePill(
+                    label: index == 0
+                        ? 'Today'
+                        : DateFormat('E d').format(date),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => JournalEntryEditor(date: date),
+                      ),
+                    ),
+                  );
+                },
+                separatorBuilder: (context, index) => const SizedBox(width: 8),
+                itemCount: 10,
+              ),
+            ),
+            Expanded(
+              child: entriesAsync.when(
+                data: (entries) {
+                  final sorted = List<JournalEntry>.from(entries)
+                    ..sort((a, b) => b.date.compareTo(a.date));
+                  return ListView(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 116),
+                    children: [
+                      _TodayEntryCard(
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) =>
+                                JournalEntryEditor(date: DateTime.now()),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      if (sorted.isEmpty)
+                        _EmptyState(
+                          icon: LineIcons.penNib,
+                          title: 'No journal entries yet',
+                          body: 'A few quiet lines are enough to begin.',
+                        )
+                      else
+                        ...sorted.map(
+                          (entry) => _JournalListCard(entry: entry),
+                        ),
+                    ],
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, _) => Center(child: Text('Error: $error')),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSearchSheet(BuildContext context, WidgetRef ref) {
+    final controller = TextEditingController(
+      text: ref.read(journalSearchQueryProvider),
+    );
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: _BottomPanel(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Search journal',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                decoration: const InputDecoration(hintText: 'Search entries'),
+                onChanged: (value) =>
+                    ref.read(journalSearchQueryProvider.notifier).query = value,
+              ),
+            ],
           ),
         ),
       ),
     );
   }
+
+  Future<void> _pickDate(BuildContext context) async {
+    final picked = await showModalBottomSheet<DateTime>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _DatePickerSheet(initialDate: DateTime.now()),
+    );
+    if (picked == null || !context.mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => JournalEntryEditor(date: picked)),
+    );
+  }
+}
+
+class JournalEntryEditor extends ConsumerStatefulWidget {
+  final DateTime date;
+
+  const JournalEntryEditor({super.key, required this.date});
+
+  @override
+  ConsumerState<JournalEntryEditor> createState() => _JournalEntryEditorState();
+}
+
+class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
+  final TextEditingController _controller = TextEditingController();
+  bool _loaded = false;
+  bool _saving = false;
+  bool _saved = true;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final entriesAsync = ref.watch(journalProvider);
+    final theme = Theme.of(context);
+    final dateKey = DateFormat('yyyy-MM-dd').format(widget.date);
+
+    entriesAsync.whenData((entries) {
+      if (_loaded) return;
+      final existing = entries
+          .where((entry) => entry.date == dateKey)
+          .firstOrNull;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _controller.text = existing?.content ?? '';
+        setState(() {
+          _loaded = true;
+          _saved = true;
+        });
+      });
+    });
+
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 16, 8),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(LineIcons.angleLeft),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          DateFormat('MMMM d, yyyy').format(widget.date),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        Text(
+                          _saving
+                              ? 'Saving...'
+                              : (_saved ? 'Saved' : 'Unsaved'),
+                          style: _muted(theme, 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _saving ? null : _save,
+                    child: const Text('Save'),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(22, 18, 22, 22),
+                child: TextField(
+                  controller: _controller,
+                  expands: true,
+                  maxLines: null,
+                  minLines: null,
+                  textAlignVertical: TextAlignVertical.top,
+                  autofocus: true,
+                  onChanged: (_) => setState(() => _saved = false),
+                  style: GoogleFonts.inter(
+                    fontSize: 20,
+                    height: 1.62,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Start writing...',
+                    hintStyle: TextStyle(
+                      color: AppTheme.textSecondary.withValues(alpha: 0.5),
+                    ),
+                    filled: false,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _save() async {
+    if (_controller.text.trim().isEmpty) return;
+    setState(() => _saving = true);
+    final dateKey = DateFormat('yyyy-MM-dd').format(widget.date);
+    await ref
+        .read(journalProvider.notifier)
+        .saveEntry(dateKey, _controller.text.trim());
+    if (!mounted) return;
+    setState(() {
+      _saving = false;
+      _saved = true;
+    });
+  }
+}
+
+class _JournalListCard extends StatelessWidget {
+  final JournalEntry entry;
+
+  const _JournalListCard({required this.entry});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final date = DateTime.parse(entry.date);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: _Card(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => JournalEntryEditor(date: date),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              DateFormat('MMMM d').format(date),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              entry.content,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: _muted(theme, 14).copyWith(height: 1.45),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TodayEntryCard extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _TodayEntryCard({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return _Card(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(LineIcons.penNib, color: theme.colorScheme.primary),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              'Today entry',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          Icon(LineIcons.angleRight, color: AppTheme.textSecondary),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActionCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+
+  const _ActionCard({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return _Card(
+      onTap: onTap,
+      child: SizedBox(
+        height: 124,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: theme.colorScheme.primary, size: 26),
+            const Spacer(),
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+                height: 1.22,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _RecentRow extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String value;
+
+  const _RecentRow({
+    required this.icon,
+    required this.title,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: _softDecoration(theme, radius: 20),
+      child: Row(
+        children: [
+          Icon(icon, color: AppTheme.textSecondary, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              title,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          Text(value, style: _muted(theme, 13)),
+        ],
+      ),
+    );
+  }
+}
+
+class _RecentSkeleton extends StatelessWidget {
+  const _RecentSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return const _RecentRow(
+      icon: LineIcons.circle,
+      title: 'Loading',
+      value: '...',
+    );
+  }
+}
+
+class _DatePill extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _DatePill({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: onTap,
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: _softDecoration(theme, radius: 18),
+        child: Text(
+          label,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DatePickerSheet extends StatefulWidget {
+  final DateTime initialDate;
+
+  const _DatePickerSheet({required this.initialDate});
+
+  @override
+  State<_DatePickerSheet> createState() => _DatePickerSheetState();
+}
+
+class _DatePickerSheetState extends State<_DatePickerSheet> {
+  late DateTime _date = widget.initialDate;
+
+  @override
+  Widget build(BuildContext context) {
+    return _BottomPanel(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Choose date',
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 16),
+          CalendarDatePicker(
+            initialDate: _date,
+            firstDate: DateTime(2000),
+            lastDate: DateTime.now(),
+            onDateChanged: (date) => _date = date,
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(context, _date),
+              child: const Text('Open entry'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RoundIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final String semanticLabel;
+
+  const _RoundIconButton({
+    required this.icon,
+    required this.onTap,
+    required this.semanticLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Container(
+          width: 44,
+          height: 44,
+          decoration: _softDecoration(theme, radius: 18),
+          child: Icon(icon, size: 20),
+        ),
+      ),
+    );
+  }
+}
+
+class _Card extends StatelessWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+
+  const _Card({required this.child, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final content = Container(
+      padding: const EdgeInsets.all(20),
+      decoration: _softDecoration(Theme.of(context), radius: 24),
+      child: child,
+    );
+
+    if (onTap == null) return content;
+    return InkWell(
+      borderRadius: BorderRadius.circular(24),
+      onTap: onTap,
+      child: content,
+    );
+  }
+}
+
+class _BottomPanel extends StatelessWidget {
+  final Widget child;
+
+  const _BottomPanel({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: Theme.of(context).dividerColor),
+        ),
+        child: child,
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String body;
+
+  const _EmptyState({
+    required this.icon,
+    required this.title,
+    required this.body,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 42),
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            color: theme.colorScheme.primary.withValues(alpha: 0.75),
+            size: 38,
+          ),
+          const SizedBox(height: 14),
+          Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(body, textAlign: TextAlign.center, style: _muted(theme, 14)),
+        ],
+      ),
+    );
+  }
+}
+
+TextStyle _screenTitle(ThemeData theme) {
+  return theme.textTheme.headlineSmall!.copyWith(
+    fontSize: 30,
+    fontWeight: FontWeight.w800,
+    height: 1.1,
+  );
+}
+
+TextStyle _muted(ThemeData theme, double size) {
+  return TextStyle(color: AppTheme.textSecondary, fontSize: size);
+}
+
+BoxDecoration _softDecoration(ThemeData theme, {required double radius}) {
+  return BoxDecoration(
+    color: theme.colorScheme.surface,
+    borderRadius: BorderRadius.circular(radius),
+    border: Border.all(color: theme.dividerColor.withValues(alpha: 0.9)),
+  );
+}
+
+Color _distressColor(int level) {
+  if (level <= 3) return AppTheme.softGreen;
+  if (level <= 7) return AppTheme.warmYellow;
+  return AppTheme.mutedRed;
 }

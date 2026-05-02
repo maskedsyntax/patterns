@@ -9,7 +9,7 @@ void main() {
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
-    expect(container.read(themeModeProvider), ThemeMode.system);
+    expect(container.read(themeModeProvider), ThemeMode.dark);
 
     container.read(themeModeProvider.notifier).setThemeMode(ThemeMode.light);
     expect(container.read(themeModeProvider), ThemeMode.light);

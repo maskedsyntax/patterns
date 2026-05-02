@@ -1,77 +1,189 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:window_manager/window_manager.dart';
-import 'theme/app_theme.dart';
+
+import 'models/models.dart';
+import 'screens/analytics_screen.dart';
 import 'screens/journal_screen.dart';
 import 'screens/ocd_tracker_screen.dart';
-import 'screens/analytics_screen.dart';
 import 'screens/settings_screen.dart';
+import 'theme/app_theme.dart';
 
 class ThemeModeNotifier extends Notifier<ThemeMode> {
   @override
-  ThemeMode build() => ThemeMode.system;
+  ThemeMode build() => ThemeMode.dark;
 
   void setThemeMode(ThemeMode mode) {
     state = mode;
   }
-  
+
   void toggle(bool currentlyDark) {
-    if (currentlyDark) {
-      state = ThemeMode.light;
-    } else {
-      state = ThemeMode.dark;
-    }
+    state = currentlyDark ? ThemeMode.light : ThemeMode.dark;
   }
 }
 
-final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(ThemeModeNotifier.new);
+final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
+  ThemeModeNotifier.new,
+);
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
   GoogleFonts.config.allowRuntimeFetching = false;
-  await windowManager.ensureInitialized();
 
-  WindowOptions windowOptions = const WindowOptions(
-    size: Size(1440, 900),
-    minimumSize: Size(1440, 900),
-    center: true,
-    backgroundColor: Colors.transparent,
-    skipTaskbar: false,
-    titleBarStyle: TitleBarStyle.normal,
-  );
-  
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.setResizable(false);
-    await windowManager.show();
-    await windowManager.focus();
-  });
-
-  runApp(
-    const ProviderScope(
-      child: PatternsApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: PatternsApp()));
 }
 
-class PatternsApp extends ConsumerWidget {
+class PatternsApp extends ConsumerStatefulWidget {
   const PatternsApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PatternsApp> createState() => _PatternsAppState();
+}
+
+class _PatternsAppState extends ConsumerState<PatternsApp> {
+  bool _hasStarted = false;
+
+  @override
+  Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
-    
+
     return MaterialApp(
       title: 'Patterns',
+      navigatorKey: _rootNavigatorKey,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
-      home: const HomeScreen(),
+      home: _hasStarted
+          ? const HomeScreen()
+          : WelcomeScreen(
+              onStart: () => setState(() => _hasStarted = true),
+              onImport: () {
+                setState(() => _hasStarted = true);
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _rootNavigatorKey.currentState?.push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const SettingsScreen(),
+                    ),
+                  );
+                });
+              },
+            ),
     );
   }
 }
+
+class WelcomeScreen extends StatelessWidget {
+  final VoidCallback onStart;
+  final VoidCallback onImport;
+
+  const WelcomeScreen({
+    super.key,
+    required this.onStart,
+    required this.onImport,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+          child: Column(
+            children: [
+              const Spacer(),
+              Container(
+                width: 164,
+                height: 164,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: theme.colorScheme.surface,
+                  border: Border.all(color: theme.dividerColor),
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: 104,
+                      height: 104,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.34,
+                          ),
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 58,
+                      height: 58,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: theme.colorScheme.primary.withValues(
+                          alpha: 0.18,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      LineIcons.feather,
+                      color: theme.colorScheme.primary,
+                      size: 34,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 48),
+              Text(
+                'Understand your patterns.\nOne entry at a time.',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  height: 1.16,
+                  fontSize: 30,
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                'Track intrusive thoughts, compulsions, distress, and daily reflections in a calm private space.',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: AppTheme.textSecondary,
+                  height: 1.55,
+                ),
+              ),
+              const Spacer(),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: onStart,
+                  child: const Text('Start journaling'),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: onImport,
+                  child: const Text('Import existing data'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+enum _Tab { home, journal, track, insights }
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -81,158 +193,307 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int _selectedIndex = 0;
-
-  final List<Widget> _screens = [
-    const JournalScreen(),
-    const OcdTrackerScreen(),
-    const AnalyticsScreen(),
-    const SettingsScreen(),
-  ];
+  _Tab _selectedTab = _Tab.home;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    
+    final today = TodayScreen(
+      onJournal: () => _openJournalEditor(context),
+      onTrack: () => _openOcdFlow(context),
+      onAdd: () => _showAddSheet(context),
+      onSettings: () => Navigator.of(
+        context,
+      ).push(MaterialPageRoute<void>(builder: (_) => const SettingsScreen())),
+    );
+    final pages = {
+      _Tab.home: today,
+      _Tab.journal: const JournalScreen(),
+      _Tab.track: OcdTrackerScreen(onAdd: () => _openOcdFlow(context)),
+      _Tab.insights: const AnalyticsScreen(),
+    };
+
     return Scaffold(
-      body: Row(
+      body: Stack(
         children: [
-          // UNIFIED SIDEBAR (Navigation Part)
-          Container(
-            width: 72,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface, // Shared background with the list
-              border: Border(right: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
-            ),
-            child: Column(
-              children: [
-                const SizedBox(height: 48, child: DragToMoveArea(child: SizedBox.expand())),
-                const SizedBox(height: 8),
-                _NavIcon(
-                  icon: LineIcons.penNib,
-                  isSelected: _selectedIndex == 0,
-                  onTap: () => setState(() => _selectedIndex = 0),
-                  theme: theme,
-                  tooltip: 'Journal',
-                ),
-                _NavIcon(
-                  icon: LineIcons.list,
-                  isSelected: _selectedIndex == 1,
-                  onTap: () => setState(() => _selectedIndex = 1),
-                  theme: theme,
-                  tooltip: 'OCD Tracker',
-                ),
-                _NavIcon(
-                  icon: LineIcons.barChart,
-                  isSelected: _selectedIndex == 2,
-                  onTap: () => setState(() => _selectedIndex = 2),
-                  theme: theme,
-                  tooltip: 'Analytics',
-                ),
-                _NavIcon(
-                  icon: LineIcons.cog,
-                  isSelected: _selectedIndex == 3,
-                  onTap: () => setState(() => _selectedIndex = 3),
-                  theme: theme,
-                  tooltip: 'Settings',
-                ),
-                const Spacer(),
-                IconButton(
-                  mouseCursor: SystemMouseCursors.click,
-                  icon: Icon(
-                    isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-                    size: 20,
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
-                  ),
-                  onPressed: () {
-                    ref.read(themeModeProvider.notifier).toggle(isDark);
-                  },
-                ),
-                const SizedBox(height: 32),
-              ],
+          Positioned.fill(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 220),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              child: KeyedSubtree(
+                key: ValueKey(_selectedTab.name),
+                child: pages[_selectedTab]!,
+              ),
             ),
           ),
-          
-          // MAIN CONTENT (which will include its own contextual sidebar)
-          Expanded(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: _screens[_selectedIndex],
+          Positioned(
+            left: 20,
+            right: 20,
+            bottom: 18,
+            child: SafeArea(
+              minimum: EdgeInsets.zero,
+              child: _FloatingTabBar(
+                selectedTab: _selectedTab,
+                onSelected: (tab) => setState(() => _selectedTab = tab),
+              ),
             ),
           ),
         ],
       ),
     );
   }
+
+  void _openJournalEditor(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => JournalEntryEditor(date: DateTime.now()),
+      ),
+    );
+  }
+
+  void _openOcdFlow(
+    BuildContext context, {
+    OcdType initialType = OcdType.obsession,
+  }) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => OcdEventFlow(initialType: initialType),
+      ),
+    );
+  }
+
+  void _showAddSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _ActionSheet(
+        onJournal: () {
+          Navigator.pop(context);
+          _openJournalEditor(context);
+        },
+        onOcd: () {
+          Navigator.pop(context);
+          _openOcdFlow(context);
+        },
+      ),
+    );
+  }
 }
 
-class _NavIcon extends StatefulWidget {
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onTap;
-  final ThemeData theme;
-  final String tooltip;
+class _FloatingTabBar extends StatelessWidget {
+  final _Tab selectedTab;
+  final ValueChanged<_Tab> onSelected;
 
-  const _NavIcon({
-    required this.icon,
-    required this.isSelected,
-    required this.onTap,
-    required this.theme,
-    required this.tooltip,
-  });
-
-  @override
-  State<_NavIcon> createState() => _NavIconState();
-}
-
-class _NavIconState extends State<_NavIcon> {
-  bool _isHovered = false;
+  const _FloatingTabBar({required this.selectedTab, required this.onSelected});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Tooltip(
-        message: widget.tooltip,
-        preferBelow: false,
-        margin: const EdgeInsets.only(left: 60),
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          onEnter: (_) => setState(() => _isHovered = true),
-          onExit: (_) => setState(() => _isHovered = false),
-          child: GestureDetector(
-            onTap: widget.onTap,
-            child: Container(
-              decoration: BoxDecoration(
-                color: widget.isSelected 
-                    ? widget.theme.colorScheme.primary.withOpacity(0.15) 
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(10),
+    final theme = Theme.of(context);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(30),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
+        child: Container(
+          height: 68,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withValues(alpha: 0.10),
+                theme.colorScheme.surface.withValues(alpha: 0.44),
+                Colors.black.withValues(alpha: 0.10),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.20),
+                blurRadius: 26,
+                offset: const Offset(0, 14),
               ),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 44,
-                height: 44,
+              BoxShadow(
+                color: Colors.white.withValues(alpha: 0.04),
+                blurRadius: 1,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              _TabItem(
+                icon: LineIcons.home,
+                label: 'Home',
+                active: selectedTab == _Tab.home,
+                onTap: () => onSelected(_Tab.home),
+              ),
+              _TabItem(
+                icon: LineIcons.bookOpen,
+                label: 'Journal',
+                active: selectedTab == _Tab.journal,
+                onTap: () => onSelected(_Tab.journal),
+              ),
+              _TabItem(
+                icon: LineIcons.bullseye,
+                label: 'Track',
+                active: selectedTab == _Tab.track,
+                onTap: () => onSelected(_Tab.track),
+              ),
+              _TabItem(
+                icon: LineIcons.barChart,
+                label: 'Insights',
+                active: selectedTab == _Tab.insights,
+                onTap: () => onSelected(_Tab.insights),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TabItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _TabItem({
+    required this.icon,
+    required this.label,
+    required this.active,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = active ? theme.colorScheme.primary : AppTheme.textSecondary;
+
+    return Expanded(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+        onTap: onTap,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 22, color: color),
+            const SizedBox(height: 5),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 11,
+                fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionSheet extends StatelessWidget {
+  final VoidCallback onJournal;
+  final VoidCallback onOcd;
+
+  const _ActionSheet({required this.onJournal, required this.onOcd});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.all(14),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: theme.dividerColor),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 42,
+                height: 4,
                 decoration: BoxDecoration(
-                  color: !widget.isSelected && _isHovered 
-                      ? widget.theme.colorScheme.onSurface.withOpacity(0.05) 
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  widget.icon,
-                  color: widget.isSelected 
-                      ? widget.theme.colorScheme.primary 
-                      : widget.theme.colorScheme.onSurface.withOpacity(
-                          widget.theme.brightness == Brightness.dark 
-                              ? (_isHovered ? 0.7 : 0.3) 
-                              : (_isHovered ? 0.8 : 0.5) // Darker for light mode
-                        ),                  size: 24,
+                  color: theme.dividerColor,
+                  borderRadius: BorderRadius.circular(100),
                 ),
               ),
             ),
-          ),
+            const SizedBox(height: 22),
+            Text(
+              'What do you want to add?',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _SheetAction(
+              icon: LineIcons.penNib,
+              title: 'Journal Entry',
+              onTap: onJournal,
+            ),
+            const SizedBox(height: 10),
+            _SheetAction(
+              icon: LineIcons.bullseye,
+              title: 'OCD Event',
+              onTap: onOcd,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SheetAction extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+
+  const _SheetAction({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: AppTheme.charcoalInput,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: theme.dividerColor),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: theme.colorScheme.primary),
+            const SizedBox(width: 14),
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
         ),
       ),
     );

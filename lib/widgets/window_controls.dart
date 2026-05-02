@@ -30,7 +30,7 @@ class _WindowControlsState extends State<WindowControls> {
     if (Platform.isMacOS) return const SizedBox.shrink();
 
     final theme = Theme.of(context);
-    final color = theme.colorScheme.onSurface.withOpacity(0.6);
+    final color = theme.colorScheme.onSurface.withValues(alpha: 0.6);
     const size = 14.0;
 
     return Row(
@@ -40,15 +40,17 @@ class _WindowControlsState extends State<WindowControls> {
           icon: Icons.remove_rounded,
           iconSize: size,
           color: color,
-          hoverColor: theme.colorScheme.onSurface.withOpacity(0.08),
+          hoverColor: theme.colorScheme.onSurface.withValues(alpha: 0.08),
           onTap: () => windowManager.minimize(),
           tooltip: 'Minimize',
         ),
         _ControlButton(
-          icon: _isMaximized ? Icons.filter_none_rounded : Icons.crop_square_rounded,
+          icon: _isMaximized
+              ? Icons.filter_none_rounded
+              : Icons.crop_square_rounded,
           iconSize: _isMaximized ? size - 2 : size,
           color: color,
-          hoverColor: theme.colorScheme.onSurface.withOpacity(0.08),
+          hoverColor: theme.colorScheme.onSurface.withValues(alpha: 0.08),
           onTap: () async {
             if (_isMaximized) {
               await windowManager.unmaximize();
@@ -63,7 +65,7 @@ class _WindowControlsState extends State<WindowControls> {
           icon: Icons.close_rounded,
           iconSize: size,
           color: color,
-          hoverColor: Colors.redAccent.withOpacity(0.15),
+          hoverColor: Colors.redAccent.withValues(alpha: 0.15),
           hoverIconColor: Colors.redAccent,
           onTap: () => windowManager.close(),
           tooltip: 'Close',
@@ -121,7 +123,9 @@ class _ControlButtonState extends State<_ControlButton> {
             child: Icon(
               widget.icon,
               size: widget.iconSize,
-              color: _isHovered ? (widget.hoverIconColor ?? widget.color) : widget.color,
+              color: _isHovered
+                  ? (widget.hoverIconColor ?? widget.color)
+                  : widget.color,
             ),
           ),
         ),

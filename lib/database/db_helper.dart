@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -20,16 +19,13 @@ class DbHelper {
   Future<Database> _initDB(String filePath) async {
     sqfliteFfiInit();
     final databaseFactory = databaseFactoryFfi;
-    
+
     final dbPath = await getApplicationSupportDirectory();
     final path = join(dbPath.path, filePath);
 
     return await databaseFactory.openDatabase(
       path,
-      options: OpenDatabaseOptions(
-        version: 1,
-        onCreate: _createDB,
-      ),
+      options: OpenDatabaseOptions(version: 1, onCreate: _createDB),
     );
   }
 
@@ -67,7 +63,11 @@ class DbHelper {
 
   Future<JournalEntry?> getJournalEntryByDate(String date) async {
     final db = await instance.database;
-    final result = await db.query('journal', where: 'date = ?', whereArgs: [date]);
+    final result = await db.query(
+      'journal',
+      where: 'date = ?',
+      whereArgs: [date],
+    );
     if (result.isNotEmpty) return JournalEntry.fromMap(result.first);
     return null;
   }
@@ -79,7 +79,12 @@ class DbHelper {
       final map = entry.toMap();
       map.remove('id');
       map.remove('created_at'); // Keep original creation date
-      return await db.update('journal', map, where: 'id = ?', whereArgs: [existing.id]);
+      return await db.update(
+        'journal',
+        map,
+        where: 'id = ?',
+        whereArgs: [existing.id],
+      );
     } else {
       return await db.insert('journal', entry.toMap());
     }
@@ -112,10 +117,7 @@ class DbHelper {
     final db = await instance.database;
     final journal = await db.query('journal');
     final ocd = await db.query('ocd');
-    final data = {
-      'journal': journal,
-      'ocd': ocd,
-    };
+    final data = {'journal': journal, 'ocd': ocd};
     return jsonEncode(data);
   }
 

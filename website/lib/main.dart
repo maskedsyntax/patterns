@@ -33,25 +33,25 @@ class _PatternsWebsiteState extends State<PatternsWebsite> {
       initialRoute: '/',
       routes: {
         '/': (context) => _HomePage(
-              isDark: _themeMode == ThemeMode.dark,
-              onThemeToggle: () {
-                setState(() {
-                  _themeMode = _themeMode == ThemeMode.dark
-                      ? ThemeMode.light
-                      : ThemeMode.dark;
-                });
-              },
-            ),
+          isDark: _themeMode == ThemeMode.dark,
+          onThemeToggle: () {
+            setState(() {
+              _themeMode = _themeMode == ThemeMode.dark
+                  ? ThemeMode.light
+                  : ThemeMode.dark;
+            });
+          },
+        ),
         '/privacy': (context) => PrivacyPage(
-              isDark: _themeMode == ThemeMode.dark,
-              onThemeToggle: () {
-                setState(() {
-                  _themeMode = _themeMode == ThemeMode.dark
-                      ? ThemeMode.light
-                      : ThemeMode.dark;
-                });
-              },
-            ),
+          isDark: _themeMode == ThemeMode.dark,
+          onThemeToggle: () {
+            setState(() {
+              _themeMode = _themeMode == ThemeMode.dark
+                  ? ThemeMode.light
+                  : ThemeMode.dark;
+            });
+          },
+        ),
       },
     );
   }
@@ -76,11 +76,11 @@ class _HomePageState extends State<_HomePage> {
   final _downloadKey = GlobalKey();
 
   Map<String, GlobalKey> get _sectionKeys => {
-        'hero': _heroKey,
-        'features': _featuresKey,
-        'preview': _previewKey,
-        'download': _downloadKey,
-      };
+    'hero': _heroKey,
+    'features': _featuresKey,
+    'preview': _previewKey,
+    'download': _downloadKey,
+  };
 
   void _scrollToDownload() {
     final ctx = _downloadKey.currentContext;
@@ -108,27 +108,31 @@ class _HomePageState extends State<_HomePage> {
           SingleChildScrollView(
             controller: _scrollController,
             child: Column(
-                children: [
-                  const SizedBox(height: 68),
-                  Container(
-                      key: _heroKey,
-                      child: HeroSection(
-                        isDark: widget.isDark,
-                        onDownloadTap: _scrollToDownload,
-                      )),
-                  Container(
-                      key: _featuresKey,
-                      child: FeaturesSection(isDark: widget.isDark)),
-                  Container(
-                      key: _previewKey,
-                      child: PreviewSection(isDark: widget.isDark)),
-                  Container(
-                      key: _downloadKey,
-                      child: DownloadSection(isDark: widget.isDark)),
-                  FooterSection(isDark: widget.isDark),
-                ],
-              ),
+              children: [
+                const SizedBox(height: 68),
+                Container(
+                  key: _heroKey,
+                  child: HeroSection(
+                    isDark: widget.isDark,
+                    onDownloadTap: _scrollToDownload,
+                  ),
+                ),
+                Container(
+                  key: _featuresKey,
+                  child: FeaturesSection(isDark: widget.isDark),
+                ),
+                Container(
+                  key: _previewKey,
+                  child: PreviewSection(isDark: widget.isDark),
+                ),
+                Container(
+                  key: _downloadKey,
+                  child: DownloadSection(isDark: widget.isDark),
+                ),
+                FooterSection(isDark: widget.isDark),
+              ],
             ),
+          ),
           // Fixed navbar
           Positioned(
             top: 0,

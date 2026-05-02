@@ -102,13 +102,13 @@ class _DownloadSectionState extends State<DownloadSection> {
                   fontSize: isMobile ? 32 : 48,
                   fontWeight: FontWeight.w800,
                   height: 1.1,
-                  letterSpacing: -1.5,
+                  letterSpacing: 0,
                   color: textColor,
                 ),
               ),
               const SizedBox(height: 16),
-              SizedBox(
-                width: 480,
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
                 child: Text(
                   'Download Patterns for free and take the first step toward understanding your mind better.',
                   textAlign: TextAlign.center,
@@ -295,6 +295,7 @@ class _DownloadCardState extends State<_DownloadCard> {
         onTap: widget.onDownload,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
+          width: double.infinity,
           constraints: const BoxConstraints(maxWidth: 400),
           padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(

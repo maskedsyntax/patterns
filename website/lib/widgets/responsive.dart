@@ -27,14 +27,14 @@ class Responsive {
     if (width >= 1400) return 1200;
     if (width >= tabletBreakpoint) return width * 0.85;
     if (width >= mobileBreakpoint) return width * 0.9;
-    return width * 0.92;
+    return width - 32;
   }
 
   static EdgeInsets sectionPadding(BuildContext context) {
     final screen = getScreenSize(context);
     switch (screen) {
       case ScreenSize.mobile:
-        return const EdgeInsets.symmetric(vertical: 64, horizontal: 20);
+        return const EdgeInsets.symmetric(vertical: 56, horizontal: 0);
       case ScreenSize.tablet:
         return const EdgeInsets.symmetric(vertical: 80, horizontal: 40);
       case ScreenSize.desktop:

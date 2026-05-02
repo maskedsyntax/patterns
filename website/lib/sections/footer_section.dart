@@ -14,8 +14,9 @@ class FooterSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
     final textColor = isDark ? WebTheme.darkText : WebTheme.lightText;
-    final secondaryText =
-        isDark ? WebTheme.darkTextSecondary : WebTheme.lightTextSecondary;
+    final secondaryText = isDark
+        ? WebTheme.darkTextSecondary
+        : WebTheme.lightTextSecondary;
     final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
     final border = isDark ? WebTheme.darkBorder : WebTheme.lightBorder;
     final surface = isDark ? WebTheme.darkSurface : WebTheme.lightSurface;
@@ -34,9 +35,14 @@ class FooterSection extends StatelessWidget {
             child: isMobile
                 ? Column(
                     children: [
-                      _buildBrand(accent, textColor, secondaryText),
+                      _buildBrand(
+                        accent,
+                        textColor,
+                        secondaryText,
+                        centered: true,
+                      ),
                       const SizedBox(height: 32),
-                      _buildLinks(secondaryText, accent),
+                      _buildLinks(secondaryText, accent, centered: true),
                       const SizedBox(height: 32),
                       _buildCopyright(secondaryText),
                     ],
@@ -47,15 +53,17 @@ class FooterSection extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                              child: _buildBrand(
-                                  accent, textColor, secondaryText)),
+                            child: _buildBrand(
+                              accent,
+                              textColor,
+                              secondaryText,
+                            ),
+                          ),
                           _buildLinks(secondaryText, accent),
                         ],
                       ),
                       const SizedBox(height: 40),
-                      Divider(
-                          height: 1,
-                          color: border.withValues(alpha: 0.3)),
+                      Divider(height: 1, color: border.withValues(alpha: 0.3)),
                       const SizedBox(height: 24),
                       _buildCopyright(secondaryText),
                     ],
@@ -66,31 +74,58 @@ class FooterSection extends StatelessWidget {
     );
   }
 
-  Widget _buildBrand(Color accent, Color textColor, Color secondaryText) {
+  Widget _buildBrand(
+    Color accent,
+    Color textColor,
+    Color secondaryText, {
+    bool centered = false,
+  }) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: centered
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset('assets/logo.png', width: 28, height: 28),
-            ),
-            const SizedBox(width: 10),
-            Text(
-              'Patterns',
-              style: GoogleFonts.inter(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: textColor,
+        if (centered)
+          Column(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset('assets/logo.png', width: 32, height: 32),
               ),
-            ),
-          ],
-        ),
+              const SizedBox(height: 10),
+              Text(
+                'Patterns',
+                style: GoogleFonts.inter(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: textColor,
+                ),
+              ),
+            ],
+          )
+        else
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset('assets/logo.png', width: 28, height: 28),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                'Patterns',
+                style: GoogleFonts.inter(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: textColor,
+                ),
+              ),
+            ],
+          ),
         const SizedBox(height: 12),
         Text(
           'Clarity for the mind through\nstructured reflection.',
+          textAlign: centered ? TextAlign.center : TextAlign.start,
           style: GoogleFonts.inter(
             fontSize: 14,
             color: secondaryText,
@@ -101,8 +136,13 @@ class FooterSection extends StatelessWidget {
     );
   }
 
-  Widget _buildLinks(Color secondaryText, Color accent) {
+  Widget _buildLinks(
+    Color secondaryText,
+    Color accent, {
+    bool centered = false,
+  }) {
     return Wrap(
+      alignment: centered ? WrapAlignment.center : WrapAlignment.start,
       spacing: 24,
       runSpacing: 12,
       children: [
@@ -170,8 +210,10 @@ class _FooterLinkState extends State<_FooterLink> {
       onExit: (_) => setState(() => _hovered = false),
       child: GestureDetector(
         onTap: () {
-          AnalyticsService.logEvent('footer_link_click',
-              parameters: {'label': widget.label});
+          AnalyticsService.logEvent(
+            'footer_link_click',
+            parameters: {'label': widget.label},
+          );
           launchUrl(Uri.parse(widget.url));
         },
         child: MouseRegion(

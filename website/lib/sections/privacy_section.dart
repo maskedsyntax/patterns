@@ -14,8 +14,9 @@ class PrivacySection extends StatelessWidget {
     final screen = Responsive.getScreenSize(context);
     final isMobile = screen == ScreenSize.mobile;
     final textColor = isDark ? WebTheme.darkText : WebTheme.lightText;
-    final secondaryText =
-        isDark ? WebTheme.darkTextSecondary : WebTheme.lightTextSecondary;
+    final secondaryText = isDark
+        ? WebTheme.darkTextSecondary
+        : WebTheme.lightTextSecondary;
     final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
     final surface = isDark ? WebTheme.darkSurface : WebTheme.lightSurface;
     final border = isDark ? WebTheme.darkBorder : WebTheme.lightBorder;
@@ -36,11 +37,7 @@ class PrivacySection extends StatelessWidget {
                   color: accent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Icon(
-                  Icons.lock_rounded,
-                  size: 36,
-                  color: accent,
-                ),
+                child: Icon(Icons.lock_rounded, size: 36, color: accent),
               ),
               const SizedBox(height: 32),
               Text(
@@ -85,45 +82,49 @@ class PrivacySection extends StatelessWidget {
                     _PrivacyPoint(
                       icon: Icons.code_rounded,
                       title: 'Open Source',
-                      description:
-                          'Fully auditable code. Verify it yourself.',
+                      description: 'Fully auditable code. Verify it yourself.',
                     ),
                   ];
 
                   if (isMobile) {
                     return Column(
                       children: points
-                          .map((p) => Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
-                                child: _PrivacyCard(
-                                  point: p,
-                                  isDark: isDark,
-                                  accent: accent,
-                                  textColor: textColor,
-                                  secondaryText: secondaryText,
-                                  border: border,
-                                ),
-                              ))
+                          .map(
+                            (p) => Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _PrivacyCard(
+                                point: p,
+                                isDark: isDark,
+                                accent: accent,
+                                textColor: textColor,
+                                secondaryText: secondaryText,
+                                border: border,
+                              ),
+                            ),
+                          )
                           .toList(),
                     );
                   }
 
                   return Row(
                     children: points
-                        .map((p) => Expanded(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 12),
-                                child: _PrivacyCard(
-                                  point: p,
-                                  isDark: isDark,
-                                  accent: accent,
-                                  textColor: textColor,
-                                  secondaryText: secondaryText,
-                                  border: border,
-                                ),
+                        .map(
+                          (p) => Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
                               ),
-                            ))
+                              child: _PrivacyCard(
+                                point: p,
+                                isDark: isDark,
+                                accent: accent,
+                                textColor: textColor,
+                                secondaryText: secondaryText,
+                                border: border,
+                              ),
+                            ),
+                          ),
+                        )
                         .toList(),
                   );
                 },

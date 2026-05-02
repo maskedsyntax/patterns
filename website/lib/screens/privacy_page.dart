@@ -21,7 +21,9 @@ class _PrivacyPageState extends State<PrivacyPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: widget.isDark ? WebTheme.darkSurface : WebTheme.lightSurface,
+      backgroundColor: widget.isDark
+          ? WebTheme.darkSurface
+          : WebTheme.lightSurface,
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -33,11 +35,14 @@ class _PrivacyPageState extends State<PrivacyPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 40),
                   child: TextButton(
-                    onPressed: () => Navigator.of(context).pushReplacementNamed('/'),
+                    onPressed: () =>
+                        Navigator.of(context).pushReplacementNamed('/'),
                     child: Text(
                       '← Back to Home',
                       style: TextStyle(
-                        color: widget.isDark ? WebTheme.primaryYellow : WebTheme.primaryGold,
+                        color: widget.isDark
+                            ? WebTheme.primaryYellow
+                            : WebTheme.primaryGold,
                       ),
                     ),
                   ),

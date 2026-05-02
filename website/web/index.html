@@ -6,13 +6,27 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Patterns — Clarity for the mind through structured reflection. A focused desktop app for daily journaling and OCD tracking.">
+  <meta name="description" content="Patterns is a privacy-first desktop journaling app for daily reflection, OCD tracking, and personal pattern analytics on macOS, Linux, and Windows.">
+  <meta name="keywords" content="Patterns app, OCD tracker, journaling app, mental health journal, desktop journal, privacy-first journal, structured reflection">
+  <meta name="author" content="MaskedSyntax">
+  <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#0A0A0A">
+  <link rel="canonical" href="https://maskedsyntax.github.io/patterns/">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Patterns — Clarity for the mind">
-  <meta property="og:description" content="A focused desktop app for daily journaling and tracking obsessive-compulsive patterns through structured reflection.">
+  <meta property="og:site_name" content="Patterns">
+  <meta property="og:title" content="Patterns — Privacy-first journaling and OCD tracking">
+  <meta property="og:description" content="A focused desktop app for daily journaling, OCD tracking, and structured reflection with all data kept on your computer.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://maskedsyntax.github.io/patterns/">
+  <meta property="og:image" content="https://maskedsyntax.github.io/patterns/icons/Icon-512.png">
+  <meta property="og:image:alt" content="Patterns app icon">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Patterns — Privacy-first journaling and OCD tracking">
+  <meta name="twitter:description" content="Track reflections, obsessive-compulsive patterns, and personal trends in a focused desktop app.">
+  <meta name="twitter:image" content="https://maskedsyntax.github.io/patterns/icons/Icon-512.png">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -32,8 +46,34 @@
     gtag('config', 'G-CGS962TNLY');
   </script>
 
-  <title>Patterns — Clarity for the mind</title>
+  <title>Patterns — Privacy-first journaling and OCD tracking app</title>
   <link rel="manifest" href="manifest.json">
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Patterns",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "macOS, Linux, Windows",
+      "description": "Patterns is a privacy-first desktop app for daily journaling, OCD tracking, and structured reflection.",
+      "url": "https://maskedsyntax.github.io/patterns/",
+      "image": "https://maskedsyntax.github.io/patterns/icons/Icon-512.png",
+      "downloadUrl": "https://github.com/maskedsyntax/patterns/releases/latest",
+      "softwareHelp": "https://github.com/maskedsyntax/patterns/issues",
+      "license": "https://github.com/maskedsyntax/patterns/blob/master/LICENSE",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "MaskedSyntax",
+        "url": "https://github.com/maskedsyntax"
+      }
+    }
+  </script>
 
   <style>
     /* Prevent FOUC and make scrollbar match dark theme */
@@ -61,6 +101,13 @@
   </style>
 </head>
 <body>
+  <noscript>
+    <main>
+      <h1>Patterns</h1>
+      <p>Patterns is a privacy-first desktop app for daily journaling, OCD tracking, and structured reflection.</p>
+      <p>Download the latest release from <a href="https://github.com/maskedsyntax/patterns/releases/latest">GitHub Releases</a>.</p>
+    </main>
+  </noscript>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

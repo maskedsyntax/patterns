@@ -35,6 +35,17 @@ class _NavbarState extends State<Navbar> {
     setState(() => _mobileMenuOpen = false);
   }
 
+  void _goToSection(String section) {
+    final key = widget.sectionKeys[section];
+    if (key != null) {
+      _scrollTo(key);
+      return;
+    }
+
+    setState(() => _mobileMenuOpen = false);
+    Navigator.of(context).pushReplacementNamed('/');
+  }
+
   @override
   Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
@@ -56,9 +67,7 @@ class _NavbarState extends State<Navbar> {
                   // Logo
                   InkWell(
                     onTap: () {
-                      if (widget.sectionKeys['hero'] != null) {
-                        _scrollTo(widget.sectionKeys['hero']!);
-                      }
+                      _goToSection('hero');
                     },
                     mouseCursor: SystemMouseCursors.click,
                     hoverColor: Colors.transparent,
@@ -69,8 +78,11 @@ class _NavbarState extends State<Navbar> {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.asset('assets/logo.png',
-                              width: 36, height: 36),
+                          child: Image.asset(
+                            'assets/logo.png',
+                            width: 36,
+                            height: 36,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Text(
@@ -89,13 +101,13 @@ class _NavbarState extends State<Navbar> {
                   if (!isMobile) ...[
                     _NavLink(
                       label: 'Features',
-                      onTap: () => _scrollTo(widget.sectionKeys['features']!),
+                      onTap: () => _goToSection('features'),
                       color: textColor,
                     ),
                     const SizedBox(width: 32),
                     _NavLink(
                       label: 'Preview',
-                      onTap: () => _scrollTo(widget.sectionKeys['preview']!),
+                      onTap: () => _goToSection('preview'),
                       color: textColor,
                     ),
                     const SizedBox(width: 32),
@@ -107,7 +119,7 @@ class _NavbarState extends State<Navbar> {
                     const SizedBox(width: 32),
                     _NavLink(
                       label: 'Download',
-                      onTap: () => _scrollTo(widget.sectionKeys['download']!),
+                      onTap: () => _goToSection('download'),
                       color: textColor,
                     ),
                     const SizedBox(width: 24),
@@ -162,12 +174,12 @@ class _NavbarState extends State<Navbar> {
               children: [
                 _MobileNavLink(
                   label: 'Features',
-                  onTap: () => _scrollTo(widget.sectionKeys['features']!),
+                  onTap: () => _goToSection('features'),
                   color: textColor,
                 ),
                 _MobileNavLink(
                   label: 'Preview',
-                  onTap: () => _scrollTo(widget.sectionKeys['preview']!),
+                  onTap: () => _goToSection('preview'),
                   color: textColor,
                 ),
                 _MobileNavLink(
@@ -180,13 +192,15 @@ class _NavbarState extends State<Navbar> {
                 ),
                 _MobileNavLink(
                   label: 'Download',
-                  onTap: () => _scrollTo(widget.sectionKeys['download']!),
+                  onTap: () => _goToSection('download'),
                   color: textColor,
                 ),
                 const SizedBox(height: 12),
                 _GithubButton(
-                    accent:
-                        isDark ? WebTheme.primaryYellow : WebTheme.primaryGold),
+                  accent: isDark
+                      ? WebTheme.primaryYellow
+                      : WebTheme.primaryGold,
+                ),
               ],
             ),
           ),
@@ -200,8 +214,11 @@ class _NavLink extends StatefulWidget {
   final VoidCallback onTap;
   final Color color;
 
-  const _NavLink(
-      {required this.label, required this.onTap, required this.color});
+  const _NavLink({
+    required this.label,
+    required this.onTap,
+    required this.color,
+  });
 
   @override
   State<_NavLink> createState() => _NavLinkState();
@@ -242,8 +259,11 @@ class _MobileNavLink extends StatelessWidget {
   final VoidCallback onTap;
   final Color color;
 
-  const _MobileNavLink(
-      {required this.label, required this.onTap, required this.color});
+  const _MobileNavLink({
+    required this.label,
+    required this.onTap,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -283,8 +303,8 @@ class _GithubButtonState extends State<_GithubButton> {
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: GestureDetector(
-        onTap: () => launchUrl(
-            Uri.parse('https://github.com/maskedsyntax/patterns')),
+        onTap: () =>
+            launchUrl(Uri.parse('https://github.com/maskedsyntax/patterns')),
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: AnimatedContainer(

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -296,8 +297,8 @@ class HeroSection extends StatelessWidget {
           ),
           ContentContainer(
             padding: EdgeInsets.only(
-              top: isMobile ? 100 : 140,
-              bottom: isMobile ? 80 : 120,
+              top: isMobile ? 64 : 140,
+              bottom: isMobile ? 64 : 120,
             ),
             child: Column(
               children: [
@@ -336,7 +337,7 @@ class HeroSection extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 40),
+                SizedBox(height: isMobile ? 28 : 40),
                 // Headline
                 Text(
                   'Clarity for\nthe mind.',
@@ -349,7 +350,7 @@ class HeroSection extends StatelessWidget {
                         : 80,
                     fontWeight: FontWeight.w800,
                     height: 1.05,
-                    letterSpacing: -3,
+                    letterSpacing: 0,
                     color: textColor,
                   ),
                 ),
@@ -363,12 +364,12 @@ class HeroSection extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: isMobile ? 16 : 19,
                       fontWeight: FontWeight.w400,
-                      height: 1.6,
+                      height: isMobile ? 1.5 : 1.6,
                       color: secondaryText,
                     ),
                   ),
                 ),
-                const SizedBox(height: 48),
+                SizedBox(height: isMobile ? 36 : 48),
                 // CTA buttons
                 Wrap(
                   alignment: WrapAlignment.center,
@@ -383,21 +384,24 @@ class HeroSection extends StatelessWidget {
                         onDownloadTap();
                       },
                       accent: accent,
+                      fullWidth: isMobile,
                     ),
                     _SecondaryButton(
                       label: 'View on GitHub',
-                      icon: Icons.code_rounded,
+                      icon: FontAwesomeIcons.github,
                       onTap: () {
                         AnalyticsService.logGitHubClick();
-                        launchUrl(Uri.parse(
-                            'https://github.com/maskedsyntax/patterns'));
+                        launchUrl(
+                          Uri.parse('https://github.com/maskedsyntax/patterns'),
+                        );
                       },
                       isDark: isDark,
                       accent: accent,
+                      fullWidth: isMobile,
                     ),
                   ],
                 ),
-                SizedBox(height: isMobile ? 60 : 80),
+                SizedBox(height: isMobile ? 48 : 80),
                 // App preview mockup
                 _AppPreview(
                   isDark: isDark,
@@ -486,7 +490,7 @@ class _AppPreview extends StatelessWidget {
           ),
           // App content mockup
           SizedBox(
-            height: isMobile ? 240 : 420,
+            height: isMobile ? 220 : 420,
             child: Row(
               children: [
                 // Sidebar
@@ -697,12 +701,14 @@ class _PrimaryButton extends StatefulWidget {
   final IconData icon;
   final VoidCallback onTap;
   final Color accent;
+  final bool fullWidth;
 
   const _PrimaryButton({
     required this.label,
     required this.icon,
     required this.onTap,
     required this.accent,
+    this.fullWidth = false,
   });
 
   @override
@@ -724,7 +730,8 @@ class _PrimaryButtonState extends State<_PrimaryButton> {
           cursor: SystemMouseCursors.click,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+            width: widget.fullWidth ? 224 : null,
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
             decoration: BoxDecoration(
               color: _hovered
                   ? widget.accent
@@ -741,14 +748,20 @@ class _PrimaryButtonState extends State<_PrimaryButton> {
                   : [],
             ),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize: widget.fullWidth
+                  ? MainAxisSize.max
+                  : MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(widget.icon, size: 18, color: Colors.black),
-                const SizedBox(width: 10),
+                Icon(widget.icon, size: 16, color: Colors.black),
+                const SizedBox(width: 8),
                 Text(
                   widget.label,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.inter(
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Colors.black,
                   ),
@@ -764,10 +777,11 @@ class _PrimaryButtonState extends State<_PrimaryButton> {
 
 class _SecondaryButton extends StatefulWidget {
   final String label;
-  final IconData icon;
+  final FaIconData icon;
   final VoidCallback onTap;
   final bool isDark;
   final Color accent;
+  final bool fullWidth;
 
   const _SecondaryButton({
     required this.label,
@@ -775,6 +789,7 @@ class _SecondaryButton extends StatefulWidget {
     required this.onTap,
     required this.isDark,
     required this.accent,
+    this.fullWidth = false,
   });
 
   @override
@@ -788,6 +803,9 @@ class _SecondaryButtonState extends State<_SecondaryButton> {
   Widget build(BuildContext context) {
     final border = widget.isDark ? WebTheme.darkBorder : WebTheme.lightBorder;
     final textColor = widget.isDark ? WebTheme.darkText : WebTheme.lightText;
+    final surface = widget.isDark
+        ? WebTheme.darkSurfaceAlt
+        : WebTheme.lightSurfaceAlt;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -799,29 +817,34 @@ class _SecondaryButtonState extends State<_SecondaryButton> {
           cursor: SystemMouseCursors.click,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+            width: widget.fullWidth ? 224 : null,
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
             decoration: BoxDecoration(
               color: _hovered
-                  ? (widget.isDark
-                        ? Colors.white.withValues(alpha: 0.05)
-                        : Colors.black.withValues(alpha: 0.03))
-                  : Colors.transparent,
+                  ? Color.lerp(surface, widget.accent, 0.08)
+                  : surface,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: border),
             ),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize: widget.fullWidth
+                  ? MainAxisSize.max
+                  : MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
+                FaIcon(
                   widget.icon,
-                  size: 18,
-                  color: textColor.withValues(alpha: 0.7),
+                  size: 16,
+                  color: textColor.withValues(alpha: 0.82),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 Text(
                   widget.label,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.inter(
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: textColor.withValues(alpha: 0.8),
                   ),

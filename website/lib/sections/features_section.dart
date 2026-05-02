@@ -14,8 +14,9 @@ class FeaturesSection extends StatelessWidget {
     final screen = Responsive.getScreenSize(context);
     final isMobile = screen == ScreenSize.mobile;
     final textColor = isDark ? WebTheme.darkText : WebTheme.lightText;
-    final secondaryText =
-        isDark ? WebTheme.darkTextSecondary : WebTheme.lightTextSecondary;
+    final secondaryText = isDark
+        ? WebTheme.darkTextSecondary
+        : WebTheme.lightTextSecondary;
     final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
 
     final features = [
@@ -68,12 +69,13 @@ class FeaturesSection extends StatelessWidget {
               child: Column(
                 children: [
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(100),
-                      border:
-                          Border.all(color: accent.withValues(alpha: 0.25)),
+                      border: Border.all(color: accent.withValues(alpha: 0.25)),
                     ),
                     child: Text(
                       'FEATURES',
@@ -93,13 +95,13 @@ class FeaturesSection extends StatelessWidget {
                       fontSize: isMobile ? 32 : 48,
                       fontWeight: FontWeight.w800,
                       height: 1.1,
-                      letterSpacing: -1.5,
+                      letterSpacing: 0,
                       color: textColor,
                     ),
                   ),
                   const SizedBox(height: 16),
-                  SizedBox(
-                    width: 480,
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
                     child: Text(
                       'Designed to be simple, focused, and respectful of your privacy.',
                       textAlign: TextAlign.center,
@@ -120,8 +122,8 @@ class FeaturesSection extends StatelessWidget {
                 final crossAxisCount = isMobile
                     ? 1
                     : screen == ScreenSize.tablet
-                        ? 2
-                        : 3;
+                    ? 2
+                    : 3;
                 return Wrap(
                   spacing: 24,
                   runSpacing: 24,
@@ -131,7 +133,7 @@ class FeaturesSection extends StatelessWidget {
                     final itemWidth = crossAxisCount == 1
                         ? constraints.maxWidth
                         : (constraints.maxWidth - (crossAxisCount - 1) * 24) /
-                            crossAxisCount;
+                              crossAxisCount;
                     return AnimatedOnScroll(
                       delay: Duration(milliseconds: idx * 100),
                       child: SizedBox(
@@ -193,8 +195,9 @@ class _FeatureCardState extends State<_FeatureCard> {
   @override
   Widget build(BuildContext context) {
     final border = widget.isDark ? WebTheme.darkBorder : WebTheme.lightBorder;
-    final surfaceAlt =
-        widget.isDark ? WebTheme.darkSurfaceAlt : WebTheme.lightSurfaceAlt;
+    final surfaceAlt = widget.isDark
+        ? WebTheme.darkSurfaceAlt
+        : WebTheme.lightSurfaceAlt;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
@@ -221,11 +224,7 @@ class _FeatureCardState extends State<_FeatureCard> {
                 color: widget.accent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                widget.feature.icon,
-                size: 24,
-                color: widget.accent,
-              ),
+              child: Icon(widget.feature.icon, size: 24, color: widget.accent),
             ),
             const SizedBox(height: 20),
             Text(

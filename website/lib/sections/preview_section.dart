@@ -24,8 +24,9 @@ class _PreviewSectionState extends State<PreviewSection> {
     final secondaryText = widget.isDark
         ? WebTheme.darkTextSecondary
         : WebTheme.lightTextSecondary;
-    final accent =
-        widget.isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
+    final accent = widget.isDark
+        ? WebTheme.primaryYellow
+        : WebTheme.primaryGold;
 
     final tabs = ['Journal', 'OCD Tracker', 'Analytics'];
 
@@ -41,11 +42,12 @@ class _PreviewSectionState extends State<PreviewSection> {
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 6),
+                      horizontal: 14,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(100),
-                      border:
-                          Border.all(color: accent.withValues(alpha: 0.25)),
+                      border: Border.all(color: accent.withValues(alpha: 0.25)),
                     ),
                     child: Text(
                       'PREVIEW',
@@ -65,13 +67,13 @@ class _PreviewSectionState extends State<PreviewSection> {
                       fontSize: isMobile ? 32 : 48,
                       fontWeight: FontWeight.w800,
                       height: 1.1,
-                      letterSpacing: -1.5,
+                      letterSpacing: 0,
                       color: textColor,
                     ),
                   ),
                   const SizedBox(height: 16),
-                  SizedBox(
-                    width: 500,
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 500),
                     child: Text(
                       'Three focused screens designed to help you track, reflect, and understand your patterns.',
                       textAlign: TextAlign.center,
@@ -97,10 +99,11 @@ class _PreviewSectionState extends State<PreviewSection> {
                       : WebTheme.lightSurfaceAlt,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: (widget.isDark
-                            ? WebTheme.darkBorder
-                            : WebTheme.lightBorder)
-                        .withValues(alpha: 0.5),
+                    color:
+                        (widget.isDark
+                                ? WebTheme.darkBorder
+                                : WebTheme.lightBorder)
+                            .withValues(alpha: 0.5),
                   ),
                 ),
                 child: Row(
@@ -119,24 +122,21 @@ class _PreviewSectionState extends State<PreviewSection> {
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         padding: EdgeInsets.symmetric(
-                          horizontal: isMobile ? 16 : 24,
+                          horizontal: isMobile ? 12 : 24,
                           vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: isActive
-                              ? accent
-                              : Colors.transparent,
+                          color: isActive ? accent : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           label,
                           style: GoogleFonts.inter(
                             fontSize: isMobile ? 13 : 14,
-                            fontWeight:
-                                isActive ? FontWeight.w600 : FontWeight.w500,
-                            color: isActive
-                                ? Colors.black
-                                : secondaryText,
+                            fontWeight: isActive
+                                ? FontWeight.w600
+                                : FontWeight.w500,
+                            color: isActive ? Colors.black : secondaryText,
                           ),
                         ),
                       ),
@@ -184,10 +184,12 @@ class _PreviewMockup extends StatelessWidget {
     final border = isDark ? WebTheme.darkBorder : WebTheme.lightBorder;
     final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
     final text = isDark ? WebTheme.darkText : WebTheme.lightText;
-    final textSec =
-        isDark ? WebTheme.darkTextSecondary : WebTheme.lightTextSecondary;
-    final surfaceAlt =
-        isDark ? WebTheme.darkSurfaceAlt : WebTheme.lightSurfaceAlt;
+    final textSec = isDark
+        ? WebTheme.darkTextSecondary
+        : WebTheme.lightTextSecondary;
+    final surfaceAlt = isDark
+        ? WebTheme.darkSurfaceAlt
+        : WebTheme.lightSurfaceAlt;
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 900),
@@ -206,7 +208,7 @@ class _PreviewMockup extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
         child: SizedBox(
-          height: isMobile ? 300 : 460,
+          height: isMobile ? 320 : 460,
           child: _buildContent(accent, text, textSec, surfaceAlt, border),
         ),
       ),
@@ -214,7 +216,12 @@ class _PreviewMockup extends StatelessWidget {
   }
 
   Widget _buildContent(
-      Color accent, Color text, Color textSec, Color surfaceAlt, Color border) {
+    Color accent,
+    Color text,
+    Color textSec,
+    Color surfaceAlt,
+    Color border,
+  ) {
     switch (tabIndex) {
       case 0:
         return _journalPreview(accent, text, textSec, surfaceAlt, border);
@@ -228,7 +235,12 @@ class _PreviewMockup extends StatelessWidget {
   }
 
   Widget _journalPreview(
-      Color accent, Color text, Color textSec, Color surfaceAlt, Color border) {
+    Color accent,
+    Color text,
+    Color textSec,
+    Color surfaceAlt,
+    Color border,
+  ) {
     return Padding(
       padding: EdgeInsets.all(isMobile ? 20 : 40),
       child: Column(
@@ -241,14 +253,17 @@ class _PreviewMockup extends StatelessWidget {
               Text(
                 'Wednesday, March 19',
                 style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: textSec),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: textSec,
+                ),
               ),
               const Spacer(),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
@@ -256,9 +271,10 @@ class _PreviewMockup extends StatelessWidget {
                 child: Text(
                   'Saved',
                   style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: accent),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: accent,
+                  ),
                 ),
               ),
             ],
@@ -290,7 +306,12 @@ class _PreviewMockup extends StatelessWidget {
   }
 
   Widget _ocdPreview(
-      Color accent, Color text, Color textSec, Color surfaceAlt, Color border) {
+    Color accent,
+    Color text,
+    Color textSec,
+    Color surfaceAlt,
+    Color border,
+  ) {
     return Padding(
       padding: EdgeInsets.all(isMobile ? 20 : 40),
       child: Column(
@@ -308,8 +329,10 @@ class _PreviewMockup extends StatelessWidget {
               ),
               const Spacer(),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: accent,
                   borderRadius: BorderRadius.circular(8),
@@ -318,15 +341,17 @@ class _PreviewMockup extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(Icons.add, size: 14, color: Colors.black),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Track New',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                    if (!isMobile) ...[
+                      const SizedBox(width: 4),
+                      Text(
+                        'Track New',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
@@ -338,15 +363,42 @@ class _PreviewMockup extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               padding: EdgeInsets.zero,
               children: [
-                _ocdEntry('Checking (Door locks)', 'Obsession', 6, accent, text,
-                    textSec, surfaceAlt, border, '2:30 PM'),
+                _ocdEntry(
+                  'Checking (Door locks)',
+                  'Obsession',
+                  6,
+                  accent,
+                  text,
+                  textSec,
+                  surfaceAlt,
+                  border,
+                  '2:30 PM',
+                ),
                 const SizedBox(height: 12),
-                _ocdEntry('Hand washing', 'Compulsion', 4, accent, text, textSec,
-                    surfaceAlt, border, '11:15 AM'),
+                _ocdEntry(
+                  'Hand washing',
+                  'Compulsion',
+                  4,
+                  accent,
+                  text,
+                  textSec,
+                  surfaceAlt,
+                  border,
+                  '11:15 AM',
+                ),
                 if (!isMobile) ...[
                   const SizedBox(height: 12),
-                  _ocdEntry('Intrusive thought', 'Obsession', 7, accent, text,
-                      textSec, surfaceAlt, border, '9:00 AM'),
+                  _ocdEntry(
+                    'Intrusive thought',
+                    'Obsession',
+                    7,
+                    accent,
+                    text,
+                    textSec,
+                    surfaceAlt,
+                    border,
+                    '9:00 AM',
+                  ),
                 ],
               ],
             ),
@@ -356,8 +408,17 @@ class _PreviewMockup extends StatelessWidget {
     );
   }
 
-  Widget _ocdEntry(String title, String type, int distress, Color accent,
-      Color text, Color textSec, Color surfaceAlt, Color border, String time) {
+  Widget _ocdEntry(
+    String title,
+    String type,
+    int distress,
+    Color accent,
+    Color text,
+    Color textSec,
+    Color surfaceAlt,
+    Color border,
+    String time,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -374,16 +435,21 @@ class _PreviewMockup extends StatelessWidget {
                 Text(
                   title,
                   style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: text),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: text,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: accent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
@@ -391,16 +457,16 @@ class _PreviewMockup extends StatelessWidget {
                       child: Text(
                         type,
                         style: GoogleFonts.inter(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: accent),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: accent,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       time,
-                      style: GoogleFonts.inter(
-                          fontSize: 12, color: textSec),
+                      style: GoogleFonts.inter(fontSize: 12, color: textSec),
                     ),
                   ],
                 ),
@@ -420,8 +486,7 @@ class _PreviewMockup extends StatelessWidget {
               ),
               Text(
                 '/10',
-                style: GoogleFonts.inter(
-                    fontSize: 11, color: textSec),
+                style: GoogleFonts.inter(fontSize: 11, color: textSec),
               ),
             ],
           ),
@@ -431,7 +496,12 @@ class _PreviewMockup extends StatelessWidget {
   }
 
   Widget _analyticsPreview(
-      Color accent, Color text, Color textSec, Color surfaceAlt, Color border) {
+    Color accent,
+    Color text,
+    Color textSec,
+    Color surfaceAlt,
+    Color border,
+  ) {
     return Padding(
       padding: EdgeInsets.all(isMobile ? 20 : 40),
       child: Column(
@@ -449,11 +519,35 @@ class _PreviewMockup extends StatelessWidget {
           // Stats row
           Row(
             children: [
-              _statCard('Entries', '47', accent, text, textSec, surfaceAlt, border),
-              const SizedBox(width: 12),
-              _statCard('Avg Distress', '4.2', accent, text, textSec, surfaceAlt, border),
-              const SizedBox(width: 12),
-              _statCard('Streak', '12d', accent, text, textSec, surfaceAlt, border),
+              _statCard(
+                'Entries',
+                '47',
+                accent,
+                text,
+                textSec,
+                surfaceAlt,
+                border,
+              ),
+              SizedBox(width: isMobile ? 8 : 12),
+              _statCard(
+                'Avg Distress',
+                '4.2',
+                accent,
+                text,
+                textSec,
+                surfaceAlt,
+                border,
+              ),
+              SizedBox(width: isMobile ? 8 : 12),
+              _statCard(
+                'Streak',
+                '12d',
+                accent,
+                text,
+                textSec,
+                surfaceAlt,
+                border,
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -486,37 +580,41 @@ class _PreviewMockup extends StatelessWidget {
                         return Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [6, 4, 7, 5, 3, 4, 2]
-                              .map((val) => Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 4),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            '$val',
-                                            style: GoogleFonts.inter(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.w600,
-                                              color: accent,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Container(
-                                            height: (val / 10) * maxBarHeight,
-                                            decoration: BoxDecoration(
-                                              color: accent
-                                                  .withValues(alpha: 0.7),
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                              .map(
+                                (val) => Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
                                     ),
-                                  ))
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          '$val',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                            color: accent,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Container(
+                                          height: (val / 10) * maxBarHeight,
+                                          decoration: BoxDecoration(
+                                            color: accent.withValues(
+                                              alpha: 0.7,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              )
                               .toList(),
                         );
                       },
@@ -525,14 +623,18 @@ class _PreviewMockup extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-                        .map((d) => Expanded(
-                              child: Text(
-                                d,
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.inter(
-                                    fontSize: 10, color: textSec),
+                        .map(
+                          (d) => Expanded(
+                            child: Text(
+                              d,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.inter(
+                                fontSize: 10,
+                                color: textSec,
                               ),
-                            ))
+                            ),
+                          ),
+                        )
                         .toList(),
                   ),
                 ],
@@ -544,11 +646,18 @@ class _PreviewMockup extends StatelessWidget {
     );
   }
 
-  Widget _statCard(String label, String value, Color accent, Color text,
-      Color textSec, Color surfaceAlt, Color border) {
+  Widget _statCard(
+    String label,
+    String value,
+    Color accent,
+    Color text,
+    Color textSec,
+    Color surfaceAlt,
+    Color border,
+  ) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(isMobile ? 10 : 12),
         decoration: BoxDecoration(
           color: surfaceAlt,
           borderRadius: BorderRadius.circular(12),
@@ -569,7 +678,11 @@ class _PreviewMockup extends StatelessWidget {
             Text(
               label,
               style: GoogleFonts.inter(
-                  fontSize: 12, color: textSec),
+                fontSize: isMobile ? 10 : 12,
+                color: textSec,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

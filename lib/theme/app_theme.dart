@@ -4,6 +4,18 @@ class AppTheme {
   static const String sansFamily = 'PlusJakartaSans';
   static const String displayFamily = 'Fraunces';
 
+  static const PageTransitionsTheme _pageTransitionsTheme = PageTransitionsTheme(
+    builders: {
+      TargetPlatform.android: ZoomPageTransitionsBuilder(
+        allowEnterRouteSnapshotting: false,
+      ),
+      TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+      TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+      TargetPlatform.linux: ZoomPageTransitionsBuilder(),
+      TargetPlatform.windows: ZoomPageTransitionsBuilder(),
+    },
+  );
+
   static const Color warmYellow = Color(0xFFF4C95D);
   static const Color deepCharcoal = Color(0xFF141414);
   static const Color charcoalCard = Color(0xFF1E1E1E);
@@ -149,6 +161,7 @@ class AppTheme {
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
+    pageTransitionsTheme: _pageTransitionsTheme,
     colorScheme: ColorScheme.dark(
       primary: warmYellow,
       onPrimary: const Color(0xFF17130A),
@@ -241,6 +254,7 @@ class AppTheme {
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
+    pageTransitionsTheme: _pageTransitionsTheme,
     colorScheme: ColorScheme.light(
       primary: primaryGold,
       onPrimary: Colors.black,

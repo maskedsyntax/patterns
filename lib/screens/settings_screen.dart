@@ -9,6 +9,7 @@ import '../database/db_helper.dart';
 import '../main.dart';
 import '../providers/providers.dart';
 import '../theme/app_theme.dart';
+import '../widgets/animations.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -22,7 +23,7 @@ class SettingsScreen extends ConsumerWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
-          children: [
+          children: staggered([
             Row(
               children: [
                 IconButton(
@@ -97,7 +98,7 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: 'Future',
               onTap: () => _showFutureSheet(context),
             ),
-          ],
+          ]),
         ),
       ),
     );
@@ -272,8 +273,7 @@ class _SettingsItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(22),
+    return PressScale(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(18),

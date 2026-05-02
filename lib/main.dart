@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
@@ -10,6 +11,7 @@ import 'screens/journal_screen.dart';
 import 'screens/ocd_tracker_screen.dart';
 import 'screens/settings_screen.dart';
 import 'theme/app_theme.dart';
+import 'widgets/animations.dart';
 
 class ThemeModeNotifier extends Notifier<ThemeMode> {
   @override
@@ -75,7 +77,7 @@ class _PatternsAppState extends ConsumerState<PatternsApp> {
   }
 }
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   final VoidCallback onStart;
   final VoidCallback onImport;
 
@@ -84,6 +86,23 @@ class WelcomeScreen extends StatelessWidget {
     required this.onStart,
     required this.onImport,
   });
+
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 3),
+  )..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,84 +115,106 @@ class WelcomeScreen extends StatelessWidget {
           child: Column(
             children: [
               const Spacer(),
-              Container(
-                width: 164,
-                height: 164,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: theme.colorScheme.surface,
-                  border: Border.all(color: theme.dividerColor),
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      width: 104,
-                      height: 104,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: theme.colorScheme.primary.withValues(
-                            alpha: 0.34,
+              FadeSlideIn(
+                duration: const Duration(milliseconds: 600),
+                offset: 22,
+                child: Container(
+                  width: 164,
+                  height: 164,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: theme.colorScheme.surface,
+                    border: Border.all(color: theme.dividerColor),
+                  ),
+                  child: AnimatedBuilder(
+                    animation: _pulse,
+                    builder: (context, _) {
+                      final t = Curves.easeInOut.transform(_pulse.value);
+                      return Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            width: 104 + t * 8,
+                            height: 104 + t * 8,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: theme.colorScheme.primary.withValues(
+                                  alpha: 0.24 + t * 0.18,
+                                ),
+                                width: 2,
+                              ),
+                            ),
                           ),
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 58,
-                      height: 58,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: theme.colorScheme.primary.withValues(
-                          alpha: 0.18,
-                        ),
-                      ),
-                    ),
-                    Icon(
-                      LineIcons.feather,
-                      color: theme.colorScheme.primary,
-                      size: 34,
-                    ),
-                  ],
+                          Container(
+                            width: 58 + t * 6,
+                            height: 58 + t * 6,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.14 + t * 0.10,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            LineIcons.feather,
+                            color: theme.colorScheme.primary,
+                            size: 34,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 48),
-              Text(
-                'Understand your patterns.\nOne entry at a time.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: AppTheme.displayFamily,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 32,
-                  height: 1.12,
-                  letterSpacing: -0.6,
-                  color: theme.colorScheme.onSurface,
+              FadeSlideIn(
+                delay: const Duration(milliseconds: 180),
+                child: Text(
+                  'Understand your patterns.\nOne entry at a time.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: AppTheme.displayFamily,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 32,
+                    height: 1.12,
+                    letterSpacing: -0.6,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
               ),
               const SizedBox(height: 18),
-              Text(
-                'Track intrusive thoughts, compulsions, distress, and daily reflections in a calm private space.',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: AppTheme.textSecondary,
-                  height: 1.55,
+              FadeSlideIn(
+                delay: const Duration(milliseconds: 280),
+                child: Text(
+                  'Track intrusive thoughts, compulsions, distress, and daily reflections in a calm private space.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: AppTheme.textSecondary,
+                    height: 1.55,
+                  ),
                 ),
               ),
               const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: onStart,
-                  child: const Text('Start journaling'),
+              FadeSlideIn(
+                delay: const Duration(milliseconds: 420),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: widget.onStart,
+                    child: const Text('Start journaling'),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: onImport,
-                  child: const Text('Import existing data'),
+              FadeSlideIn(
+                delay: const Duration(milliseconds: 520),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: widget.onImport,
+                    child: const Text('Import existing data'),
+                  ),
                 ),
               ),
             ],
@@ -212,14 +253,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _Tab.insights: const AnalyticsScreen(),
     };
 
+    final showFab = _selectedTab == _Tab.home ||
+        _selectedTab == _Tab.journal ||
+        _selectedTab == _Tab.track;
+
     return Scaffold(
       body: Stack(
         children: [
           Positioned.fill(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 220),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
+            child: PageTransitionSwitcher(
+              duration: const Duration(milliseconds: 320),
+              reverse: false,
+              transitionBuilder: (child, primary, secondary) {
+                return FadeThroughTransition(
+                  animation: primary,
+                  secondaryAnimation: secondary,
+                  fillColor: Colors.transparent,
+                  child: child,
+                );
+              },
               child: KeyedSubtree(
                 key: ValueKey(_selectedTab.name),
                 child: pages[_selectedTab]!,
@@ -234,33 +286,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               minimum: EdgeInsets.zero,
               child: _FloatingTabBar(
                 selectedTab: _selectedTab,
-                onSelected: (tab) => setState(() => _selectedTab = tab),
+                onSelected: (tab) {
+                  if (tab == _selectedTab) return;
+                  setState(() => _selectedTab = tab);
+                },
               ),
             ),
           ),
-          if (_selectedTab == _Tab.home ||
-              _selectedTab == _Tab.journal ||
-              _selectedTab == _Tab.track)
-            Positioned(
-              right: 28,
-              bottom: 92,
-              child: SafeArea(
-                minimum: EdgeInsets.zero,
-                child: _FloatingPenButton(
-                  icon: _selectedTab == _Tab.track
-                      ? Icons.add_rounded
-                      : LineIcons.penNib,
-                  semanticLabel: _selectedTab == _Tab.track
-                      ? 'Track OCD event'
-                      : 'Add entry',
-                  onTap: switch (_selectedTab) {
-                    _Tab.journal => () => _openJournalEditor(context),
-                    _Tab.track => () => _openOcdFlow(context),
-                    _ => () => _showAddSheet(context),
-                  },
+          Positioned(
+            right: 28,
+            bottom: 92,
+            child: SafeArea(
+              minimum: EdgeInsets.zero,
+              child: AnimatedSlide(
+                offset: showFab ? Offset.zero : const Offset(0, 1.6),
+                duration: const Duration(milliseconds: 320),
+                curve: Curves.easeOutCubic,
+                child: AnimatedOpacity(
+                  opacity: showFab ? 1 : 0,
+                  duration: const Duration(milliseconds: 220),
+                  child: IgnorePointer(
+                    ignoring: !showFab,
+                    child: _FloatingPenButton(
+                      icon: _selectedTab == _Tab.track
+                          ? Icons.add_rounded
+                          : LineIcons.penNib,
+                      semanticLabel: _selectedTab == _Tab.track
+                          ? 'Track OCD event'
+                          : 'Add entry',
+                      onTap: switch (_selectedTab) {
+                        _Tab.journal => () => _openJournalEditor(context),
+                        _Tab.track => () => _openOcdFlow(context),
+                        _ => () => _showAddSheet(context),
+                      },
+                    ),
+                  ),
                 ),
               ),
             ),
+          ),
         ],
       ),
     );
@@ -310,6 +374,8 @@ class _FloatingTabBar extends StatelessWidget {
 
   const _FloatingTabBar({required this.selectedTab, required this.onSelected});
 
+  static const _tabs = _Tab.values;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -330,13 +396,14 @@ class _FloatingTabBar extends StatelessWidget {
         ? Colors.white.withValues(alpha: 0.12)
         : Colors.white.withValues(alpha: 0.55);
 
+    final selectedIndex = _tabs.indexOf(selectedTab);
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(30),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
         child: Container(
           height: 68,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -358,33 +425,68 @@ class _FloatingTabBar extends StatelessWidget {
               ),
             ],
           ),
-          child: Row(
-            children: [
-              _TabItem(
-                icon: LineIcons.home,
-                label: 'Home',
-                active: selectedTab == _Tab.home,
-                onTap: () => onSelected(_Tab.home),
-              ),
-              _TabItem(
-                icon: LineIcons.bookOpen,
-                label: 'Journal',
-                active: selectedTab == _Tab.journal,
-                onTap: () => onSelected(_Tab.journal),
-              ),
-              _TabItem(
-                icon: LineIcons.bullseye,
-                label: 'Track',
-                active: selectedTab == _Tab.track,
-                onTap: () => onSelected(_Tab.track),
-              ),
-              _TabItem(
-                icon: LineIcons.barChart,
-                label: 'Insights',
-                active: selectedTab == _Tab.insights,
-                onTap: () => onSelected(_Tab.insights),
-              ),
-            ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              const indicatorInset = 6.0;
+              final itemWidth = constraints.maxWidth / _tabs.length;
+              final indicatorWidth = itemWidth - indicatorInset * 2;
+              final indicatorLeft =
+                  selectedIndex * itemWidth + indicatorInset;
+              return Stack(
+                children: [
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 360),
+                    curve: Curves.easeOutCubic,
+                    left: indicatorLeft,
+                    top: (68 - 52) / 2,
+                    width: indicatorWidth,
+                    height: 52,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary.withValues(
+                          alpha: isDark ? 0.14 : 0.18,
+                        ),
+                        borderRadius: BorderRadius.circular(22),
+                        border: Border.all(
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.22,
+                          ),
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      _TabItem(
+                        icon: LineIcons.home,
+                        label: 'Home',
+                        active: selectedTab == _Tab.home,
+                        onTap: () => onSelected(_Tab.home),
+                      ),
+                      _TabItem(
+                        icon: LineIcons.bookOpen,
+                        label: 'Journal',
+                        active: selectedTab == _Tab.journal,
+                        onTap: () => onSelected(_Tab.journal),
+                      ),
+                      _TabItem(
+                        icon: LineIcons.bullseye,
+                        label: 'Track',
+                        active: selectedTab == _Tab.track,
+                        onTap: () => onSelected(_Tab.track),
+                      ),
+                      _TabItem(
+                        icon: LineIcons.barChart,
+                        label: 'Insights',
+                        active: selectedTab == _Tab.insights,
+                        onTap: () => onSelected(_Tab.insights),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -410,9 +512,9 @@ class _FloatingPenButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: semanticLabel,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(999),
+      child: PressScale(
         onTap: onTap,
+        scale: 0.9,
         child: Container(
           width: 52,
           height: 52,
@@ -431,10 +533,20 @@ class _FloatingPenButton extends StatelessWidget {
               ),
             ],
           ),
-          child: Icon(
-            icon,
-            color: theme.colorScheme.onPrimary,
-            size: 26,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 260),
+            switchInCurve: Curves.easeOutBack,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, animation) => ScaleTransition(
+              scale: animation,
+              child: FadeTransition(opacity: animation, child: child),
+            ),
+            child: Icon(
+              icon,
+              key: ValueKey(icon.codePoint),
+              color: theme.colorScheme.onPrimary,
+              size: 26,
+            ),
           ),
         ),
       ),
@@ -464,23 +576,43 @@ class _TabItem extends StatelessWidget {
     final color = active ? theme.colorScheme.primary : inactiveColor;
 
     return Expanded(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(22),
+      child: PressScale(
+        scale: 0.94,
         onTap: onTap,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 22, color: color),
-            const SizedBox(height: 5),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 11,
-                fontWeight: active ? FontWeight.w800 : FontWeight.w600,
-              ),
+        child: Center(
+          child: AnimatedScale(
+            scale: active ? 1.05 : 1.0,
+            duration: const Duration(milliseconds: 260),
+            curve: Curves.easeOutCubic,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: active ? 1 : 0),
+                  duration: const Duration(milliseconds: 320),
+                  curve: Curves.easeOutCubic,
+                  builder: (context, t, _) {
+                    return Icon(
+                      icon,
+                      size: 22 + (t * 1.5),
+                      color: Color.lerp(inactiveColor, color, t),
+                    );
+                  },
+                ),
+                const SizedBox(height: 5),
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 260),
+                  curve: Curves.easeOutCubic,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 11,
+                    fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+                  ),
+                  child: Text(label),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -521,23 +653,31 @@ class _ActionSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 22),
-            Text(
-              'What do you want to add?',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w800,
+            FadeSlideIn(
+              child: Text(
+                'What do you want to add?',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
             const SizedBox(height: 16),
-            _SheetAction(
-              icon: LineIcons.penNib,
-              title: 'Journal Entry',
-              onTap: onJournal,
+            FadeSlideIn(
+              delay: const Duration(milliseconds: 70),
+              child: _SheetAction(
+                icon: LineIcons.penNib,
+                title: 'Journal Entry',
+                onTap: onJournal,
+              ),
             ),
             const SizedBox(height: 10),
-            _SheetAction(
-              icon: LineIcons.bullseye,
-              title: 'OCD Event',
-              onTap: onOcd,
+            FadeSlideIn(
+              delay: const Duration(milliseconds: 140),
+              child: _SheetAction(
+                icon: LineIcons.bullseye,
+                title: 'OCD Event',
+                onTap: onOcd,
+              ),
             ),
           ],
         ),
@@ -560,14 +700,18 @@ class _SheetAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final fill = isDark ? AppTheme.charcoalInput : AppTheme.lightBg;
+    final textColor = isDark
+        ? AppTheme.textPrimary
+        : AppTheme.lightTextPrimary;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
+    return PressScale(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: AppTheme.charcoalInput,
+          color: fill,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: theme.dividerColor),
         ),
@@ -579,6 +723,7 @@ class _SheetAction extends StatelessWidget {
               title,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
+                color: textColor,
               ),
             ),
           ],

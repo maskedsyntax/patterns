@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,7 @@ import 'package:line_icons/line_icons.dart';
 import '../models/models.dart';
 import '../providers/providers.dart';
 import '../theme/app_theme.dart';
+import '../widgets/animations.dart';
 
 enum _Range { seven, thirty, ninety, year }
 
@@ -19,6 +21,7 @@ class AnalyticsScreen extends ConsumerStatefulWidget {
 
 class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
   _Range _range = _Range.thirty;
+  _Range _previousRange = _Range.thirty;
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +34,22 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 116),
           children: [
-            Text('Insights', style: _screenTitle(theme)),
+            FadeSlideIn(
+              child: Text('Insights', style: _screenTitle(theme)),
+            ),
             const SizedBox(height: 18),
-            _RangeSelector(
-              range: _range,
-              onChanged: (range) => setState(() => _range = range),
+            FadeSlideIn(
+              delay: const Duration(milliseconds: 60),
+              child: _RangeSelector(
+                range: _range,
+                onChanged: (range) {
+                  if (range == _range) return;
+                  setState(() {
+                    _previousRange = _range;
+                    _range = range;
+                  });
+                },
+              ),
             ),
             const SizedBox(height: 22),
             journalAsync.when(
@@ -56,74 +70,90 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                       .where((entry) => entry.type == OcdType.compulsion)
                       .length;
 
-                  return Column(
-                    children: [
-                      GridView.count(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 1.25,
-                        children: [
-                          _SummaryCard(
-                            title: 'Journal entries',
-                            value: '${filteredJournals.length}',
-                            icon: LineIcons.bookOpen,
-                          ),
-                          _SummaryCard(
-                            title: 'OCD events',
-                            value: '${filteredOcds.length}',
-                            icon: LineIcons.bullseye,
-                          ),
-                          _SummaryCard(
-                            title: 'Average distress',
-                            value: avgDistress.toStringAsFixed(1),
-                            icon: LineIcons.areaChart,
-                          ),
-                          _SummaryCard(
-                            title: 'Most common trigger',
-                            value: _commonTrigger(filteredOcds),
-                            icon: LineIcons.compass,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 18),
-                      _InsightCard(
-                        title: 'Distress trend',
-                        child: SizedBox(
-                          height: 178,
-                          child: _DistressTrend(entries: filteredOcds),
+                  final goingForward = _range.index >= _previousRange.index;
+                  return PageTransitionSwitcher(
+                    duration: const Duration(milliseconds: 360),
+                    reverse: !goingForward,
+                    transitionBuilder: (child, primary, secondary) {
+                      return SharedAxisTransition(
+                        animation: primary,
+                        secondaryAnimation: secondary,
+                        transitionType: SharedAxisTransitionType.horizontal,
+                        fillColor: Colors.transparent,
+                        child: child,
+                      );
+                    },
+                    child: Column(
+                      key: ValueKey(_range),
+                      children: [
+                        GridView.count(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 1.25,
+                          children: [
+                            _SummaryCard(
+                              title: 'Journal entries',
+                              numericValue: filteredJournals.length.toDouble(),
+                              icon: LineIcons.bookOpen,
+                            ),
+                            _SummaryCard(
+                              title: 'OCD events',
+                              numericValue: filteredOcds.length.toDouble(),
+                              icon: LineIcons.bullseye,
+                            ),
+                            _SummaryCard(
+                              title: 'Average distress',
+                              numericValue: avgDistress.toDouble(),
+                              fractionDigits: 1,
+                              icon: LineIcons.areaChart,
+                            ),
+                            _SummaryCard(
+                              title: 'Most common trigger',
+                              value: _commonTrigger(filteredOcds),
+                              icon: LineIcons.compass,
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 14),
-                      _InsightCard(
-                        title: 'Journaling consistency',
-                        child: _ConsistencyStrip(
-                          entries: filteredJournals,
-                          days: _rangeDays,
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      _InsightCard(
-                        title: 'Obsession vs compulsion',
-                        child: _RatioBar(
-                          obsessions: obsessions,
-                          compulsions: compulsions,
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      _InsightCard(
-                        title: 'Trigger patterns',
-                        child: Text(
-                          _triggerPatternCopy(filteredOcds),
-                          style: TextStyle(
-                            color: AppTheme.textSecondary,
-                            height: 1.45,
+                        const SizedBox(height: 18),
+                        _InsightCard(
+                          title: 'Distress trend',
+                          child: SizedBox(
+                            height: 178,
+                            child: _DistressTrend(entries: filteredOcds),
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 14),
+                        _InsightCard(
+                          title: 'Journaling consistency',
+                          child: _ConsistencyStrip(
+                            entries: filteredJournals,
+                            days: _rangeDays,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        _InsightCard(
+                          title: 'Obsession vs compulsion',
+                          child: _RatioBar(
+                            obsessions: obsessions,
+                            compulsions: compulsions,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        _InsightCard(
+                          title: 'Trigger patterns',
+                          child: Text(
+                            _triggerPatternCopy(filteredOcds),
+                            style: TextStyle(
+                              color: AppTheme.textSecondary,
+                              height: 1.45,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
@@ -248,18 +278,25 @@ class _RangeChip extends StatelessWidget {
 
 class _SummaryCard extends StatelessWidget {
   final String title;
-  final String value;
+  final String? value;
+  final double? numericValue;
+  final int fractionDigits;
   final IconData icon;
 
   const _SummaryCard({
     required this.title,
-    required this.value,
     required this.icon,
-  });
+    this.value,
+    this.numericValue,
+    this.fractionDigits = 0,
+  }) : assert(value != null || numericValue != null);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final valueStyle = theme.textTheme.headlineSmall?.copyWith(
+      fontWeight: FontWeight.w900,
+    );
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -269,14 +306,19 @@ class _SummaryCard extends StatelessWidget {
         children: [
           Icon(icon, color: theme.colorScheme.primary, size: 22),
           const Spacer(),
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w900,
+          if (numericValue != null)
+            AnimatedCounter(
+              value: numericValue!,
+              fractionDigits: fractionDigits,
+              style: valueStyle,
+            )
+          else
+            Text(
+              value!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: valueStyle,
             ),
-          ),
           const SizedBox(height: 4),
           Text(
             title,

@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +7,7 @@ import 'package:line_icons/line_icons.dart';
 import '../models/models.dart';
 import '../providers/providers.dart';
 import '../theme/app_theme.dart';
+import '../widgets/animations.dart';
 
 class OcdTrackerScreen extends ConsumerStatefulWidget {
   final VoidCallback onAdd;
@@ -18,6 +20,7 @@ class OcdTrackerScreen extends ConsumerStatefulWidget {
 
 class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
   OcdType? _selectedType;
+  OcdType? _previousType;
 
   @override
   Widget build(BuildContext context) {
@@ -29,15 +32,26 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
-              child: Text('Track', style: _screenTitle(theme)),
+            FadeSlideIn(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+                child: Text('Track', style: _screenTitle(theme)),
+              ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _FilterBar(
-                selectedType: _selectedType,
-                onChanged: (type) => setState(() => _selectedType = type),
+            FadeSlideIn(
+              delay: const Duration(milliseconds: 60),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _FilterBar(
+                  selectedType: _selectedType,
+                  onChanged: (type) {
+                    if (type == _selectedType) return;
+                    setState(() {
+                      _previousType = _selectedType;
+                      _selectedType = type;
+                    });
+                  },
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -49,15 +63,44 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
                       : entries
                             .where((entry) => entry.type == _selectedType)
                             .toList();
-                  if (filtered.isEmpty) {
-                    return _EmptyTrackState(onAdd: widget.onAdd);
-                  }
-                  return ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 116),
-                    itemCount: filtered.length,
-                    itemBuilder: (context, index) {
-                      return _OcdEventCard(entry: filtered[index]);
+                  final previousIndex = _typeOrder(_previousType);
+                  final currentIndex = _typeOrder(_selectedType);
+                  final goingForward = currentIndex >= previousIndex;
+                  final body = filtered.isEmpty
+                      ? KeyedSubtree(
+                          key: ValueKey(
+                            'empty-${_selectedType?.name ?? 'all'}',
+                          ),
+                          child: _EmptyTrackState(onAdd: widget.onAdd),
+                        )
+                      : ListView.builder(
+                          key: ValueKey(_selectedType?.name ?? 'all'),
+                          padding: const EdgeInsets.fromLTRB(20, 8, 20, 116),
+                          itemCount: filtered.length,
+                          itemBuilder: (context, index) {
+                            return FadeSlideIn(
+                              delay: Duration(
+                                milliseconds: 30 * index.clamp(0, 8),
+                              ),
+                              duration: const Duration(milliseconds: 360),
+                              offset: 12,
+                              child: _OcdEventCard(entry: filtered[index]),
+                            );
+                          },
+                        );
+                  return PageTransitionSwitcher(
+                    duration: const Duration(milliseconds: 320),
+                    reverse: !goingForward,
+                    transitionBuilder: (child, primary, secondary) {
+                      return SharedAxisTransition(
+                        animation: primary,
+                        secondaryAnimation: secondary,
+                        transitionType: SharedAxisTransitionType.horizontal,
+                        fillColor: Colors.transparent,
+                        child: child,
+                      );
                     },
+                    child: body,
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
@@ -126,7 +169,7 @@ class _OcdEventFlowState extends ConsumerState<OcdEventFlow> {
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 10, 20, 28),
-                children: [
+                children: staggered([
                   _TypeToggle(
                     selected: _type,
                     onChanged: (type) => setState(() => _type = type),
@@ -164,10 +207,16 @@ class _OcdEventFlowState extends ConsumerState<OcdEventFlow> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _saving ? null : _save,
-                      child: Text(_saving ? 'Saving...' : 'Save event'),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 220),
+                        child: Text(
+                          _saving ? 'Saving...' : 'Save event',
+                          key: ValueKey(_saving),
+                        ),
+                      ),
                     ),
                   ),
-                ],
+                ]),
               ),
             ),
           ],
@@ -435,13 +484,23 @@ class _DistressCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Text(
-                '${value.round()}/10',
-                style: TextStyle(
-                  color: _distressColor(value.round()),
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                ),
+              TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: value, end: value),
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                builder: (context, v, _) {
+                  final rounded = v.round();
+                  return AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 220),
+                    curve: Curves.easeOutCubic,
+                    style: TextStyle(
+                      color: _distressColor(rounded),
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                    ),
+                    child: Text('$rounded/10'),
+                  );
+                },
               ),
             ],
           ),
@@ -559,4 +618,10 @@ Color _distressColor(int level) {
   if (level <= 3) return AppTheme.softGreen;
   if (level <= 7) return AppTheme.warmYellow;
   return AppTheme.mutedRed;
+}
+
+int _typeOrder(OcdType? type) {
+  if (type == null) return 0;
+  if (type == OcdType.obsession) return 1;
+  return 2;
 }

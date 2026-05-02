@@ -6,6 +6,7 @@ import 'package:line_icons/line_icons.dart';
 import '../models/models.dart';
 import '../providers/providers.dart';
 import '../theme/app_theme.dart';
+import '../widgets/animations.dart';
 
 class TodayScreen extends ConsumerStatefulWidget {
   final VoidCallback onJournal;
@@ -39,7 +40,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 116),
-          children: [
+          children: staggered([
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -170,7 +171,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 value: 'Unavailable',
               ),
             ),
-          ],
+          ]),
         ),
       ),
     );
@@ -318,37 +319,43 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                   final sorted = List<JournalEntry>.from(entries)
                     ..sort((a, b) => b.date.compareTo(a.date));
                   final query = ref.watch(journalSearchQueryProvider);
-                  return ListView(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 116),
-                    children: [
-                      if (!_isSearching) ...[
-                        _TodayEntryCard(
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) =>
-                                  JournalEntryEditor(date: DateTime.now()),
-                            ),
+                  final children = <Widget>[
+                    if (!_isSearching) ...[
+                      _TodayEntryCard(
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) =>
+                                JournalEntryEditor(date: DateTime.now()),
                           ),
                         ),
-                        const SizedBox(height: 16),
-                      ],
-                      if (sorted.isEmpty)
-                        _EmptyState(
-                          icon: _isSearching && query.isNotEmpty
-                              ? LineIcons.search
-                              : LineIcons.penNib,
-                          title: _isSearching && query.isNotEmpty
-                              ? 'No matches'
-                              : 'No journal entries yet',
-                          body: _isSearching && query.isNotEmpty
-                              ? 'Nothing matches "$query".'
-                              : 'A few quiet lines are enough to begin.',
-                        )
-                      else
-                        ...sorted.map(
-                          (entry) => _JournalListCard(entry: entry),
-                        ),
+                      ),
+                      const SizedBox(height: 16),
                     ],
+                    if (sorted.isEmpty)
+                      _EmptyState(
+                        icon: _isSearching && query.isNotEmpty
+                            ? LineIcons.search
+                            : LineIcons.penNib,
+                        title: _isSearching && query.isNotEmpty
+                            ? 'No matches'
+                            : 'No journal entries yet',
+                        body: _isSearching && query.isNotEmpty
+                            ? 'Nothing matches "$query".'
+                            : 'A few quiet lines are enough to begin.',
+                      )
+                    else
+                      ...sorted.map(
+                        (entry) => _JournalListCard(entry: entry),
+                      ),
+                  ];
+                  return ListView(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 116),
+                    children: staggered(
+                      children,
+                      stagger: const Duration(milliseconds: 40),
+                      duration: const Duration(milliseconds: 380),
+                      offset: 12,
+                    ),
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
@@ -547,11 +554,26 @@ class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                        Text(
-                          _saving
-                              ? 'Saving...'
-                              : (_saved ? 'Saved' : 'Unsaved'),
-                          style: _muted(theme, 12),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 240),
+                          transitionBuilder: (child, animation) =>
+                              FadeTransition(
+                            opacity: animation,
+                            child: SizeTransition(
+                              sizeFactor: animation,
+                              axisAlignment: -1,
+                              child: child,
+                            ),
+                          ),
+                          child: Text(
+                            _saving
+                                ? 'Saving...'
+                                : (_saved ? 'Saved' : 'Unsaved'),
+                            key: ValueKey(
+                              _saving ? 'saving' : (_saved ? 'saved' : 'unsaved'),
+                            ),
+                            style: _muted(theme, 12),
+                          ),
                         ),
                       ],
                     ),
@@ -795,8 +817,7 @@ class _DatePill extends StatelessWidget {
     final dayLabel = DateFormat('MMM dd').format(date);
 
     return Center(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(999),
+      child: PressScale(
         onTap: onTap,
         child: Container(
           alignment: Alignment.center,
@@ -921,8 +942,7 @@ class _RoundIconButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: semanticLabel,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+      child: PressScale(
         onTap: onTap,
         child: Container(
           width: 44,
@@ -950,11 +970,7 @@ class _Card extends StatelessWidget {
     );
 
     if (onTap == null) return content;
-    return InkWell(
-      borderRadius: BorderRadius.circular(24),
-      onTap: onTap,
-      child: content,
-    );
+    return PressScale(onTap: onTap, child: content);
   }
 }
 

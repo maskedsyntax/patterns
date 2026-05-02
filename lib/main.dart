@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
 
 import 'models/models.dart';
@@ -32,7 +31,6 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  GoogleFonts.config.allowRuntimeFetching = false;
 
   runApp(const ProviderScope(child: PatternsApp()));
 }
@@ -144,10 +142,13 @@ class WelcomeScreen extends StatelessWidget {
               Text(
                 'Understand your patterns.\nOne entry at a time.',
                 textAlign: TextAlign.center,
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  height: 1.16,
-                  fontSize: 30,
+                style: TextStyle(
+                  fontFamily: AppTheme.displayFamily,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 32,
+                  height: 1.12,
+                  letterSpacing: -0.6,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 18),

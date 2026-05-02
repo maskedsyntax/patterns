@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
 
@@ -428,9 +427,11 @@ class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
                   textAlignVertical: TextAlignVertical.top,
                   autofocus: true,
                   onChanged: (_) => setState(() => _saved = false),
-                  style: GoogleFonts.inter(
-                    fontSize: 20,
-                    height: 1.62,
+                  style: TextStyle(
+                    fontFamily: AppTheme.sansFamily,
+                    fontSize: 19,
+                    height: 1.65,
+                    letterSpacing: -0.1,
                     color: theme.colorScheme.onSurface,
                   ),
                   decoration: InputDecoration(
@@ -825,10 +826,13 @@ class _EmptyState extends StatelessWidget {
 }
 
 TextStyle _screenTitle(ThemeData theme) {
-  return theme.textTheme.headlineSmall!.copyWith(
-    fontSize: 30,
-    fontWeight: FontWeight.w800,
-    height: 1.1,
+  return TextStyle(
+    fontFamily: AppTheme.displayFamily,
+    fontSize: 32,
+    fontWeight: FontWeight.w500,
+    height: 1.08,
+    letterSpacing: -0.6,
+    color: theme.colorScheme.onSurface,
   );
 }
 

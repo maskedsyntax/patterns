@@ -493,10 +493,13 @@ String _triggerPatternCopy(List<OcdEntry> entries) {
 }
 
 TextStyle _screenTitle(ThemeData theme) {
-  return theme.textTheme.headlineSmall!.copyWith(
-    fontSize: 30,
-    fontWeight: FontWeight.w800,
-    height: 1.1,
+  return TextStyle(
+    fontFamily: AppTheme.displayFamily,
+    fontSize: 32,
+    fontWeight: FontWeight.w500,
+    height: 1.08,
+    letterSpacing: -0.6,
+    color: theme.colorScheme.onSurface,
   );
 }
 

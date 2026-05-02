@@ -1,6 +1,9 @@
 flutter_launcher_icons:
   image_path: "assets/logo.png"
-  
+
+  ios: true
+  remove_alpha_ios: true
+
   macos:
     generate: true
   linux: true

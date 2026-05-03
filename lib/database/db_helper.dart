@@ -123,6 +123,14 @@ class DbHelper {
     return await db.delete('ocd', where: 'id = ?', whereArgs: [id]);
   }
 
+  Future<void> clearAll() async {
+    final db = await instance.database;
+    await db.transaction((txn) async {
+      await txn.delete('journal');
+      await txn.delete('ocd');
+    });
+  }
+
   // Export / Import
   Future<String> exportAll() async {
     final db = await instance.database;

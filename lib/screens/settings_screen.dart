@@ -82,7 +82,7 @@ class SettingsScreen extends ConsumerWidget {
               icon: LineIcons.download,
               title: 'Export data',
               subtitle: 'Save your records to a local JSON file',
-              onTap: () => _exportData(context),
+              onTap: () => _confirmExport(context),
             ),
             const SizedBox(height: 10),
             _SettingsItem(
@@ -105,7 +105,51 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: 'How your local data is handled',
               onTap: () => _showPrivacySheet(context),
             ),
+            const SizedBox(height: 10),
+            _SettingsItem(
+              icon: LineIcons.alternateTrash,
+              title: 'Wipe all data',
+              subtitle: 'Delete local entries and reset app preferences',
+              onTap: () => _confirmWipeData(context, ref),
+            ),
           ]),
+        ),
+      ),
+    );
+  }
+
+  void _confirmExport(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _BottomPanel(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Export data?',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'The backup is a readable JSON file and is not encrypted by Patterns. Save it somewhere private.',
+              style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _exportData(context);
+                },
+                child: const Text('Export JSON backup'),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -188,6 +232,59 @@ class SettingsScreen extends ConsumerWidget {
     }
   }
 
+  void _confirmWipeData(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _BottomPanel(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Wipe all data?',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'This deletes local journal entries, OCD events, and app preferences from this device. This cannot be undone.',
+              style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      await DbHelper.instance.clearAll();
+                      await clearLocalPreferences();
+                      ref.invalidate(journalProvider);
+                      ref.invalidate(ocdProvider);
+                      if (context.mounted) {
+                        _showMessage(context, 'Local data wiped');
+                      }
+                    },
+                    child: const Text('Wipe'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showMessage(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -216,7 +313,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Patterns stores journal entries, OCD events, distress ratings, and reflections on this device. Manual export creates a JSON file wherever you choose to save it.',
+              'Patterns stores journal entries, OCD events, distress ratings, and reflections on this device. Manual export creates an unencrypted JSON file wherever you choose to save it.',
               style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
             ),
             const SizedBox(height: 12),

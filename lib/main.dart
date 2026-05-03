@@ -41,6 +41,10 @@ final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
 );
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
+Future<void> clearLocalPreferences() async {
+  await _preferences?.clear();
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   _preferences = await SharedPreferences.getInstance();
@@ -74,6 +78,7 @@ class _PatternsAppState extends ConsumerState<PatternsApp> {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
+      builder: (context, child) => _MobileAppFrame(child: child),
       home: _hasStarted
           ? const HomeScreen()
           : WelcomeScreen(
@@ -89,6 +94,25 @@ class _PatternsAppState extends ConsumerState<PatternsApp> {
                 });
               },
             ),
+    );
+  }
+}
+
+class _MobileAppFrame extends StatelessWidget {
+  final Widget? child;
+
+  const _MobileAppFrame({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: child ?? const SizedBox.shrink(),
+        ),
+      ),
     );
   }
 }
@@ -208,6 +232,18 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: AppTheme.textSecondary,
                     height: 1.55,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              FadeSlideIn(
+                delay: const Duration(milliseconds: 340),
+                child: Text(
+                  'Patterns is for personal reflection and self-tracking. It does not diagnose, treat, or replace care from a qualified clinician.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppTheme.textSecondary,
+                    height: 1.45,
                   ),
                 ),
               ),

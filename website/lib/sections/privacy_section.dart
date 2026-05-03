@@ -185,7 +185,7 @@ class _PolicyDetails extends StatelessWidget {
       _PolicyBlock(
         title: 'Data deletion',
         body:
-            'You can delete individual OCD events in the app. More local data controls, including journal deletion and full data reset, are planned before store publication.',
+            'You can delete individual OCD events in the app. Settings also includes a Wipe all data action that deletes local journal entries, OCD events, and app preferences from the device.',
       ),
     ];
 

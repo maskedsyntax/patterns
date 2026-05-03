@@ -27,8 +27,8 @@
   - [x] Update the website privacy page with what journal/OCD/distress data is stored, whether it leaves the device, retention, deletion, and backup behavior.
   - [ ] Prepare Apple App Privacy answers in App Store Connect.
   - [ ] Prepare Google Play Data Safety answers in Play Console.
-  - Complete Google Play health app declaration as needed.
-  - Add clear non-medical/self-reflection positioning and avoid diagnosis or treatment claims.
+  - [ ] Complete Google Play health app declaration as needed.
+  - [x] Add clear non-medical/self-reflection positioning and avoid diagnosis or treatment claims.
 
 ## Functional Gaps
 
@@ -106,3 +106,17 @@
   - [ ] Contextual FAB animations (slide/fade) based on scroll or screen state.
   - [ ] Animated search bar transitions (expand/collapse).
   - [ ] Responsive transitions for the entry editor (Saving/Saved states).
+
+## Submission & Compliance Gaps
+
+- [x] Add a "Wipe All Data" button in Settings (Compliance: Apple 5.1.1).
+- [x] Move/Duplicate medical disclaimer to the Welcome Screen (Compliance: Health Policy).
+- [x] Add unencrypted data warning to the Export flow.
+- [x] Verify iOS Info.plist usage descriptions for FilePicker.
+  - FilePicker uses document picker flows; no protected-resource usage string is needed for the current import/export behavior.
+  - Enabled opening documents in place for iOS document handling.
+- [ ] Audit for iPad-specific screenshots and UI scaling.
+  - [x] Constrain the app shell to a phone-like readable width on large screens.
+  - [ ] Capture App Store iPad screenshots after final visual assets are ready.
+- [ ] Complete Google Play "Health App" declaration.
+  - Play Console task; cannot be completed in code.

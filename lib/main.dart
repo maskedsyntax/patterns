@@ -77,8 +77,8 @@ class PatternsApp extends ConsumerWidget {
     return MaterialApp(
       title: 'Patterns',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      theme: kIsDesktop ? AppTheme.lightTheme : AppTheme.mobileLightTheme,
+      darkTheme: kIsDesktop ? AppTheme.darkTheme : AppTheme.mobileDarkTheme,
       themeMode: themeMode,
       navigatorKey: kIsDesktop ? null : mobileRootNavigatorKey,
       builder: kIsDesktop

@@ -724,7 +724,7 @@ class _SheetAction extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final fill = isDark ? AppTheme.charcoalInput : AppTheme.lightBg;
+    final fill = isDark ? AppTheme.charcoalInput : AppTheme.mobileLightBg;
     final textColor = isDark ? AppTheme.textPrimary : AppTheme.lightTextPrimary;
 
     return PressScale(

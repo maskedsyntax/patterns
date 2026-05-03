@@ -1041,11 +1041,11 @@ class _EmptyState extends StatelessWidget {
 
 TextStyle _screenTitle(ThemeData theme) {
   return TextStyle(
-    fontFamily: AppTheme.displayFamily,
-    fontSize: 32,
-    fontWeight: FontWeight.w500,
-    height: 1.08,
-    letterSpacing: -0.6,
+    fontFamily: AppTheme.sansFamily,
+    fontSize: 28,
+    fontWeight: FontWeight.w800,
+    height: 1.1,
+    letterSpacing: -0.5,
     color: theme.colorScheme.onSurface,
   );
 }

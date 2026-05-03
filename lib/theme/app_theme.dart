@@ -25,6 +25,17 @@ class AppTheme {
   static const Color lightTextSecondary = Color(0xFF6E6E73);
   static const Color lightBorder = Color(0xFFD1D1D6);
 
+  // Tokens consumed by lib/mobile/* screens. Aliased so the mobile UI
+  // compiles against this theme without bringing back the old palette.
+  static const String displayFamily = 'Fraunces';
+  static const String sansFamily = 'PlusJakartaSans';
+  static const Color charcoalInput = Color(0xFF252525);
+  static const Color textPrimary = darkTextPrimary;
+  static const Color textSecondary = Color(0xFFA9A39A);
+  static const Color warmYellow = Color(0xFFF4C95D);
+  static const Color softGreen = Color(0xFF7BBF91);
+  static const Color mutedRed = Color(0xFFD26A6A);
+
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,

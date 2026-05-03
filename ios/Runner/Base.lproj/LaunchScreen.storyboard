@@ -16,26 +16,13 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="badge-view">
+                            <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFit" image="LaunchImage" translatesAutoresizingMaskIntoConstraints="NO" id="badge-view">
                                 <rect key="frame" x="144.66666666666666" y="338" width="104" height="104"/>
-                                <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="P" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" translatesAutoresizingMaskIntoConstraints="NO" id="badge-label">
-                                        <rect key="frame" x="0.0" y="0.0" width="104" height="104"/>
-                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="44"/>
-                                        <color key="textColor" red="0.9568627451" green="0.7568627451" blue="0.2862745098" alpha="1" colorSpace="calibratedRGB"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                </subviews>
-                                <color key="backgroundColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="104" id="badge-height"/>
                                     <constraint firstAttribute="width" constant="104" id="badge-width"/>
-                                    <constraint firstItem="badge-label" firstAttribute="centerX" secondItem="badge-view" secondAttribute="centerX" id="badge-label-center-x"/>
-                                    <constraint firstItem="badge-label" firstAttribute="centerY" secondItem="badge-view" secondAttribute="centerY" id="badge-label-center-y"/>
-                                    <constraint firstItem="badge-label" firstAttribute="height" secondItem="badge-view" secondAttribute="height" id="badge-label-height"/>
-                                    <constraint firstItem="badge-label" firstAttribute="width" secondItem="badge-view" secondAttribute="width" id="badge-label-width"/>
                                 </constraints>
-                            </view>
+                            </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Patterns" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" translatesAutoresizingMaskIntoConstraints="NO" id="title-label">
                                 <rect key="frame" x="106.33333333333333" y="466" width="180.33333333333331" height="43"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="36"/>

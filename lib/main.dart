@@ -3,26 +3,35 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:window_manager/window_manager.dart';
+import 'mobile/main_shell.dart';
+import 'mobile/preferences.dart';
 import 'theme/app_theme.dart';
 import 'screens/journal_screen.dart';
 import 'screens/ocd_tracker_screen.dart';
 import 'screens/analytics_screen.dart';
 import 'screens/settings_screen.dart';
+import 'widgets/platform.dart';
 
 class ThemeModeNotifier extends Notifier<ThemeMode> {
   @override
-  ThemeMode build() => ThemeMode.system;
+  ThemeMode build() {
+    final saved = mobilePreferences?.getString('themeMode');
+    if (saved != null) {
+      return ThemeMode.values.firstWhere(
+        (mode) => mode.name == saved,
+        orElse: () => ThemeMode.system,
+      );
+    }
+    return ThemeMode.system;
+  }
 
   void setThemeMode(ThemeMode mode) {
+    mobilePreferences?.setString('themeMode', mode.name);
     state = mode;
   }
 
   void toggle(bool currentlyDark) {
-    if (currentlyDark) {
-      state = ThemeMode.light;
-    } else {
-      state = ThemeMode.dark;
-    }
+    setThemeMode(currentlyDark ? ThemeMode.light : ThemeMode.dark);
   }
 }
 
@@ -33,22 +42,27 @@ final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GoogleFonts.config.allowRuntimeFetching = false;
-  await windowManager.ensureInitialized();
 
-  WindowOptions windowOptions = const WindowOptions(
-    size: Size(1440, 900),
-    minimumSize: Size(1440, 900),
-    center: true,
-    backgroundColor: Colors.transparent,
-    skipTaskbar: false,
-    titleBarStyle: TitleBarStyle.hidden,
-  );
+  if (kIsDesktop) {
+    await windowManager.ensureInitialized();
 
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.setResizable(false);
-    await windowManager.show();
-    await windowManager.focus();
-  });
+    const windowOptions = WindowOptions(
+      size: Size(1440, 900),
+      minimumSize: Size(1440, 900),
+      center: true,
+      backgroundColor: Colors.transparent,
+      skipTaskbar: false,
+      titleBarStyle: TitleBarStyle.hidden,
+    );
+
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.setResizable(false);
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  } else {
+    await initMobilePreferences();
+  }
 
   runApp(const ProviderScope(child: PatternsApp()));
 }
@@ -66,7 +80,11 @@ class PatternsApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
-      home: const HomeScreen(),
+      navigatorKey: kIsDesktop ? null : mobileRootNavigatorKey,
+      builder: kIsDesktop
+          ? null
+          : (context, child) => MobileAppFrame(child: child),
+      home: kIsDesktop ? const HomeScreen() : const MobileShell(),
     );
   }
 }

@@ -170,7 +170,7 @@ class _PolicyDetails extends StatelessWidget {
       _PolicyBlock(
         title: 'Local storage',
         body:
-            'Patterns does not currently create accounts, send entries to a server, provide cloud sync, or include third-party analytics. Your app data is stored locally on your device.',
+            'Patterns does not currently create accounts, send entries to a server, provide cloud sync, or include third-party analytics. No third-party sharing: Patterns does not sell, share, or send your entries to third parties. Your app data is stored locally on your device.',
       ),
       _PolicyBlock(
         title: 'Export and import',

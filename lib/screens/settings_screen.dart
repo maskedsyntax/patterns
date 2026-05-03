@@ -1,367 +1,398 @@
 import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
-
+import 'package:window_manager/window_manager.dart';
 import '../database/db_helper.dart';
-import '../main.dart';
 import '../providers/providers.dart';
-import '../theme/app_theme.dart';
-import '../widgets/animations.dart';
+import '../widgets/window_controls.dart';
+import '../main.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
+
+  Future<void> _exportData(BuildContext context) async {
+    try {
+      final jsonStr = await DbHelper.instance.exportAll();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      final path = await FilePicker.platform.saveFile(
+        dialogTitle: 'Export Patterns Data',
+        fileName: 'patterns_backup.json',
+        type: FileType.any,
+      );
+
+      if (path != null) {
+        String finalPath = path;
+        if (!finalPath.toLowerCase().endsWith('.json')) {
+          finalPath += '.json';
+        }
+
+        final file = File(finalPath);
+        await file.writeAsString(jsonStr);
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Data exported successfully'),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Export Error: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Export failed: $e'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _importData(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Import Data?'),
+        content: const Text(
+          'This will overwrite all your current entries. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Import & Overwrite'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        dialogTitle: 'Select Patterns Backup',
+        type: FileType.any,
+      );
+
+      if (result != null && result.files.single.path != null) {
+        final file = File(result.files.single.path!);
+        final jsonStr = await file.readAsString();
+        await DbHelper.instance.importAll(jsonStr);
+        ref.invalidate(journalProvider);
+        ref.invalidate(ocdProvider);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Data imported successfully'),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Import Error: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Import failed: $e'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final themeMode = ref.watch(themeModeProvider);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
-          children: staggered([
-            Row(
-              children: [
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(LineIcons.angleLeft),
+      backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(48),
+        child: DragToMoveArea(
+          child: Container(
+            decoration: BoxDecoration(
+              color: isDark ? Colors.black : Colors.white,
+              border: Border(
+                bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
+              ),
+            ),
+            child: AppBar(
+              toolbarHeight: 48,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: Text(
+                'Settings',
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
                 ),
-                Expanded(child: Text('Settings', style: _screenTitle(theme))),
-              ],
-            ),
-            const SizedBox(height: 22),
-            Text(
-              'Theme',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
               ),
+              actions: const [WindowControls()],
             ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: _softDecoration(theme, radius: 22),
-              child: Row(
-                children: [
-                  _ThemeChoice(
-                    label: 'System',
-                    selected: themeMode == ThemeMode.system,
-                    onTap: () => ref
-                        .read(themeModeProvider.notifier)
-                        .setThemeMode(ThemeMode.system),
-                  ),
-                  _ThemeChoice(
-                    label: 'Dark',
-                    selected: themeMode == ThemeMode.dark,
-                    onTap: () => ref
-                        .read(themeModeProvider.notifier)
-                        .setThemeMode(ThemeMode.dark),
-                  ),
-                  _ThemeChoice(
-                    label: 'Light',
-                    selected: themeMode == ThemeMode.light,
-                    onTap: () => ref
-                        .read(themeModeProvider.notifier)
-                        .setThemeMode(ThemeMode.light),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 28),
-            Text(
-              'Data',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 12),
-            _SettingsItem(
-              icon: LineIcons.download,
-              title: 'Export data',
-              subtitle: 'Save your records to a local JSON file',
-              onTap: () => _confirmExport(context),
-            ),
-            const SizedBox(height: 10),
-            _SettingsItem(
-              icon: LineIcons.upload,
-              title: 'Import data',
-              subtitle: 'Restore entries from a JSON file',
-              onTap: () => _confirmImport(context, ref),
-            ),
-            const SizedBox(height: 28),
-            Text(
-              'Privacy',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 12),
-            _SettingsItem(
-              icon: LineIcons.lock,
-              title: 'Privacy & safety',
-              subtitle: 'How your local data is handled',
-              onTap: () => _showPrivacySheet(context),
-            ),
-            const SizedBox(height: 10),
-            _SettingsItem(
-              icon: LineIcons.alternateTrash,
-              title: 'Wipe all data',
-              subtitle: 'Delete local entries and reset app preferences',
-              onTap: () => _confirmWipeData(context, ref),
-            ),
-          ]),
+          ),
         ),
       ),
-    );
-  }
-
-  void _confirmExport(BuildContext context) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _BottomPanel(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Export data?',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'The backup is a readable JSON file and is not encrypted by Patterns. Save it somewhere private.',
-              style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _exportData(context);
-                },
-                child: const Text('Export JSON backup'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _exportData(BuildContext context) async {
-    try {
-      final jsonStr = await DbHelper.instance.exportAll();
-      final path = await FilePicker.platform.saveFile(
-        dialogTitle: 'Export Patterns Data',
-        fileName: 'patterns_backup.json',
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-      );
-      if (path == null) return;
-      final finalPath = path.toLowerCase().endsWith('.json')
-          ? path
-          : '$path.json';
-      await File(finalPath).writeAsString(jsonStr);
-      if (context.mounted) _showMessage(context, 'Data exported');
-    } catch (error) {
-      if (context.mounted) _showMessage(context, 'Export failed');
-    }
-  }
-
-  void _confirmImport(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _BottomPanel(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Import data?',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'This will overwrite your current entries.',
-              style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _importData(context, ref);
-                },
-                child: const Text('Import & overwrite'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _importData(BuildContext context, WidgetRef ref) async {
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        dialogTitle: 'Select Patterns Backup',
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-      );
-      if (result == null || result.files.single.path == null) return;
-      final jsonStr = await File(result.files.single.path!).readAsString();
-      await DbHelper.instance.importAll(jsonStr);
-      ref.invalidate(journalProvider);
-      ref.invalidate(ocdProvider);
-      if (context.mounted) _showMessage(context, 'Data imported');
-    } on FormatException {
-      if (context.mounted) _showMessage(context, 'Backup file is not valid');
-    } catch (error) {
-      if (context.mounted) _showMessage(context, 'Import failed');
-    }
-  }
-
-  void _confirmWipeData(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _BottomPanel(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Wipe all data?',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'This deletes local journal entries, OCD events, and app preferences from this device. This cannot be undone.',
-              style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
-                  ),
+      body: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
+            children: [
+              Text(
+                'Appearance',
+                style: GoogleFonts.inter(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: theme.colorScheme.onSurface,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      await DbHelper.instance.clearAll();
-                      await clearLocalPreferences();
-                      ref.invalidate(journalProvider);
-                      ref.invalidate(ocdProvider);
-                      if (context.mounted) {
-                        _showMessage(context, 'Local data wiped');
-                      }
-                    },
-                    child: const Text('Wipe'),
-                  ),
+              ),
+              const SizedBox(height: 24),
+              _SettingsCard(
+                theme: theme,
+                child: Column(
+                  children: [
+                    _SettingsRow(
+                      title: 'Theme Mode',
+                      subtitle: 'Current: ${themeMode.name.toUpperCase()}',
+                      icon: LineIcons.palette,
+                      theme: theme,
+                    ),
+                    const SizedBox(height: 20),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.white.withOpacity(0.05)
+                            : Colors.black.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.all(4),
+                      child: Row(
+                        children: [
+                          _ThemeOption(
+                            label: 'System',
+                            isSelected: themeMode == ThemeMode.system,
+                            onTap: () => ref
+                                .read(themeModeProvider.notifier)
+                                .setThemeMode(ThemeMode.system),
+                            theme: theme,
+                          ),
+                          _ThemeOption(
+                            label: 'Light',
+                            isSelected: themeMode == ThemeMode.light,
+                            onTap: () => ref
+                                .read(themeModeProvider.notifier)
+                                .setThemeMode(ThemeMode.light),
+                            theme: theme,
+                          ),
+                          _ThemeOption(
+                            label: 'Dark',
+                            isSelected: themeMode == ThemeMode.dark,
+                            onTap: () => ref
+                                .read(themeModeProvider.notifier)
+                                .setThemeMode(ThemeMode.dark),
+                            theme: theme,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showMessage(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: AppTheme.charcoalInput,
-      ),
-    );
-  }
-
-  void _showPrivacySheet(BuildContext context) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => _BottomPanel(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Privacy & safety',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Patterns stores journal entries, OCD events, distress ratings, and reflections on this device. Manual export creates an unencrypted JSON file wherever you choose to save it.',
-              style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Patterns is for personal reflection and self-tracking. It does not diagnose, treat, or replace care from a qualified clinician.',
-              style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
-            ),
-          ],
+              ),
+              const SizedBox(height: 48),
+              Text(
+                'Data Management',
+                style: GoogleFonts.inter(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 24),
+              _SettingsItem(
+                title: 'Export Data',
+                subtitle: 'Save your records to a local JSON file',
+                icon: LineIcons.download,
+                onTap: () => _exportData(context),
+                trailing: Icon(
+                  LineIcons.angleRight,
+                  size: 18,
+                  color: theme.colorScheme.onSurface.withOpacity(0.3),
+                ),
+                theme: theme,
+              ),
+              _SettingsItem(
+                title: 'Import Data',
+                subtitle: 'Restore entries from a JSON file',
+                icon: LineIcons.upload,
+                onTap: () => _importData(context, ref),
+                trailing: Icon(
+                  LineIcons.angleRight,
+                  size: 18,
+                  color: theme.colorScheme.onSurface.withOpacity(0.3),
+                ),
+                isDestructive: true,
+                theme: theme,
+              ),
+              const SizedBox(height: 64),
+              Center(
+                child: Column(
+                  children: [
+                    Text(
+                      'Patterns v1.0.0',
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface.withOpacity(0.2),
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Clarity for the mind through structured reflection.',
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface.withOpacity(0.2),
+                        fontSize: 11,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _ThemeChoice extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
+class _SettingsCard extends StatelessWidget {
+  final Widget child;
+  final ThemeData theme;
+  const _SettingsCard({required this.child, required this.theme});
 
-  const _ThemeChoice({
-    required this.label,
-    required this.selected,
-    required this.onTap,
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: theme.cardTheme.color,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: theme.dividerColor),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _SettingsRow extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final ThemeData theme;
+
+  const _SettingsRow({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.theme,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, size: 20, color: theme.colorScheme.primary),
+        ),
+        const SizedBox(width: 20),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: TextStyle(
+                color: theme.colorScheme.onSurface.withOpacity(0.4),
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
 
+class _ThemeOption extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final ThemeData theme;
+
+  const _ThemeOption({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Expanded(
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
         onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(vertical: 12),
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: selected ? theme.colorScheme.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(18),
+            color: isSelected ? theme.colorScheme.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: selected
-                  ? theme.colorScheme.onPrimary
-                  : AppTheme.textSecondary,
-              fontWeight: FontWeight.w800,
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: isSelected
+                    ? theme.colorScheme.onPrimary
+                    : theme.colorScheme.onSurface.withOpacity(0.4),
+              ),
             ),
           ),
         ),
@@ -371,97 +402,87 @@ class _ThemeChoice extends StatelessWidget {
 }
 
 class _SettingsItem extends StatelessWidget {
-  final IconData icon;
   final String title;
   final String subtitle;
-  final VoidCallback onTap;
+  final IconData icon;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+  final bool isDestructive;
+  final ThemeData theme;
 
   const _SettingsItem({
-    required this.icon,
     required this.title,
     required this.subtitle,
-    required this.onTap,
+    required this.icon,
+    required this.theme,
+    this.trailing,
+    this.onTap,
+    this.isDestructive = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return PressScale(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: _softDecoration(theme, radius: 22),
-        child: Row(
-          children: [
-            Icon(icon, color: theme.colorScheme.primary),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: theme.cardTheme.color,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: theme.dividerColor),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color:
+                      (isDestructive
+                              ? Colors.redAccent
+                              : theme.colorScheme.primary)
+                          .withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color: isDestructive
+                      ? Colors.redAccent
+                      : theme.colorScheme.primary,
+                ),
               ),
-            ),
-            Icon(LineIcons.angleRight, color: AppTheme.textSecondary, size: 18),
-          ],
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface.withOpacity(0.4),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (trailing != null) trailing!,
+            ],
+          ),
         ),
       ),
     );
   }
-}
-
-class _BottomPanel extends StatelessWidget {
-  final Widget child;
-
-  const _BottomPanel({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        margin: const EdgeInsets.all(14),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: Theme.of(context).dividerColor),
-        ),
-        child: child,
-      ),
-    );
-  }
-}
-
-TextStyle _screenTitle(ThemeData theme) {
-  return TextStyle(
-    fontFamily: AppTheme.displayFamily,
-    fontSize: 32,
-    fontWeight: FontWeight.w500,
-    height: 1.08,
-    letterSpacing: -0.6,
-    color: theme.colorScheme.onSurface,
-  );
-}
-
-BoxDecoration _softDecoration(ThemeData theme, {required double radius}) {
-  return BoxDecoration(
-    color: theme.colorScheme.surface,
-    borderRadius: BorderRadius.circular(radius),
-    border: Border.all(color: theme.dividerColor.withValues(alpha: 0.9)),
-  );
 }

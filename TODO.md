@@ -7,7 +7,8 @@
   - [x] Set a production-shaped `applicationId`.
   - [x] Configure the base Android manifest and build files.
   - [ ] Configure production release signing.
-  - [ ] Confirm min/target SDK against current Play requirements.
+  - [x] Confirm min/target SDK against current Play requirements.
+    - Android target SDK is explicitly set to 35.
   - [ ] Add Android launcher icons and adaptive icon assets.
 
 - [ ] Replace the desktop SQLite setup with a mobile-safe database setup.
@@ -61,8 +62,8 @@
 ## Store Assets And Metadata
 
 - [ ] Replace default/template launcher icons with final production icons.
-- [ ] Customize the iOS launch screen.
-  - Current unsigned archive validation reports the launch image is still the default placeholder.
+- [x] Customize the iOS launch screen.
+  - The launch storyboard is themed and unsigned archive validation no longer reports the default launch image warning.
 - [ ] Prepare App Store and Play Store screenshots.
 - [ ] Prepare support URL, marketing URL, privacy URL, age rating, and app category.
 - [ ] Update README and public-facing copy to describe the mobile product accurately.
@@ -78,7 +79,7 @@
   - [x] Remove unused `package_info_plus`.
 
 - [ ] Audit native plugin privacy declarations.
-  - [ ] Account for `file_picker`, `path_provider`, `shared_preferences`, `sqflite`, and transitive native plugins.
+  - [ ] Account for `file_picker`, `path_provider`, `shared_preferences`, `sqflite`, `url_launcher`, and transitive native plugins.
   - [x] Remove unused plugins before preparing store privacy answers.
 
 - [ ] Add release verification.
@@ -109,6 +110,12 @@
 
 ## Submission & Compliance Gaps
 
+- [x] Add Semantics labels to all interactive cards for VoiceOver/TalkBack support.
+- [x] Add a direct link to the external Privacy Policy URL in the Settings privacy sheet.
+- [x] Explicitly state "No Third-Party Sharing" in the privacy text.
+- [x] Confirm Android targetSdkVersion is set to 34 or higher.
+  - Android target SDK is explicitly set to 35.
+- [x] Replace default iOS Launch Screen storyboard with a themed version.
 - [x] Add a "Wipe All Data" button in Settings (Compliance: Apple 5.1.1).
 - [x] Move/Duplicate medical disclaimer to the Welcome Screen (Compliance: Health Policy).
 - [x] Add unencrypted data warning to the Export flow.

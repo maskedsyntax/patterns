@@ -321,13 +321,13 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
-class _OcdEventCard extends StatelessWidget {
+class _OcdEventCard extends ConsumerWidget {
   final OcdEntry entry;
 
   const _OcdEventCard({required this.entry});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final typeLabel = entry.type == OcdType.obsession
         ? 'Obsession'
@@ -347,6 +347,17 @@ class _OcdEventCard extends StatelessWidget {
               Text(
                 DateFormat('MMM d, h:mm a').format(entry.datetime),
                 style: _muted(12),
+              ),
+              const SizedBox(width: 4),
+              IconButton(
+                tooltip: 'Delete event',
+                visualDensity: VisualDensity.compact,
+                iconSize: 18,
+                color: AppTheme.textSecondary,
+                onPressed: entry.id == null
+                    ? null
+                    : () => _confirmDelete(context, ref, entry),
+                icon: const Icon(LineIcons.trash),
               ),
             ],
           ),
@@ -387,6 +398,60 @@ class _OcdEventCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, WidgetRef ref, OcdEntry entry) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _BottomPanel(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Delete event?',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'This removes the event from your local history.',
+              style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      await ref
+                          .read(ocdProvider.notifier)
+                          .deleteEntry(entry.id!);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Event deleted')),
+                        );
+                      }
+                    },
+                    child: const Text('Delete'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -586,6 +651,32 @@ class _EmptyTrackState extends StatelessWidget {
             child: const Text('Track OCD Event'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _BottomPanel extends StatelessWidget {
+  final Widget child;
+
+  const _BottomPanel({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Container(
+          padding: const EdgeInsets.all(21),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: theme.dividerColor),
+          ),
+          child: child,
+        ),
       ),
     );
   }

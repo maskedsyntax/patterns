@@ -4,6 +4,7 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models/models.dart';
 import 'screens/analytics_screen.dart';
@@ -13,16 +14,25 @@ import 'screens/settings_screen.dart';
 import 'theme/app_theme.dart';
 import 'widgets/animations.dart';
 
+SharedPreferences? _preferences;
+
 class ThemeModeNotifier extends Notifier<ThemeMode> {
   @override
-  ThemeMode build() => ThemeMode.dark;
+  ThemeMode build() {
+    final savedTheme = _preferences?.getString('themeMode');
+    return ThemeMode.values.firstWhere(
+      (mode) => mode.name == savedTheme,
+      orElse: () => ThemeMode.dark,
+    );
+  }
 
   void setThemeMode(ThemeMode mode) {
+    _preferences?.setString('themeMode', mode.name);
     state = mode;
   }
 
   void toggle(bool currentlyDark) {
-    state = currentlyDark ? ThemeMode.light : ThemeMode.dark;
+    setThemeMode(currentlyDark ? ThemeMode.light : ThemeMode.dark);
   }
 }
 
@@ -31,8 +41,9 @@ final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
 );
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  _preferences = await SharedPreferences.getInstance();
 
   runApp(const ProviderScope(child: PatternsApp()));
 }
@@ -45,7 +56,12 @@ class PatternsApp extends ConsumerStatefulWidget {
 }
 
 class _PatternsAppState extends ConsumerState<PatternsApp> {
-  bool _hasStarted = false;
+  late bool _hasStarted = _preferences?.getBool('hasStarted') ?? false;
+
+  void _startApp() {
+    _preferences?.setBool('hasStarted', true);
+    setState(() => _hasStarted = true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +77,9 @@ class _PatternsAppState extends ConsumerState<PatternsApp> {
       home: _hasStarted
           ? const HomeScreen()
           : WelcomeScreen(
-              onStart: () => setState(() => _hasStarted = true),
+              onStart: _startApp,
               onImport: () {
-                setState(() => _hasStarted = true);
+                _startApp();
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   _rootNavigatorKey.currentState?.push(
                     MaterialPageRoute<void>(
@@ -253,7 +269,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _Tab.insights: const AnalyticsScreen(),
     };
 
-    final showFab = _selectedTab == _Tab.home ||
+    final showFab =
+        _selectedTab == _Tab.home ||
         _selectedTab == _Tab.journal ||
         _selectedTab == _Tab.track;
 
@@ -430,8 +447,7 @@ class _FloatingTabBar extends StatelessWidget {
               const indicatorInset = 6.0;
               final itemWidth = constraints.maxWidth / _tabs.length;
               final indicatorWidth = itemWidth - indicatorInset * 2;
-              final indicatorLeft =
-                  selectedIndex * itemWidth + indicatorInset;
+              final indicatorLeft = selectedIndex * itemWidth + indicatorInset;
               return Stack(
                 children: [
                   AnimatedPositioned(
@@ -702,9 +718,7 @@ class _SheetAction extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final fill = isDark ? AppTheme.charcoalInput : AppTheme.lightBg;
-    final textColor = isDark
-        ? AppTheme.textPrimary
-        : AppTheme.lightTextPrimary;
+    final textColor = isDark ? AppTheme.textPrimary : AppTheme.lightTextPrimary;
 
     return PressScale(
       onTap: onTap,

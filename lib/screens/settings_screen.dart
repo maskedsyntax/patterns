@@ -91,12 +91,19 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: 'Restore entries from a JSON file',
               onTap: () => _confirmImport(context, ref),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 28),
+            Text(
+              'Privacy',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 12),
             _SettingsItem(
-              icon: LineIcons.cloud,
-              title: 'Backup options',
-              subtitle: 'Future',
-              onTap: () => _showFutureSheet(context),
+              icon: LineIcons.lock,
+              title: 'Privacy & safety',
+              subtitle: 'How your local data is handled',
+              onTap: () => _showPrivacySheet(context),
             ),
           ]),
         ),
@@ -110,7 +117,8 @@ class SettingsScreen extends ConsumerWidget {
       final path = await FilePicker.platform.saveFile(
         dialogTitle: 'Export Patterns Data',
         fileName: 'patterns_backup.json',
-        type: FileType.any,
+        type: FileType.custom,
+        allowedExtensions: ['json'],
       );
       if (path == null) return;
       final finalPath = path.toLowerCase().endsWith('.json')
@@ -164,7 +172,8 @@ class SettingsScreen extends ConsumerWidget {
     try {
       final result = await FilePicker.platform.pickFiles(
         dialogTitle: 'Select Patterns Backup',
-        type: FileType.any,
+        type: FileType.custom,
+        allowedExtensions: ['json'],
       );
       if (result == null || result.files.single.path == null) return;
       final jsonStr = await File(result.files.single.path!).readAsString();
@@ -172,35 +181,11 @@ class SettingsScreen extends ConsumerWidget {
       ref.invalidate(journalProvider);
       ref.invalidate(ocdProvider);
       if (context.mounted) _showMessage(context, 'Data imported');
+    } on FormatException {
+      if (context.mounted) _showMessage(context, 'Backup file is not valid');
     } catch (error) {
       if (context.mounted) _showMessage(context, 'Import failed');
     }
-  }
-
-  void _showFutureSheet(BuildContext context) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _BottomPanel(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Backup options',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Cloud and scheduled backups can be added later without changing the main flow.',
-              style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   void _showMessage(BuildContext context, String message) {
@@ -209,6 +194,38 @@ class SettingsScreen extends ConsumerWidget {
         content: Text(message),
         behavior: SnackBarBehavior.floating,
         backgroundColor: AppTheme.charcoalInput,
+      ),
+    );
+  }
+
+  void _showPrivacySheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => _BottomPanel(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Privacy & safety',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Patterns stores journal entries, OCD events, distress ratings, and reflections on this device. Manual export creates a JSON file wherever you choose to save it.',
+              style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Patterns is for personal reflection and self-tracking. It does not diagnose, treat, or replace care from a qualified clinician.',
+              style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
+            ),
+          ],
+        ),
       ),
     );
   }

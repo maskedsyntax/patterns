@@ -65,7 +65,6 @@ class PrivacySection extends StatelessWidget {
                 ),
               ),
               SizedBox(height: isMobile ? 40 : 56),
-              // Privacy points
               LayoutBuilder(
                 builder: (context, constraints) {
                   final points = [
@@ -129,10 +128,170 @@ class PrivacySection extends StatelessWidget {
                   );
                 },
               ),
+              SizedBox(height: isMobile ? 40 : 56),
+              _PolicyDetails(
+                isMobile: isMobile,
+                textColor: textColor,
+                secondaryText: secondaryText,
+                border: border,
+                accent: accent,
+              ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _PolicyDetails extends StatelessWidget {
+  final bool isMobile;
+  final Color textColor;
+  final Color secondaryText;
+  final Color border;
+  final Color accent;
+
+  const _PolicyDetails({
+    required this.isMobile,
+    required this.textColor,
+    required this.secondaryText,
+    required this.border,
+    required this.accent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final details = [
+      _PolicyBlock(
+        title: 'What Patterns stores',
+        body:
+            'Patterns stores journal entries, OCD event notes, obsession or compulsion category, distress ratings, strategy notes, dates, timestamps, and basic app preferences such as theme and onboarding completion.',
+      ),
+      _PolicyBlock(
+        title: 'Local storage',
+        body:
+            'Patterns does not currently create accounts, send entries to a server, provide cloud sync, or include third-party analytics. Your app data is stored locally on your device.',
+      ),
+      _PolicyBlock(
+        title: 'Export and import',
+        body:
+            'Manual export creates a JSON backup file in the location you choose. After export, that file may be handled by your device, cloud storage, email, or another document provider. Importing a backup replaces the current local journal and OCD entries in the app.',
+      ),
+      _PolicyBlock(
+        title: 'Health and safety',
+        body:
+            'Patterns is for personal reflection and self-tracking. It does not diagnose, treat, prevent, or cure any condition, and it is not a replacement for care from a qualified clinician.',
+      ),
+      _PolicyBlock(
+        title: 'Data deletion',
+        body:
+            'You can delete individual OCD events in the app. More local data controls, including journal deletion and full data reset, are planned before store publication.',
+      ),
+    ];
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isMobile ? 22 : 32),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: border.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Privacy policy',
+            style: GoogleFonts.inter(
+              fontSize: isMobile ? 24 : 30,
+              fontWeight: FontWeight.w800,
+              height: 1.15,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Last updated: May 3, 2026',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: secondaryText,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ...details.map(
+            (detail) => Padding(
+              padding: const EdgeInsets.only(bottom: 22),
+              child: _PolicyDetailBlock(
+                detail: detail,
+                textColor: textColor,
+                secondaryText: secondaryText,
+                accent: accent,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PolicyBlock {
+  final String title;
+  final String body;
+
+  const _PolicyBlock({required this.title, required this.body});
+}
+
+class _PolicyDetailBlock extends StatelessWidget {
+  final _PolicyBlock detail;
+  final Color textColor;
+  final Color secondaryText;
+  final Color accent;
+
+  const _PolicyDetailBlock({
+    required this.detail,
+    required this.textColor,
+    required this.secondaryText,
+    required this.accent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 7,
+          height: 7,
+          margin: const EdgeInsets.only(top: 9),
+          decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                detail.title,
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: textColor,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                detail.body,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: secondaryText,
+                  height: 1.55,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

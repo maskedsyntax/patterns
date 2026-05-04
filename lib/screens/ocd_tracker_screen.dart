@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:window_manager/window_manager.dart';
 import '../models/models.dart';
 import '../providers/providers.dart';
 import '../widgets/window_controls.dart';
@@ -30,8 +29,7 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(48),
-        child: DragToMoveArea(
-          child: Container(
+        child: Container(
             decoration: BoxDecoration(
               color: isDark ? Colors.black : Colors.white,
               border: Border(
@@ -100,7 +98,6 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
             ),
           ),
         ),
-      ),
       body: _OcdListView(type: _selectedType, entries: filteredOcdAsync),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: theme.colorScheme.primary,

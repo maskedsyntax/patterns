@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../database/db_helper.dart';
 import '../../main.dart';
@@ -289,7 +290,10 @@ class SettingsScreen extends ConsumerWidget {
   void _showMessage(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          message,
+          style: const TextStyle(color: AppTheme.textPrimary),
+        ),
         behavior: SnackBarBehavior.floating,
         backgroundColor: AppTheme.charcoalInput,
       ),
@@ -321,6 +325,17 @@ class SettingsScreen extends ConsumerWidget {
             Text(
               'Patterns is for personal reflection and self-tracking. It does not diagnose, treat, or replace care from a qualified clinician.',
               style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => launchUrl(
+                  Uri.parse('https://maskedsyntax.com/patterns/privacy'),
+                  mode: LaunchMode.externalApplication,
+                ),
+                child: const Text('View full Privacy Policy'),
+              ),
             ),
           ],
         ),

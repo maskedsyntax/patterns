@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:window_manager/window_manager.dart';
 import '../providers/providers.dart';
 import '../models/models.dart';
 import '../database/db_helper.dart';
@@ -129,8 +128,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(48),
-        child: DragToMoveArea(
-          child: Container(
+        child: Container(
             decoration: BoxDecoration(
               color: isDark ? Colors.black : Colors.white,
               border: Border(
@@ -268,7 +266,6 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
             ),
           ),
         ),
-      ),
       body: Row(
         children: [
           AnimatedContainer(

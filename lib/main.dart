@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:window_manager/window_manager.dart';
 import 'mobile/main_shell.dart';
 import 'mobile/preferences.dart';
 import 'theme/app_theme.dart';
@@ -43,24 +42,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GoogleFonts.config.allowRuntimeFetching = false;
 
-  if (kIsDesktop) {
-    await windowManager.ensureInitialized();
-
-    const windowOptions = WindowOptions(
-      size: Size(1440, 900),
-      minimumSize: Size(1440, 900),
-      center: true,
-      backgroundColor: Colors.transparent,
-      skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.hidden,
-    );
-
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.setResizable(false);
-      await windowManager.show();
-      await windowManager.focus();
-    });
-  } else {
+  if (!kIsDesktop) {
     await initMobilePreferences();
   }
 
@@ -126,10 +108,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             child: Column(
               children: [
-                const SizedBox(
-                  height: 48,
-                  child: DragToMoveArea(child: SizedBox.expand()),
-                ),
+                const SizedBox(height: 56), // Placeholder for drag area
                 const SizedBox(height: 8),
                 _NavIcon(
                   icon: LineIcons.penNib,

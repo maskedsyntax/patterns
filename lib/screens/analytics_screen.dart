@@ -4,8 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
-import 'package:window_manager/window_manager.dart';
 import '../providers/providers.dart';
 import '../models/models.dart';
 import '../widgets/window_controls.dart';
@@ -24,8 +22,7 @@ class AnalyticsScreen extends ConsumerWidget {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(48),
-        child: DragToMoveArea(
-          child: Container(
+        child: Container(
             decoration: BoxDecoration(
               color: isDark ? Colors.black : Colors.white,
               border: Border(
@@ -48,7 +45,6 @@ class AnalyticsScreen extends ConsumerWidget {
             ),
           ),
         ),
-      ),
       body: journalAsync.when(
         data: (journals) {
           return ocdAsync.when(
@@ -134,33 +130,6 @@ class AnalyticsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 24),
 
-                      _ChartCard(
-                        title: 'Journaling Consistency',
-                        subtitle: 'Activity over the past year',
-                        height: 180,
-                        theme: theme,
-                        child: HeatMap(
-                          datasets: journalHeatMapData,
-                          colorMode: ColorMode.color,
-                          defaultColor: isDark
-                              ? Colors.white.withOpacity(0.05)
-                              : Colors.black.withOpacity(0.05),
-                          textColor: theme.colorScheme.onSurface.withOpacity(
-                            0.6,
-                          ),
-                          showColorTip: false,
-                          showText: false,
-                          scrollable: true,
-                          size: 16,
-                          startDate: DateTime.now().subtract(
-                            const Duration(days: 365),
-                          ),
-                          endDate: DateTime.now(),
-                          colorsets: {
-                            1: theme.colorScheme.primary.withOpacity(0.8),
-                          },
-                        ),
-                      ),
                       const SizedBox(height: 24),
 
                       if (ocds.isNotEmpty) ...[

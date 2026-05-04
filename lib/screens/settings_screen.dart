@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:window_manager/window_manager.dart';
 import '../database/db_helper.dart';
 import '../providers/providers.dart';
 import '../widgets/window_controls.dart';
@@ -130,8 +129,7 @@ class SettingsScreen extends ConsumerWidget {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(48),
-        child: DragToMoveArea(
-          child: Container(
+        child: Container(
             decoration: BoxDecoration(
               color: isDark ? Colors.black : Colors.white,
               border: Border(
@@ -154,7 +152,6 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
         ),
-      ),
       body: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 800),

@@ -95,7 +95,7 @@ class FooterSection extends StatelessWidget {
               const SizedBox(height: 10),
               Text(
                 'Patterns',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.nunitoSans(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: textColor,
@@ -114,7 +114,7 @@ class FooterSection extends StatelessWidget {
               const SizedBox(width: 10),
               Text(
                 'Patterns',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.nunitoSans(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: textColor,
@@ -126,7 +126,7 @@ class FooterSection extends StatelessWidget {
         Text(
           'Clarity for the mind through\nstructured reflection.',
           textAlign: centered ? TextAlign.center : TextAlign.start,
-          style: GoogleFonts.inter(
+          style: GoogleFonts.nunitoSans(
             fontSize: 14,
             color: secondaryText,
             height: 1.5,
@@ -177,7 +177,7 @@ class FooterSection extends StatelessWidget {
   Widget _buildCopyright(Color secondaryText) {
     return Text(
       '\u00a9 ${DateTime.now().year} Patterns. MIT License.',
-      style: GoogleFonts.inter(fontSize: 13, color: secondaryText),
+      style: GoogleFonts.nunitoSans(fontSize: 13, color: secondaryText),
     );
   }
 }
@@ -220,7 +220,7 @@ class _FooterLinkState extends State<_FooterLink> {
           cursor: SystemMouseCursors.click,
           child: Text(
             widget.label,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.nunitoSans(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: _hovered ? widget.hoverColor : widget.color,

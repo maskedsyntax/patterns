@@ -24,59 +24,59 @@ class WebTheme {
 
   static TextTheme _buildTextTheme(Color primary, Color secondary) {
     return TextTheme(
-      displayLarge: GoogleFonts.inter(
+      displayLarge: GoogleFonts.sourceSerif4(
         fontSize: 72,
-        fontWeight: FontWeight.w800,
-        letterSpacing: -2.5,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0,
         height: 1.05,
         color: primary,
       ),
-      displayMedium: GoogleFonts.inter(
+      displayMedium: GoogleFonts.sourceSerif4(
         fontSize: 48,
         fontWeight: FontWeight.w700,
-        letterSpacing: -1.5,
+        letterSpacing: 0,
         height: 1.1,
         color: primary,
       ),
-      displaySmall: GoogleFonts.inter(
+      displaySmall: GoogleFonts.sourceSerif4(
         fontSize: 36,
         fontWeight: FontWeight.w700,
-        letterSpacing: -1,
+        letterSpacing: 0,
         height: 1.15,
         color: primary,
       ),
-      headlineMedium: GoogleFonts.inter(
+      headlineMedium: GoogleFonts.sourceSerif4(
         fontSize: 28,
         fontWeight: FontWeight.w700,
-        letterSpacing: -0.5,
+        letterSpacing: 0,
         color: primary,
       ),
-      headlineSmall: GoogleFonts.inter(
+      headlineSmall: GoogleFonts.nunitoSans(
         fontSize: 22,
         fontWeight: FontWeight.w600,
         color: primary,
       ),
-      titleLarge: GoogleFonts.inter(
+      titleLarge: GoogleFonts.nunitoSans(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: primary,
       ),
-      bodyLarge: GoogleFonts.inter(
+      bodyLarge: GoogleFonts.nunitoSans(
         fontSize: 18,
         fontWeight: FontWeight.w400,
         height: 1.7,
         color: secondary,
       ),
-      bodyMedium: GoogleFonts.inter(
+      bodyMedium: GoogleFonts.nunitoSans(
         fontSize: 16,
         fontWeight: FontWeight.w400,
         height: 1.6,
         color: secondary,
       ),
-      labelLarge: GoogleFonts.inter(
+      labelLarge: GoogleFonts.nunitoSans(
         fontSize: 16,
         fontWeight: FontWeight.w600,
-        letterSpacing: -0.2,
+        letterSpacing: 0,
       ),
     );
   }

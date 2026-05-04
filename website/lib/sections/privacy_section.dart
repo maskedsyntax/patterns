@@ -43,11 +43,11 @@ class PrivacySection extends StatelessWidget {
               Text(
                 'Your data stays yours.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.sourceSerif4(
                   fontSize: isMobile ? 32 : 48,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   height: 1.1,
-                  letterSpacing: -1.5,
+                  letterSpacing: 0,
                   color: textColor,
                 ),
               ),
@@ -57,7 +57,7 @@ class PrivacySection extends StatelessWidget {
                 child: Text(
                   'Patterns is completely offline. No accounts, no cloud sync, no telemetry. Everything lives on your machine and nowhere else.',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.nunitoSans(
                     fontSize: isMobile ? 15 : 17,
                     color: secondaryText,
                     height: 1.6,
@@ -201,9 +201,9 @@ class _PolicyDetails extends StatelessWidget {
         children: [
           Text(
             'Privacy policy',
-            style: GoogleFonts.inter(
+            style: GoogleFonts.sourceSerif4(
               fontSize: isMobile ? 24 : 30,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               height: 1.15,
               color: textColor,
             ),
@@ -211,7 +211,7 @@ class _PolicyDetails extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Last updated: May 3, 2026',
-            style: GoogleFonts.inter(
+            style: GoogleFonts.nunitoSans(
               fontSize: 14,
               color: secondaryText,
               height: 1.5,
@@ -273,7 +273,7 @@ class _PolicyDetailBlock extends StatelessWidget {
             children: [
               Text(
                 detail.title,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.nunitoSans(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                   color: textColor,
@@ -282,7 +282,7 @@ class _PolicyDetailBlock extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 detail.body,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.nunitoSans(
                   fontSize: 14,
                   color: secondaryText,
                   height: 1.55,
@@ -339,7 +339,7 @@ class _PrivacyCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             point.title,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.nunitoSans(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: textColor,
@@ -349,7 +349,7 @@ class _PrivacyCard extends StatelessWidget {
           Text(
             point.description,
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.nunitoSans(
               fontSize: 14,
               color: secondaryText,
               height: 1.5,

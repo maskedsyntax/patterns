@@ -79,7 +79,7 @@ class FeaturesSection extends StatelessWidget {
                     ),
                     child: Text(
                       'FEATURES',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.nunitoSans(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: accent,
@@ -91,9 +91,9 @@ class FeaturesSection extends StatelessWidget {
                   Text(
                     'Everything you need.\nNothing you don\'t.',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.sourceSerif4(
                       fontSize: isMobile ? 32 : 48,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       height: 1.1,
                       letterSpacing: 0,
                       color: textColor,
@@ -105,7 +105,7 @@ class FeaturesSection extends StatelessWidget {
                     child: Text(
                       'Designed to be simple, focused, and respectful of your privacy.',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.nunitoSans(
                         fontSize: isMobile ? 15 : 17,
                         color: secondaryText,
                         height: 1.5,
@@ -229,17 +229,17 @@ class _FeatureCardState extends State<_FeatureCard> {
             const SizedBox(height: 20),
             Text(
               widget.feature.title,
-              style: GoogleFonts.inter(
+              style: GoogleFonts.nunitoSans(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: widget.textColor,
-                letterSpacing: -0.3,
+                letterSpacing: 0,
               ),
             ),
             const SizedBox(height: 10),
             Text(
               widget.feature.description,
-              style: GoogleFonts.inter(
+              style: GoogleFonts.nunitoSans(
                 fontSize: 14,
                 height: 1.6,
                 color: widget.secondaryText,

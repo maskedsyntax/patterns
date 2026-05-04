@@ -327,7 +327,7 @@ class HeroSection extends StatelessWidget {
                       const SizedBox(width: 8),
                       Text(
                         'Open Source & Privacy-First',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.nunitoSans(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                           color: accent,
@@ -342,13 +342,13 @@ class HeroSection extends StatelessWidget {
                 Text(
                   'Clarity for\nthe mind.',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.sourceSerif4(
                     fontSize: isMobile
                         ? 48
                         : screen == ScreenSize.tablet
                         ? 64
                         : 80,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     height: 1.05,
                     letterSpacing: 0,
                     color: textColor,
@@ -361,7 +361,7 @@ class HeroSection extends StatelessWidget {
                   child: Text(
                     'A focused desktop app for daily journaling and tracking obsessive-compulsive patterns through structured reflection.',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.nunitoSans(
                       fontSize: isMobile ? 16 : 19,
                       fontWeight: FontWeight.w400,
                       height: isMobile ? 1.5 : 1.6,
@@ -477,7 +477,7 @@ class _AppPreview extends StatelessWidget {
                 const Spacer(),
                 Text(
                   'Patterns',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.nunitoSans(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: textSec,
@@ -525,6 +525,7 @@ class _AppPreview extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
+                          width: double.infinity,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12,
                             vertical: 8,
@@ -539,7 +540,7 @@ class _AppPreview extends StatelessWidget {
                               const SizedBox(width: 6),
                               Text(
                                 'New Entry',
-                                style: GoogleFonts.inter(
+                                style: GoogleFonts.nunitoSans(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: accent,
@@ -590,7 +591,7 @@ class _AppPreview extends StatelessWidget {
                       children: [
                         Text(
                           'March 19, 2026',
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.nunitoSans(
                             fontSize: isMobile ? 12 : 14,
                             fontWeight: FontWeight.w500,
                             color: textSec,
@@ -599,17 +600,17 @@ class _AppPreview extends StatelessWidget {
                         const SizedBox(height: 12),
                         Text(
                           'A moment of clarity',
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.nunitoSans(
                             fontSize: isMobile ? 18 : 24,
                             fontWeight: FontWeight.w700,
                             color: text,
-                            letterSpacing: -0.5,
+                            letterSpacing: 0,
                           ),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'Today I noticed a pattern in my thinking that I hadn\'t seen before. The structured reflection helped me identify triggers and responses more clearly...',
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.nunitoSans(
                             fontSize: isMobile ? 13 : 15,
                             height: 1.7,
                             color: textSec,
@@ -664,6 +665,7 @@ class _AppPreview extends StatelessWidget {
     Color border,
   ) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: active ? accent.withValues(alpha: 0.08) : Colors.transparent,
@@ -677,7 +679,7 @@ class _AppPreview extends StatelessWidget {
         children: [
           Text(
             date,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.nunitoSans(
               fontSize: 11,
               fontWeight: FontWeight.w600,
               color: active ? accent : textSec,
@@ -686,7 +688,7 @@ class _AppPreview extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             preview,
-            style: GoogleFonts.inter(fontSize: 11, color: textSec),
+            style: GoogleFonts.nunitoSans(fontSize: 11, color: textSec),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -760,7 +762,7 @@ class _PrimaryButtonState extends State<_PrimaryButton> {
                   maxLines: 1,
                   softWrap: false,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.nunitoSans(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Colors.black,
@@ -843,7 +845,7 @@ class _SecondaryButtonState extends State<_SecondaryButton> {
                   maxLines: 1,
                   softWrap: false,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.nunitoSans(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: textColor.withValues(alpha: 0.8),

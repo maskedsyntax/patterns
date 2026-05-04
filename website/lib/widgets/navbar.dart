@@ -87,11 +87,11 @@ class _NavbarState extends State<Navbar> {
                         const SizedBox(width: 12),
                         Text(
                           'Patterns',
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.nunitoSans(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
                             color: textColor,
-                            letterSpacing: -0.5,
+                            letterSpacing: 0,
                           ),
                         ),
                       ],
@@ -239,7 +239,7 @@ class _NavLinkState extends State<_NavLink> {
           cursor: SystemMouseCursors.click,
           child: AnimatedDefaultTextStyle(
             duration: const Duration(milliseconds: 200),
-            style: GoogleFonts.inter(
+            style: GoogleFonts.nunitoSans(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: _hovered
@@ -274,7 +274,7 @@ class _MobileNavLink extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Text(
           label,
-          style: GoogleFonts.inter(
+          style: GoogleFonts.nunitoSans(
             fontSize: 16,
             fontWeight: FontWeight.w500,
             color: color.withValues(alpha: 0.8),
@@ -323,7 +323,7 @@ class _GithubButtonState extends State<_GithubButton> {
                 const SizedBox(width: 6),
                 Text(
                   'Star on GitHub',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.nunitoSans(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Colors.black,

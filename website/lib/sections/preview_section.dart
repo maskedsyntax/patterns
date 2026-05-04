@@ -51,7 +51,7 @@ class _PreviewSectionState extends State<PreviewSection> {
                     ),
                     child: Text(
                       'PREVIEW',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.nunitoSans(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: accent,
@@ -63,9 +63,9 @@ class _PreviewSectionState extends State<PreviewSection> {
                   Text(
                     'See it in action',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.sourceSerif4(
                       fontSize: isMobile ? 32 : 48,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       height: 1.1,
                       letterSpacing: 0,
                       color: textColor,
@@ -77,7 +77,7 @@ class _PreviewSectionState extends State<PreviewSection> {
                     child: Text(
                       'Three focused screens designed to help you track, reflect, and understand your patterns.',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.nunitoSans(
                         fontSize: isMobile ? 15 : 17,
                         color: secondaryText,
                         height: 1.5,
@@ -131,7 +131,7 @@ class _PreviewSectionState extends State<PreviewSection> {
                         ),
                         child: Text(
                           label,
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.nunitoSans(
                             fontSize: isMobile ? 13 : 14,
                             fontWeight: isActive
                                 ? FontWeight.w600
@@ -252,7 +252,7 @@ class _PreviewMockup extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'Wednesday, March 19',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.nunitoSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: textSec,
@@ -270,7 +270,7 @@ class _PreviewMockup extends StatelessWidget {
                 ),
                 child: Text(
                   'Saved',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.nunitoSans(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: accent,
@@ -282,17 +282,17 @@ class _PreviewMockup extends StatelessWidget {
           const SizedBox(height: 24),
           Text(
             'Noticing the small wins',
-            style: GoogleFonts.inter(
+            style: GoogleFonts.nunitoSans(
               fontSize: isMobile ? 20 : 28,
               fontWeight: FontWeight.w700,
               color: text,
-              letterSpacing: -0.5,
+              letterSpacing: 0,
             ),
           ),
           const SizedBox(height: 16),
           Text(
             'Today was a good day. I caught myself spiraling into a compulsive checking pattern but managed to pause, breathe, and redirect my attention. The structured tracking from yesterday helped me recognize the trigger earlier than usual.\n\nSmall victories matter. Each time I choose a different response, it gets a little easier.',
-            style: GoogleFonts.inter(
+            style: GoogleFonts.nunitoSans(
               fontSize: isMobile ? 14 : 16,
               height: 1.7,
               color: textSec,
@@ -321,7 +321,7 @@ class _PreviewMockup extends StatelessWidget {
             children: [
               Text(
                 'Recent Entries',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.nunitoSans(
                   fontSize: isMobile ? 18 : 22,
                   fontWeight: FontWeight.w700,
                   color: text,
@@ -345,7 +345,7 @@ class _PreviewMockup extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         'Track New',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.nunitoSans(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
@@ -434,7 +434,7 @@ class _PreviewMockup extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.nunitoSans(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: text,
@@ -456,7 +456,7 @@ class _PreviewMockup extends StatelessWidget {
                       ),
                       child: Text(
                         type,
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.nunitoSans(
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
                           color: accent,
@@ -466,7 +466,10 @@ class _PreviewMockup extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       time,
-                      style: GoogleFonts.inter(fontSize: 12, color: textSec),
+                      style: GoogleFonts.nunitoSans(
+                        fontSize: 12,
+                        color: textSec,
+                      ),
                     ),
                   ],
                 ),
@@ -478,7 +481,7 @@ class _PreviewMockup extends StatelessWidget {
             children: [
               Text(
                 '$distress',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.nunitoSans(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                   color: accent,
@@ -486,7 +489,7 @@ class _PreviewMockup extends StatelessWidget {
               ),
               Text(
                 '/10',
-                style: GoogleFonts.inter(fontSize: 11, color: textSec),
+                style: GoogleFonts.nunitoSans(fontSize: 11, color: textSec),
               ),
             ],
           ),
@@ -509,7 +512,7 @@ class _PreviewMockup extends StatelessWidget {
         children: [
           Text(
             'Your Patterns',
-            style: GoogleFonts.inter(
+            style: GoogleFonts.nunitoSans(
               fontSize: isMobile ? 18 : 22,
               fontWeight: FontWeight.w700,
               color: text,
@@ -566,7 +569,7 @@ class _PreviewMockup extends StatelessWidget {
                 children: [
                   Text(
                     'Distress Levels — Last 7 Days',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.nunitoSans(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: textSec,
@@ -592,7 +595,7 @@ class _PreviewMockup extends StatelessWidget {
                                       children: [
                                         Text(
                                           '$val',
-                                          style: GoogleFonts.inter(
+                                          style: GoogleFonts.nunitoSans(
                                             fontSize: 11,
                                             fontWeight: FontWeight.w600,
                                             color: accent,
@@ -628,7 +631,7 @@ class _PreviewMockup extends StatelessWidget {
                             child: Text(
                               d,
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.inter(
+                              style: GoogleFonts.nunitoSans(
                                 fontSize: 10,
                                 color: textSec,
                               ),
@@ -668,7 +671,7 @@ class _PreviewMockup extends StatelessWidget {
           children: [
             Text(
               value,
-              style: GoogleFonts.inter(
+              style: GoogleFonts.nunitoSans(
                 fontSize: isMobile ? 18 : 24,
                 fontWeight: FontWeight.w800,
                 color: accent,
@@ -677,7 +680,7 @@ class _PreviewMockup extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               label,
-              style: GoogleFonts.inter(
+              style: GoogleFonts.nunitoSans(
                 fontSize: isMobile ? 10 : 12,
                 color: textSec,
               ),

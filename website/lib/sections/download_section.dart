@@ -98,9 +98,9 @@ class _DownloadSectionState extends State<DownloadSection> {
               Text(
                 'Ready to start?',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.sourceSerif4(
                   fontSize: isMobile ? 32 : 48,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   height: 1.1,
                   letterSpacing: 0,
                   color: textColor,
@@ -112,7 +112,7 @@ class _DownloadSectionState extends State<DownloadSection> {
                 child: Text(
                   'Download Patterns for free and take the first step toward understanding your mind better.',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.nunitoSans(
                     fontSize: isMobile ? 15 : 17,
                     color: secondaryText,
                     height: 1.6,
@@ -200,7 +200,10 @@ class _DownloadSectionState extends State<DownloadSection> {
                 const SizedBox(height: 16),
                 Text(
                   'Latest: $_version',
-                  style: GoogleFonts.inter(fontSize: 12, color: secondaryText),
+                  style: GoogleFonts.nunitoSans(
+                    fontSize: 12,
+                    color: secondaryText,
+                  ),
                 ),
               ],
               const SizedBox(height: 32),
@@ -217,14 +220,14 @@ class _DownloadSectionState extends State<DownloadSection> {
                   child: Text.rich(
                     TextSpan(
                       text: 'Or build from source on ',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.nunitoSans(
                         fontSize: 14,
                         color: secondaryText,
                       ),
                       children: [
                         TextSpan(
                           text: 'GitHub',
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.nunitoSans(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: accent,
@@ -313,7 +316,7 @@ class _DownloadCardState extends State<_DownloadCard> {
               const SizedBox(height: 16),
               Text(
                 widget.platform,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.nunitoSans(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                   color: widget.textColor,
@@ -322,7 +325,7 @@ class _DownloadCardState extends State<_DownloadCard> {
               const SizedBox(height: 4),
               Text(
                 widget.description,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.nunitoSans(
                   fontSize: 13,
                   color: widget.secondaryText,
                 ),
@@ -362,7 +365,7 @@ class _DownloadCardState extends State<_DownloadCard> {
                         maxLines: 1,
                         softWrap: false,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.nunitoSans(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Colors.black,

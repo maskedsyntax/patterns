@@ -258,7 +258,7 @@ class SettingsScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     Text(
-                      'Patterns v1.0.0',
+                      'Patterns v1.1.1',
                       style: TextStyle(
                         color: theme.colorScheme.onSurface.withOpacity(0.2),
                         fontSize: 12,

@@ -31,6 +31,17 @@ journal, ocd tracker, mental health, reflection, thought tracker, compulsions, d
 - **Data Collection:** The app does not collect any data. All data is stored locally on the user's device.
 - **Data Deletion:** Users can delete individual entries or use the "Wipe all data" button in Settings to clear all local storage.
 
+### App Store Connect Privacy Answers
+- **Data collected:** No data collected.
+- **Tracking:** No.
+- **Third-party tracking or advertising SDKs:** No.
+- **Privacy Policy URL:** `https://maskedsyntax.com/patterns/privacy`
+
+### App Review Notes
+Patterns is a local-only journaling and OCD self-tracking app. It does not create an account, transmit user entries to a server, provide diagnosis, provide treatment, or replace professional care. Users can export an unencrypted JSON backup manually and can delete all local data from Settings.
+
+If App Store Connect asks about regulated medical device status, answer that Patterns is not a regulated medical device. The app is for personal reflection and self-tracking only.
+
 ## 3. Screenshots Checklist
 Prepare screenshots for:
 - iPhone (6.7" and 6.5")

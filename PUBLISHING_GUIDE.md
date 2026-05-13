@@ -37,6 +37,14 @@ journal, ocd tracker, mental health, reflection, thought tracker, compulsions, d
 - **Third-party tracking or advertising SDKs:** No.
 - **Privacy Policy URL:** `https://maskedsyntax.com/patterns/privacy`
 
+### Google Play Data Safety Answers
+- **Data collection:** No data collected.
+- **Data sharing:** No data shared.
+- **Data processed ephemerally:** No.
+- **Data encrypted in transit:** Not applicable because the app does not transmit user data.
+- **Users can request data deletion:** Yes, users can delete local entries and wipe all app data in Settings.
+- **Privacy Policy URL:** `https://maskedsyntax.com/patterns/privacy`
+
 ### App Review Notes
 Patterns is a local-only journaling and OCD self-tracking app. It does not create an account, transmit user entries to a server, provide diagnosis, provide treatment, or replace professional care. Users can export an unencrypted JSON backup manually and can delete all local data from Settings.
 
@@ -67,7 +75,9 @@ To build a release APK/AAB for Google Play:
    keyAlias=upload
    storeFile=<path-to-keystore>
    ```
-3. Update `android/app/build.gradle.kts` to use the signing configuration.
+   You can copy `android/key.properties.example` as a starting point.
+3. Run `flutter build appbundle`.
+4. Verify the AAB is not debug-signed before uploading.
 
 ## 5. Final Verification
 1. Run `flutter analyze`

@@ -1,9 +1,19 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
+}
+val hasReleaseKeystore = listOf("keyAlias", "keyPassword", "storeFile", "storePassword")
+    .all { keystoreProperties[it] is String && (keystoreProperties[it] as String).isNotBlank() }
 
 android {
     namespace = "com.maskedsyntax.patterns"
@@ -29,12 +39,37 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        create("release") {
+            if (hasReleaseKeystore) {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            // Store releases must use a production keystore configured outside source control.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (hasReleaseKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
+    }
+}
+
+gradle.taskGraph.whenReady {
+    val isReleaseBundle = allTasks.any {
+        it.path == ":app:bundleRelease" || it.path == ":app:assembleRelease"
+    }
+    if (isReleaseBundle && !hasReleaseKeystore) {
+        throw GradleException(
+            "Android release signing is not configured. Create android/key.properties " +
+                "with storeFile, storePassword, keyAlias, and keyPassword before building a Play Store artifact."
+        )
     }
 }
 

@@ -1,5 +1,26 @@
 # TODO
 
+## Current Release Gate Snapshot
+
+- [x] Verify current local static checks.
+  - `flutter analyze` passes.
+  - `flutter test` passes.
+- [x] Confirm current platform submission baselines.
+  - Android target SDK is explicitly set to 35, matching the current Google Play API 35+ requirement for new apps and updates.
+  - Local Xcode is 26.5, matching Apple's current App Store Connect upload baseline of Xcode 26 / iOS 26 SDK or later.
+- [x] Verify the public privacy URL.
+  - `https://maskedsyntax.com/patterns/privacy` redirects to `https://www.maskedsyntax.com/patterns/privacy` and returns HTTP 200.
+- [ ] Produce a signed Android Play artifact.
+  - `flutter build appbundle` currently fails because `android/key.properties` is missing.
+- [ ] Produce and validate a signed iOS archive through App Store Connect/TestFlight.
+- [ ] Complete real-device smoke testing on Android and iOS.
+  - Cover journal create/edit/delete, OCD create/delete, analytics refresh, import, export, privacy link, wipe data, app restart, and document provider behavior.
+- [ ] Complete store-console submission tasks.
+  - Apple App Privacy answers.
+  - Google Play Data Safety answers.
+  - Google Play health app declaration.
+  - Age rating, category, support URL, marketing URL, screenshots, and review notes.
+
 ## Mobile Store Submission Blockers
 
 - [ ] Generate and configure the Android platform project.
@@ -9,7 +30,7 @@
   - [ ] Configure production release signing.
   - [x] Confirm min/target SDK against current Play requirements.
     - Android target SDK is explicitly set to 35.
-  - [ ] Add Android launcher icons and adaptive icon assets.
+  - [x] Add Android launcher icons and adaptive icon assets.
 
 - [ ] Replace the desktop SQLite setup with a mobile-safe database setup.
   - [x] Stop using `sqflite_common_ffi` as the app database path on Android/iOS.
@@ -45,28 +66,31 @@
 
 - [ ] Harden import/export on mobile.
   - [ ] Verify `FilePicker` save/import behavior on Android scoped storage and iOS document providers.
-  - [ ] Avoid relying on fragile direct file paths where mobile platforms return content/document handles.
+  - [x] Avoid relying on fragile direct file paths where mobile platforms return content/document handles.
+    - Mobile import now reads selected backup bytes via `FilePicker` instead of assuming a local path.
+    - Export now passes JSON bytes to `FilePicker.saveFile`, which is required for Android/iOS save flows.
   - [x] Add backup schema/version validation.
   - [x] Improve malformed-file errors.
-  - [ ] Consider a safer import preview before destructive overwrite.
+  - [x] Add a safer import preview before destructive overwrite.
 
-- [ ] Expose user data controls for OCD entries.
-  - [ ] Add clear edit actions in the tracker UI.
+- [x] Expose user data controls for OCD entries.
+  - [x] Add clear edit actions in the tracker UI.
   - [x] Add clear delete actions in the tracker UI.
   - [x] Make sure sensitive user-entered OCD data can be removed from the app.
 
-- [ ] Add app-level privacy protection if desired for launch quality.
-  - Consider passcode or biometric lock.
-  - Consider privacy screen behavior when the app is backgrounded.
+- [x] Add app-level privacy protection if desired for launch quality.
+  - [x] Add optional device passcode/biometric app lock.
+  - [x] Add privacy screen behavior when the app is backgrounded.
 
 ## Store Assets And Metadata
 
-- [ ] Replace default/template launcher icons with final production icons.
+- [x] Replace default/template launcher icons with final production icons.
+  - Generated Android adaptive icons and refreshed iOS/macOS launcher icons from `assets/logo.png`.
 - [x] Customize the iOS launch screen.
   - The launch storyboard is themed and unsigned archive validation no longer reports the default launch image warning.
 - [ ] Prepare App Store and Play Store screenshots.
 - [ ] Prepare support URL, marketing URL, privacy URL, age rating, and app category.
-- [ ] Update README and public-facing copy to describe the mobile product accurately.
+- [x] Update README and public-facing copy to describe the mobile product accurately.
 - [x] Add data deletion and data retention language to the website privacy page and in-app privacy copy.
 
 ## Dependency And Build Hygiene
@@ -78,8 +102,11 @@
   - [x] Remove `flutter_heatmap_calendar`.
   - [x] Remove unused `package_info_plus`.
 
-- [ ] Audit native plugin privacy declarations.
-  - [ ] Account for `file_picker`, `path_provider`, `shared_preferences`, `sqflite`, `url_launcher`, and transitive native plugins.
+- [x] Audit native plugin privacy declarations.
+  - [x] Account for `file_picker`, `path_provider`, `shared_preferences`, `sqflite`, `url_launcher`, `local_auth`, and transitive native plugins.
+    - iOS pods include privacy resources for `file_picker`, `shared_preferences_foundation`, `sqflite_darwin`, `url_launcher_ios`, and `local_auth_darwin`.
+    - `shared_preferences_foundation` declares UserDefaults required-reason API usage.
+    - `file_picker` pulls `DKImagePickerController`, `DKPhotoGallery`, `SDWebImage`, and `SwiftyGif`; those pods include privacy manifests in the installed pod sources.
   - [x] Remove unused plugins before preparing store privacy answers.
 
 - [ ] Add release verification.

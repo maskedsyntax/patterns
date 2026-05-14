@@ -42,7 +42,7 @@ class FeaturesSection extends StatelessWidget {
         icon: Icons.shield_rounded,
         title: 'Privacy First',
         description:
-            'All data stays on your computer. No cloud uploads, no third-party sharing. Your reflections and personal data remain entirely under your control.',
+            'All data stays on your device. No cloud uploads, no third-party sharing. Your reflections and personal data remain entirely under your control.',
       ),
       _FeatureData(
         icon: Icons.dark_mode_rounded,
@@ -51,10 +51,10 @@ class FeaturesSection extends StatelessWidget {
             'Switch between carefully crafted dark and light themes to match your environment and reduce eye strain during late-night reflections.',
       ),
       _FeatureData(
-        icon: Icons.desktop_mac_rounded,
-        title: 'Native Desktop',
+        icon: Icons.devices_rounded,
+        title: 'Mobile & Desktop',
         description:
-            'Built natively for macOS and Linux. Fast startup, minimal resource usage, and a clean interface that feels right at home on your desktop.',
+            'Built with Flutter for iOS, Android, macOS, Linux, and Windows with a clean interface that feels focused on every screen.',
       ),
     ];
 

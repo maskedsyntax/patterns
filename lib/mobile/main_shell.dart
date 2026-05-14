@@ -4,10 +4,12 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:local_auth/local_auth.dart' show LocalAuthException, LocalAuthExceptionCode;
 
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../widgets/animations.dart';
+import 'biometric_auth.dart';
 import 'preferences.dart';
 import 'screens/analytics_screen.dart';
 import 'screens/journal_screen.dart';
@@ -28,7 +30,7 @@ class MobileAppFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _MobileAppFrame(child: child);
+    return _PrivacyScreen(child: _MobileAppFrame(child: child));
   }
 }
 
@@ -42,8 +44,7 @@ class MobileShell extends ConsumerStatefulWidget {
 }
 
 class _MobileShellState extends ConsumerState<MobileShell> {
-  late bool _hasStarted =
-      mobilePreferences?.getBool('hasStarted') ?? false;
+  late bool _hasStarted = mobilePreferences?.getBool('hasStarted') ?? false;
 
   void _startApp() {
     mobilePreferences?.setBool('hasStarted', true);
@@ -59,9 +60,7 @@ class _MobileShellState extends ConsumerState<MobileShell> {
         _startApp();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           mobileRootNavigatorKey.currentState?.push(
-            MaterialPageRoute<void>(
-              builder: (_) => const SettingsScreen(),
-            ),
+            MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
           );
         });
       },
@@ -82,6 +81,258 @@ class _MobileAppFrame extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
           child: child ?? const SizedBox.shrink(),
+        ),
+      ),
+    );
+  }
+}
+
+class _PrivacyScreen extends ConsumerStatefulWidget {
+  final Widget child;
+
+  const _PrivacyScreen({required this.child});
+
+  @override
+  ConsumerState<_PrivacyScreen> createState() => _PrivacyScreenState();
+}
+
+class _PrivacyScreenState extends ConsumerState<_PrivacyScreen>
+    with WidgetsBindingObserver {
+  bool _lifecycleCovered = false;
+  bool _didBackground = false;
+  bool _locked = mobilePreferences?.getBool(appLockPreferenceKey) ?? false;
+  bool _authInProgress = false;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_locked) _authenticate();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // While the biometric prompt is up, the OS transitions the app through
+    // `inactive` (iOS) and `paused` (Android). Reacting to those the same
+    // way we'd react to a real backgrounding sets _locked back to true and
+    // re-fires _authenticate(), creating an infinite prompt loop. Ignore
+    // lifecycle changes while auth is in flight.
+    if (_authInProgress) return;
+
+    if (state == AppLifecycleState.resumed) {
+      // `_didBackground` is only set by a real `paused` (the prompt-induced
+      // paused is filtered above), so it's our marker for "the user actually
+      // backgrounded the app." If it's false, we're returning from the
+      // biometric prompt or an app-switcher peek — don't auto-re-prompt;
+      // let the user tap the Unlock button.
+      final shouldReauth = _didBackground;
+      setState(() {
+        _lifecycleCovered = false;
+        _didBackground = false;
+      });
+      if (shouldReauth &&
+          _locked &&
+          ref.read(appLockEnabledProvider)) {
+        _authenticate();
+      }
+      return;
+    }
+
+    // Cover the screen for any non-resumed state so the user's content is
+    // hidden in the app switcher / system overlay regardless of which exact
+    // lifecycle state the OS chose.
+    setState(() {
+      _lifecycleCovered = true;
+      // Only a full `paused` counts as a real backgrounding for the relock
+      // decision. `inactive` and `hidden` are transient (system prompts,
+      // app switcher peek, predictive back) and shouldn't force a re-auth.
+      if (state == AppLifecycleState.paused) {
+        _didBackground = true;
+        if (ref.read(appLockEnabledProvider)) _locked = true;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen<bool>(appLockEnabledProvider, (_, enabled) {
+      // The Settings toggle authenticates before flipping this provider, so
+      // don't re-prompt here — that re-prompt was the trigger for the
+      // historical loop. We just clear the cover when the user disables.
+      if (!enabled) setState(() => _locked = false);
+    });
+    final covered = _lifecycleCovered || _locked;
+
+    return Stack(
+      children: [
+        widget.child,
+        Positioned.fill(
+          child: IgnorePointer(
+            ignoring: !covered,
+            child: AnimatedOpacity(
+              opacity: covered ? 1 : 0,
+              duration: const Duration(milliseconds: 120),
+              child: _PrivacyCover(
+                showUnlock: _locked && !_lifecycleCovered,
+                unlockBusy: _authInProgress,
+                onUnlock: _authenticate,
+                message: _lifecycleCovered ? null : _errorMessage,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _authenticate() async {
+    if (_authInProgress || !mounted || !ref.read(appLockEnabledProvider)) {
+      return;
+    }
+    setState(() {
+      _authInProgress = true;
+      _errorMessage = null;
+    });
+    try {
+      final auth = ref.read(biometricAuthenticatorProvider);
+      final supported = await auth.isDeviceSupported();
+      if (!supported) {
+        await ref.read(appLockEnabledProvider.notifier).setEnabled(false);
+        if (mounted) setState(() => _locked = false);
+        return;
+      }
+      // local_auth 3.x returns true only on success; everything else (including
+      // user cancellation) is signalled via LocalAuthException.
+      await auth.authenticate(reason: 'Unlock Patterns to continue.');
+      if (!mounted) return;
+      setState(() => _locked = false);
+    } on LocalAuthException catch (e) {
+      if (!mounted) return;
+      switch (e.code) {
+        case LocalAuthExceptionCode.userCanceled:
+        case LocalAuthExceptionCode.systemCanceled:
+        case LocalAuthExceptionCode.timeout:
+        case LocalAuthExceptionCode.userRequestedFallback:
+          // Recoverable, no-fault outcomes. Leave the cover up with the
+          // Unlock button so the user can retry on their own.
+          break;
+        case LocalAuthExceptionCode.temporaryLockout:
+          setState(() => _errorMessage =
+              'Too many attempts. Try again in a moment.');
+          break;
+        case LocalAuthExceptionCode.biometricLockout:
+          setState(() => _errorMessage =
+              'Biometric authentication is locked. Unlock your device with your passcode to reset it.');
+          break;
+        case LocalAuthExceptionCode.noBiometricsEnrolled:
+        case LocalAuthExceptionCode.noCredentialsSet:
+        case LocalAuthExceptionCode.noBiometricHardware:
+        case LocalAuthExceptionCode.biometricHardwareTemporarilyUnavailable:
+          // App lock isn't usable on this device anymore — turn it off so the
+          // user isn't trapped behind a cover they can never satisfy.
+          await ref.read(appLockEnabledProvider.notifier).setEnabled(false);
+          if (mounted) {
+            setState(() {
+              _locked = false;
+              _errorMessage =
+                  'Biometric authentication is unavailable. App lock has been turned off.';
+            });
+          }
+          break;
+        default:
+          setState(() => _errorMessage =
+              'Could not unlock Patterns. Try again.');
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _errorMessage =
+            'Could not unlock Patterns. Try again.');
+      }
+    } finally {
+      // Defer clearing the in-progress flag until after the next frame. The
+      // `resumed` event that fires when the biometric prompt closes is
+      // queued during auth and would otherwise sneak past the guard and
+      // re-enter _authenticate(), restarting the loop.
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) setState(() => _authInProgress = false);
+        });
+      }
+    }
+  }
+}
+
+class _PrivacyCover extends StatelessWidget {
+  final bool showUnlock;
+  final bool unlockBusy;
+  final VoidCallback onUnlock;
+  final String? message;
+
+  const _PrivacyCover({
+    required this.showUnlock,
+    required this.unlockBusy,
+    required this.onUnlock,
+    this.message,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return ColoredBox(
+      color: theme.scaffoldBackgroundColor,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Semantics(
+              label: 'Patterns privacy screen',
+              child: Container(
+                width: 96,
+                height: 96,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: theme.colorScheme.surface,
+                  border: Border.all(color: theme.dividerColor),
+                ),
+                child: Icon(
+                  LineIcons.lock,
+                  color: theme.colorScheme.primary,
+                  size: 32,
+                ),
+              ),
+            ),
+            if (showUnlock) ...[
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: unlockBusy ? null : onUnlock,
+                child: Text(unlockBusy ? 'Unlocking...' : 'Unlock'),
+              ),
+            ],
+            if (message != null) ...[
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  message!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppTheme.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

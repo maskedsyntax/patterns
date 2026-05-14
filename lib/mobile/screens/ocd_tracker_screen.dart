@@ -116,8 +116,9 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
 
 class OcdEventFlow extends ConsumerStatefulWidget {
   final OcdType initialType;
+  final OcdEntry? entry;
 
-  const OcdEventFlow({super.key, required this.initialType});
+  const OcdEventFlow({super.key, required this.initialType, this.entry});
 
   @override
   ConsumerState<OcdEventFlow> createState() => _OcdEventFlowState();
@@ -130,6 +131,19 @@ class _OcdEventFlowState extends ConsumerState<OcdEventFlow> {
   final TextEditingController _responseController = TextEditingController();
   double _distress = 5;
   bool _saving = false;
+  bool get _isEditing => widget.entry != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final entry = widget.entry;
+    if (entry == null) return;
+    _type = entry.type;
+    _contentController.text = entry.content;
+    _actionController.text = entry.actionTaken ?? '';
+    _responseController.text = entry.response;
+    _distress = entry.distressLevel.toDouble();
+  }
 
   @override
   void dispose() {
@@ -157,7 +171,7 @@ class _OcdEventFlowState extends ConsumerState<OcdEventFlow> {
                   ),
                   Expanded(
                     child: Text(
-                      'Track event',
+                      _isEditing ? 'Edit event' : 'Track event',
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
@@ -210,7 +224,11 @@ class _OcdEventFlowState extends ConsumerState<OcdEventFlow> {
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 220),
                         child: Text(
-                          _saving ? 'Saving...' : 'Save event',
+                          _saving
+                              ? 'Saving...'
+                              : _isEditing
+                              ? 'Update event'
+                              : 'Save event',
                           key: ValueKey(_saving),
                         ),
                       ),
@@ -228,18 +246,25 @@ class _OcdEventFlowState extends ConsumerState<OcdEventFlow> {
   Future<void> _save() async {
     if (_contentController.text.trim().isEmpty) return;
     setState(() => _saving = true);
+    final existing = widget.entry;
+    final now = DateTime.now();
     final entry = OcdEntry(
+      id: existing?.id,
       type: _type,
-      datetime: DateTime.now(),
+      datetime: existing?.datetime ?? now,
       content: _contentController.text.trim(),
       distressLevel: _distress.round(),
       response: _responseController.text.trim(),
       actionTaken: _actionController.text.trim().isEmpty
           ? null
           : _actionController.text.trim(),
-      createdAt: DateTime.now(),
+      createdAt: existing?.createdAt ?? now,
     );
-    await ref.read(ocdProvider.notifier).addEntry(entry);
+    if (_isEditing) {
+      await ref.read(ocdProvider.notifier).updateEntry(entry);
+    } else {
+      await ref.read(ocdProvider.notifier).addEntry(entry);
+    }
     if (mounted) Navigator.pop(context);
   }
 }
@@ -350,6 +375,16 @@ class _OcdEventCard extends ConsumerWidget {
               ),
               const SizedBox(width: 4),
               IconButton(
+                tooltip: 'Edit event',
+                visualDensity: VisualDensity.compact,
+                iconSize: 18,
+                color: AppTheme.textSecondary,
+                onPressed: entry.id == null
+                    ? null
+                    : () => _openEditor(context, entry),
+                icon: const Icon(LineIcons.edit),
+              ),
+              IconButton(
                 tooltip: 'Delete event',
                 visualDensity: VisualDensity.compact,
                 iconSize: 18,
@@ -398,6 +433,15 @@ class _OcdEventCard extends ConsumerWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  void _openEditor(BuildContext context, OcdEntry entry) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => OcdEventFlow(initialType: entry.type, entry: entry),
       ),
     );
   }

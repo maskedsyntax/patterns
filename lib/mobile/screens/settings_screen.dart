@@ -1,9 +1,10 @@
-import 'dart:io';
+import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:local_auth/local_auth.dart' show LocalAuthException, LocalAuthExceptionCode;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../database/db_helper.dart';
@@ -11,6 +12,7 @@ import '../../main.dart';
 import '../../providers/providers.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
+import '../biometric_auth.dart';
 import '../preferences.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -20,6 +22,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final themeMode = ref.watch(themeModeProvider);
+    final appLockEnabled = ref.watch(appLockEnabledProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -108,6 +111,14 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => _showPrivacySheet(context),
             ),
             const SizedBox(height: 10),
+            _SettingsSwitchItem(
+              icon: LineIcons.userLock,
+              title: 'App lock',
+              subtitle: 'Require device unlock when Patterns reopens',
+              value: appLockEnabled,
+              onChanged: (value) => _setAppLock(context, ref, value),
+            ),
+            const SizedBox(height: 10),
             _SettingsItem(
               icon: LineIcons.alternateTrash,
               title: 'Wipe all data',
@@ -165,12 +176,9 @@ class SettingsScreen extends ConsumerWidget {
         fileName: 'patterns_backup.json',
         type: FileType.custom,
         allowedExtensions: ['json'],
+        bytes: utf8.encode(jsonStr),
       );
       if (path == null) return;
-      final finalPath = path.toLowerCase().endsWith('.json')
-          ? path
-          : '$path.json';
-      await File(finalPath).writeAsString(jsonStr);
       if (context.mounted) _showMessage(context, 'Data exported');
     } catch (error) {
       if (context.mounted) _showMessage(context, 'Export failed');
@@ -194,7 +202,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'This will overwrite your current entries.',
+              'Choose a JSON backup. Patterns will show what it contains before replacing current entries.',
               style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
             ),
             const SizedBox(height: 20),
@@ -205,7 +213,7 @@ class SettingsScreen extends ConsumerWidget {
                   Navigator.pop(context);
                   _importData(context, ref);
                 },
-                child: const Text('Import & overwrite'),
+                child: const Text('Choose backup'),
               ),
             ),
           ],
@@ -220,9 +228,83 @@ class SettingsScreen extends ConsumerWidget {
         dialogTitle: 'Select Patterns Backup',
         type: FileType.custom,
         allowedExtensions: ['json'],
+        withData: true,
       );
-      if (result == null || result.files.single.path == null) return;
-      final jsonStr = await File(result.files.single.path!).readAsString();
+      if (result == null) return;
+      final bytes = result.files.single.bytes;
+      if (bytes == null) {
+        if (context.mounted)
+          _showMessage(context, 'Could not read backup file');
+        return;
+      }
+      final jsonStr = utf8.decode(bytes);
+      final summary = DbHelper.previewBackup(jsonStr);
+      if (context.mounted) _showImportPreview(context, ref, jsonStr, summary);
+    } on FormatException {
+      if (context.mounted) _showMessage(context, 'Backup file is not valid');
+    } catch (error) {
+      if (context.mounted) _showMessage(context, 'Import failed');
+    }
+  }
+
+  void _showImportPreview(
+    BuildContext context,
+    WidgetRef ref,
+    String jsonStr,
+    BackupSummary summary,
+  ) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _BottomPanel(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Import backup?',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'This backup contains ${summary.journalCount} journal entries and ${summary.ocdCount} OCD events. Importing replaces your current entries.',
+              style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      await _finishImport(context, ref, jsonStr);
+                    },
+                    child: const Text('Replace'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _finishImport(
+    BuildContext context,
+    WidgetRef ref,
+    String jsonStr,
+  ) async {
+    try {
       await DbHelper.instance.importAll(jsonStr);
       ref.invalidate(journalProvider);
       ref.invalidate(ocdProvider);
@@ -298,6 +380,61 @@ class SettingsScreen extends ConsumerWidget {
         backgroundColor: AppTheme.charcoalInput,
       ),
     );
+  }
+
+  Future<void> _setAppLock(
+    BuildContext context,
+    WidgetRef ref,
+    bool enabled,
+  ) async {
+    if (!enabled) {
+      await ref.read(appLockEnabledProvider.notifier).setEnabled(false);
+      if (context.mounted) _showMessage(context, 'App lock disabled');
+      return;
+    }
+
+    try {
+      final auth = ref.read(biometricAuthenticatorProvider);
+      final supported = await auth.isDeviceSupported();
+      if (!supported) {
+        if (context.mounted) _showMessage(context, 'Device lock unavailable');
+        return;
+      }
+      // local_auth 3.x returns true only on success; everything else (cancel,
+      // lockout, missing biometrics, etc.) is surfaced as LocalAuthException.
+      await auth.authenticate(reason: 'Unlock Patterns to enable app lock.');
+      await ref.read(appLockEnabledProvider.notifier).setEnabled(true);
+      if (context.mounted) _showMessage(context, 'App lock enabled');
+    } on LocalAuthException catch (e) {
+      if (!context.mounted) return;
+      switch (e.code) {
+        case LocalAuthExceptionCode.userCanceled:
+        case LocalAuthExceptionCode.systemCanceled:
+        case LocalAuthExceptionCode.timeout:
+        case LocalAuthExceptionCode.userRequestedFallback:
+          // User-initiated abort — no message, the toggle simply stays off.
+          break;
+        case LocalAuthExceptionCode.temporaryLockout:
+          _showMessage(context, 'Too many attempts. Try again in a moment.');
+          break;
+        case LocalAuthExceptionCode.biometricLockout:
+          _showMessage(
+            context,
+            'Biometric authentication is locked. Unlock your device with your passcode first.',
+          );
+          break;
+        case LocalAuthExceptionCode.noBiometricsEnrolled:
+        case LocalAuthExceptionCode.noCredentialsSet:
+        case LocalAuthExceptionCode.noBiometricHardware:
+        case LocalAuthExceptionCode.biometricHardwareTemporarilyUnavailable:
+          _showMessage(context, 'Device lock unavailable');
+          break;
+        default:
+          _showMessage(context, 'Could not enable app lock');
+      }
+    } catch (_) {
+      if (context.mounted) _showMessage(context, 'Could not enable app lock');
+    }
   }
 
   void _showPrivacySheet(BuildContext context) {
@@ -436,6 +573,57 @@ class _SettingsItem extends StatelessWidget {
             Icon(LineIcons.angleRight, color: AppTheme.textSecondary, size: 18),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _SettingsSwitchItem extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _SettingsSwitchItem({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: _softDecoration(theme, radius: 22),
+      child: Row(
+        children: [
+          Icon(icon, color: theme.colorScheme.primary),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+          Switch(value: value, onChanged: onChanged),
+        ],
       ),
     );
   }

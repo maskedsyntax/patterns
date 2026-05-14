@@ -30,6 +30,10 @@
 	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Patterns uses Face ID to unlock your private journal and OCD tracking data when app lock is enabled.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Patterns may request photo library access only when the system file picker offers photo library sources while you import or export a backup file.</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>https</string>

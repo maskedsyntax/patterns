@@ -359,7 +359,7 @@ class HeroSection extends StatelessWidget {
                 SizedBox(
                   width: isMobile ? double.infinity : 560,
                   child: Text(
-                    'A focused desktop app for daily journaling and tracking obsessive-compulsive patterns through structured reflection.',
+                    'A focused app for daily journaling and tracking obsessive-compulsive patterns through structured reflection.',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.nunitoSans(
                       fontSize: isMobile ? 16 : 19,

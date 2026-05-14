@@ -11,10 +11,12 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Flutter-%2302569B.svg?style=flat&logo=Flutter&logoColor=white" alt="Flutter">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
-  <img src="https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-lightgrey.svg" alt="Platform">
+  <img src="https://img.shields.io/badge/Platform-iOS%20%7C%20Android%20%7C%20Desktop-lightgrey.svg" alt="Platform">
 </p>
 
-Patterns is a focused desktop application designed to assist with daily journaling and tracking obsessive-compulsive patterns. By providing a clean, structured environment to record thoughts and behaviors, it helps you identify trends and prepare clear information for personal reflection or professional consultations.
+Patterns is a focused journaling and OCD self-tracking app for daily reflection. It gives you a private local space to record journal entries, obsessive or compulsive events, distress levels, response strategies, and trends over time.
+
+Patterns is for personal reflection and self-tracking. It does not diagnose, treat, prevent, or cure any condition, and it is not a replacement for care from a qualified clinician.
 
 ## Screenshots
 
@@ -49,7 +51,9 @@ When an obsession or compulsion occurs, use the "Track New" button. Choose the e
 
 ## Privacy and Data
 
-Patterns is an offline-first application. All your data is stored locally on your own computer. No information is ever uploaded to the cloud or shared with third parties. Your reflections and personal data remain entirely under your control.
+Patterns is local-first. Journal entries, OCD events, distress ratings, strategy notes, and app preferences stay on your device. The app does not create an account, upload user entries to a server, sell data, or share data with third parties.
+
+You can delete individual entries or wipe local app data from Settings. Manual export creates a readable, unencrypted JSON backup file in the location you choose, so exported files should be stored somewhere private.
 
 ## Community
 

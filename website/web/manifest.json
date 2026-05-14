@@ -5,7 +5,7 @@
     "display": "standalone",
     "background_color": "#0A0A0A",
     "theme_color": "#0A0A0A",
-    "description": "A privacy-first desktop app for daily journaling, OCD tracking, and structured reflection.",
+    "description": "A privacy-first app for daily journaling, OCD self-tracking, and structured reflection.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

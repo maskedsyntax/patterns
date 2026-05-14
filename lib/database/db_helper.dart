@@ -1,13 +1,18 @@
 import 'dart:convert';
-import 'dart:io' show Platform;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart' as mobile_sqflite;
 import 'package:sqflite_common/sqlite_api.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart' as ffi;
 import '../models/models.dart';
 
 const int _backupSchemaVersion = 1;
+
+class BackupSummary {
+  final int journalCount;
+  final int ocdCount;
+
+  const BackupSummary({required this.journalCount, required this.ocdCount});
+}
 
 class DbHelper {
   static final DbHelper instance = DbHelper._init();
@@ -31,14 +36,7 @@ class DbHelper {
     );
   }
 
-  DatabaseFactory get _databaseFactory {
-    if (Platform.isAndroid || Platform.isIOS) {
-      return mobile_sqflite.databaseFactory;
-    }
-
-    ffi.sqfliteFfiInit();
-    return ffi.databaseFactoryFfi;
-  }
+  DatabaseFactory get _databaseFactory => mobile_sqflite.databaseFactory;
 
   Future _createDB(Database db, int version) async {
     await db.execute('''
@@ -118,6 +116,16 @@ class DbHelper {
     return await db.insert('ocd', entry.toMap());
   }
 
+  Future<int> updateOcdEntry(OcdEntry entry) async {
+    final id = entry.id;
+    if (id == null) {
+      throw ArgumentError('Cannot update an OCD entry without an id');
+    }
+    final db = await instance.database;
+    final map = entry.toMap()..remove('id');
+    return await db.update('ocd', map, where: 'id = ?', whereArgs: [id]);
+  }
+
   Future<int> deleteOcdEntry(int id) async {
     final db = await instance.database;
     return await db.delete('ocd', where: 'id = ?', whereArgs: [id]);
@@ -145,11 +153,7 @@ class DbHelper {
   }
 
   Future<void> importAll(String jsonStr) async {
-    final decoded = jsonDecode(jsonStr);
-    if (decoded is! Map<String, dynamic>) {
-      throw const FormatException('Backup root must be an object');
-    }
-    final data = decoded;
+    final data = _decodeBackup(jsonStr);
     _validateBackup(data);
 
     final db = await instance.database;
@@ -165,7 +169,24 @@ class DbHelper {
     });
   }
 
-  void _validateBackup(Map<String, dynamic> data) {
+  static BackupSummary previewBackup(String jsonStr) {
+    final data = _decodeBackup(jsonStr);
+    _validateBackup(data);
+    return BackupSummary(
+      journalCount: _backupList(data, 'journal').length,
+      ocdCount: _backupList(data, 'ocd').length,
+    );
+  }
+
+  static Map<String, dynamic> _decodeBackup(String jsonStr) {
+    final decoded = jsonDecode(jsonStr);
+    if (decoded is! Map<String, dynamic>) {
+      throw const FormatException('Backup root must be an object');
+    }
+    return decoded;
+  }
+
+  static void _validateBackup(Map<String, dynamic> data) {
     final schemaVersion = data['schema_version'];
     if (schemaVersion != null && schemaVersion != _backupSchemaVersion) {
       throw const FormatException('Unsupported backup version');
@@ -181,7 +202,7 @@ class DbHelper {
     }
   }
 
-  List<dynamic> _backupList(Map<String, dynamic> data, String key) {
+  static List<dynamic> _backupList(Map<String, dynamic> data, String key) {
     final value = data[key];
     if (value == null) return const [];
     if (value is! List) {
@@ -190,7 +211,7 @@ class DbHelper {
     return value;
   }
 
-  void _validateJournalItem(dynamic item) {
+  static void _validateJournalItem(dynamic item) {
     if (item is! Map) throw const FormatException('Invalid journal entry');
     _requireString(item, 'date');
     _requireString(item, 'content');
@@ -200,7 +221,7 @@ class DbHelper {
     DateTime.parse(item['updated_at'] as String);
   }
 
-  void _validateOcdItem(dynamic item) {
+  static void _validateOcdItem(dynamic item) {
     if (item is! Map) throw const FormatException('Invalid OCD entry');
     _requireInt(item, 'type');
     _requireString(item, 'datetime');
@@ -223,13 +244,13 @@ class DbHelper {
     DateTime.parse(item['created_at'] as String);
   }
 
-  void _requireString(Map<dynamic, dynamic> item, String key) {
+  static void _requireString(Map<dynamic, dynamic> item, String key) {
     if (item[key] is! String) {
       throw FormatException('Expected $key to be a string');
     }
   }
 
-  void _requireInt(Map<dynamic, dynamic> item, String key) {
+  static void _requireInt(Map<dynamic, dynamic> item, String key) {
     if (item[key] is! int) {
       throw FormatException('Expected $key to be an integer');
     }

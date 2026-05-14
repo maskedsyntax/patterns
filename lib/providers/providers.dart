@@ -27,9 +27,10 @@ class JournalNotifier extends AsyncNotifier<List<JournalEntry>> {
   }
 }
 
-final journalProvider = AsyncNotifierProvider<JournalNotifier, List<JournalEntry>>(() {
-  return JournalNotifier();
-});
+final journalProvider =
+    AsyncNotifierProvider<JournalNotifier, List<JournalEntry>>(() {
+      return JournalNotifier();
+    });
 
 // Search and Filtering Providers
 class JournalSearchQueryNotifier extends Notifier<String> {
@@ -38,7 +39,10 @@ class JournalSearchQueryNotifier extends Notifier<String> {
   set query(String value) => state = value;
 }
 
-final journalSearchQueryProvider = NotifierProvider<JournalSearchQueryNotifier, String>(JournalSearchQueryNotifier.new);
+final journalSearchQueryProvider =
+    NotifierProvider<JournalSearchQueryNotifier, String>(
+      JournalSearchQueryNotifier.new,
+    );
 
 final filteredJournalProvider = Provider<AsyncValue<List<JournalEntry>>>((ref) {
   final journalAsync = ref.watch(journalProvider);
@@ -47,8 +51,8 @@ final filteredJournalProvider = Provider<AsyncValue<List<JournalEntry>>>((ref) {
   return journalAsync.whenData((entries) {
     if (query.isEmpty) return entries;
     return entries.where((entry) {
-      return entry.content.toLowerCase().contains(query) || 
-             entry.date.contains(query);
+      return entry.content.toLowerCase().contains(query) ||
+          entry.date.contains(query);
     }).toList();
   });
 });
@@ -63,6 +67,14 @@ class OcdNotifier extends AsyncNotifier<List<OcdEntry>> {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await DbHelper.instance.insertOcdEntry(entry);
+      return await DbHelper.instance.getOcdEntries();
+    });
+  }
+
+  Future<void> updateEntry(OcdEntry entry) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await DbHelper.instance.updateOcdEntry(entry);
       return await DbHelper.instance.getOcdEntries();
     });
   }
@@ -86,7 +98,10 @@ class OcdHighDistressNotifier extends Notifier<bool> {
   void toggle() => state = !state;
 }
 
-final ocdHighDistressOnlyProvider = NotifierProvider<OcdHighDistressNotifier, bool>(OcdHighDistressNotifier.new);
+final ocdHighDistressOnlyProvider =
+    NotifierProvider<OcdHighDistressNotifier, bool>(
+      OcdHighDistressNotifier.new,
+    );
 
 final filteredOcdProvider = Provider<AsyncValue<List<OcdEntry>>>((ref) {
   final ocdAsync = ref.watch(ocdProvider);

@@ -102,49 +102,51 @@ class _HomePageState extends State<_HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // Main scrollable content
-          SingleChildScrollView(
-            controller: _scrollController,
-            child: Column(
-              children: [
-                const SizedBox(height: 68),
-                Container(
-                  key: _heroKey,
-                  child: HeroSection(
-                    isDark: widget.isDark,
-                    onDownloadTap: _scrollToDownload,
+      body: SelectionArea(
+        child: Stack(
+          children: [
+            // Main scrollable content
+            SingleChildScrollView(
+              controller: _scrollController,
+              child: Column(
+                children: [
+                  const SizedBox(height: 68),
+                  Container(
+                    key: _heroKey,
+                    child: HeroSection(
+                      isDark: widget.isDark,
+                      onDownloadTap: _scrollToDownload,
+                    ),
                   ),
-                ),
-                Container(
-                  key: _featuresKey,
-                  child: FeaturesSection(isDark: widget.isDark),
-                ),
-                Container(
-                  key: _previewKey,
-                  child: PreviewSection(isDark: widget.isDark),
-                ),
-                Container(
-                  key: _downloadKey,
-                  child: DownloadSection(isDark: widget.isDark),
-                ),
-                FooterSection(isDark: widget.isDark),
-              ],
+                  Container(
+                    key: _featuresKey,
+                    child: FeaturesSection(isDark: widget.isDark),
+                  ),
+                  Container(
+                    key: _previewKey,
+                    child: PreviewSection(isDark: widget.isDark),
+                  ),
+                  Container(
+                    key: _downloadKey,
+                    child: DownloadSection(isDark: widget.isDark),
+                  ),
+                  FooterSection(isDark: widget.isDark),
+                ],
+              ),
             ),
-          ),
-          // Fixed navbar
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Navbar(
-              isDark: widget.isDark,
-              onThemeToggle: widget.onThemeToggle,
-              sectionKeys: _sectionKeys,
+            // Fixed navbar
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Navbar(
+                isDark: widget.isDark,
+                onThemeToggle: widget.onThemeToggle,
+                sectionKeys: _sectionKeys,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

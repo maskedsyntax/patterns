@@ -204,26 +204,28 @@ class _FooterLinkState extends State<_FooterLink> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: GestureDetector(
-        onTap: () {
-          AnalyticsService.logEvent(
-            'footer_link_click',
-            parameters: {'label': widget.label},
-          );
-          launchUrl(Uri.parse(widget.url));
-        },
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: Text(
-            widget.label,
-            style: GoogleFonts.nunitoSans(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: _hovered ? widget.hoverColor : widget.color,
+    return SelectionContainer.disabled(
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: GestureDetector(
+          onTap: () {
+            AnalyticsService.logEvent(
+              'footer_link_click',
+              parameters: {'label': widget.label},
+            );
+            launchUrl(Uri.parse(widget.url));
+          },
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: Text(
+              widget.label,
+              style: GoogleFonts.nunitoSans(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: _hovered ? widget.hoverColor : widget.color,
+              ),
             ),
           ),
         ),

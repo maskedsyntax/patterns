@@ -24,43 +24,47 @@ class _PrivacyPageState extends State<PrivacyPage> {
       backgroundColor: widget.isDark
           ? WebTheme.darkSurface
           : WebTheme.lightSurface,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                const SizedBox(height: 100),
-                PrivacySection(isDark: widget.isDark),
-                // Simple footer for the privacy page
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40),
-                  child: TextButton(
-                    onPressed: () =>
-                        Navigator.of(context).pushReplacementNamed('/'),
-                    child: Text(
-                      '← Back to Home',
-                      style: TextStyle(
-                        color: widget.isDark
-                            ? WebTheme.primaryYellow
-                            : WebTheme.primaryGold,
+      body: SelectionArea(
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 100),
+                  PrivacySection(isDark: widget.isDark),
+                  // Simple footer for the privacy page
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    child: SelectionContainer.disabled(
+                      child: TextButton(
+                        onPressed: () =>
+                            Navigator.of(context).pushReplacementNamed('/'),
+                        child: Text(
+                          '← Back to Home',
+                          style: TextStyle(
+                            color: widget.isDark
+                                ? WebTheme.primaryYellow
+                                : WebTheme.primaryGold,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Navbar(
-              isDark: widget.isDark,
-              onThemeToggle: widget.onThemeToggle,
-              sectionKeys: const {}, // No scroll keys needed on this page
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Navbar(
+                isDark: widget.isDark,
+                onThemeToggle: widget.onThemeToggle,
+                sectionKeys: const {}, // No scroll keys needed on this page
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

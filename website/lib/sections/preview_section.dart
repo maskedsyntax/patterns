@@ -1,38 +1,48 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/web_theme.dart';
 import '../widgets/responsive.dart';
 import '../widgets/animated_on_scroll.dart';
 
-class PreviewSection extends StatefulWidget {
+class PreviewSection extends StatelessWidget {
   final bool isDark;
 
   const PreviewSection({super.key, required this.isDark});
 
-  @override
-  State<PreviewSection> createState() => _PreviewSectionState();
-}
-
-class _PreviewSectionState extends State<PreviewSection> {
-  int _selectedTab = 0;
+  static const _desktopMockups = [
+    'assets/mockups/desktop-1.jpg',
+    'assets/mockups/desktop-2.jpg',
+    'assets/mockups/desktop-3.jpg',
+    'assets/mockups/desktop-4.jpg',
+    'assets/mockups/desktop-5.jpg',
+  ];
 
   @override
   Widget build(BuildContext context) {
     final screen = Responsive.getScreenSize(context);
     final isMobile = screen == ScreenSize.mobile;
-    final textColor = widget.isDark ? WebTheme.darkText : WebTheme.lightText;
-    final secondaryText = widget.isDark
+    final textColor = isDark ? WebTheme.darkText : WebTheme.lightText;
+    final secondaryText = isDark
         ? WebTheme.darkTextSecondary
         : WebTheme.lightTextSecondary;
-    final accent = widget.isDark
-        ? WebTheme.primaryYellow
-        : WebTheme.primaryGold;
+    final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
 
-    final tabs = ['Journal', 'OCD Tracker', 'Analytics'];
+    final mobileMockup = _FeatureGraphic(
+      width: isMobile ? double.infinity : 620,
+      isDark: isDark,
+    );
+    final desktopMockup = _CyclingMockup(
+      assets: _desktopMockups,
+      width: isMobile ? double.infinity : 608,
+      height: isMobile ? 220 : 380,
+      aspectRatio: 1440 / 900,
+      isDark: isDark,
+    );
 
     return Container(
       width: double.infinity,
-      color: widget.isDark ? WebTheme.darkBg : WebTheme.lightBg,
+      color: isDark ? WebTheme.darkBg : WebTheme.lightBg,
       child: ContentContainer(
         padding: Responsive.sectionPadding(context),
         child: Column(
@@ -73,9 +83,9 @@ class _PreviewSectionState extends State<PreviewSection> {
                   ),
                   const SizedBox(height: 16),
                   ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 500),
+                    constraints: const BoxConstraints(maxWidth: 540),
                     child: Text(
-                      'Three focused screens designed to help you track, reflect, and understand your patterns.',
+                      'Real screens from Patterns — at home on mobile and on desktop. The journal, the OCD tracker, the analytics, and the settings.',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.nunitoSans(
                         fontSize: isMobile ? 15 : 17,
@@ -87,76 +97,36 @@ class _PreviewSectionState extends State<PreviewSection> {
                 ],
               ),
             ),
-            SizedBox(height: isMobile ? 32 : 48),
-            // Tab switcher
+            SizedBox(height: isMobile ? 56 : 96),
             AnimatedOnScroll(
-              delay: const Duration(milliseconds: 150),
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: widget.isDark
-                      ? WebTheme.darkSurfaceAlt
-                      : WebTheme.lightSurfaceAlt,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color:
-                        (widget.isDark
-                                ? WebTheme.darkBorder
-                                : WebTheme.lightBorder)
-                            .withValues(alpha: 0.5),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: tabs.asMap().entries.map((entry) {
-                    final idx = entry.key;
-                    final label = entry.value;
-                    final isActive = idx == _selectedTab;
-                    return InkWell(
-                      onTap: () => setState(() => _selectedTab = idx),
-                      mouseCursor: SystemMouseCursors.click,
-                      borderRadius: BorderRadius.circular(8),
-                      hoverColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isMobile ? 12 : 24,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isActive ? accent : Colors.transparent,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          label,
-                          style: GoogleFonts.nunitoSans(
-                            fontSize: isMobile ? 13 : 14,
-                            fontWeight: isActive
-                                ? FontWeight.w600
-                                : FontWeight.w500,
-                            color: isActive ? Colors.black : secondaryText,
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
+              delay: const Duration(milliseconds: 100),
+              child: _PlatformShowcase(
+                eyebrow: 'MOBILE',
+                title: 'Pocket-sized reflection',
+                description:
+                    'Capture obsessions, log distress, and write a quick journal entry — all from your phone. Your entries stay on your device, no accounts and no uploads.',
+                mockup: mobileMockup,
+                mockupOnLeft: true,
+                accent: accent,
+                textColor: textColor,
+                secondaryText: secondaryText,
+                isMobile: isMobile,
               ),
             ),
-            SizedBox(height: isMobile ? 32 : 48),
-            // Preview content
+            SizedBox(height: isMobile ? 56 : 96),
             AnimatedOnScroll(
-              delay: const Duration(milliseconds: 300),
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 400),
-                child: _PreviewMockup(
-                  key: ValueKey(_selectedTab),
-                  tabIndex: _selectedTab,
-                  isDark: widget.isDark,
-                  isMobile: isMobile,
-                ),
+              delay: const Duration(milliseconds: 200),
+              child: _PlatformShowcase(
+                eyebrow: 'DESKTOP',
+                title: 'Room to think',
+                description:
+                    'See your patterns at a glance — analytics, history, and a calm writing space with the room a bigger screen gives you. Native on macOS, Windows, and Linux.',
+                mockup: desktopMockup,
+                mockupOnLeft: false,
+                accent: accent,
+                textColor: textColor,
+                secondaryText: secondaryText,
+                isMobile: isMobile,
               ),
             ),
           ],
@@ -166,528 +136,227 @@ class _PreviewSectionState extends State<PreviewSection> {
   }
 }
 
-class _PreviewMockup extends StatelessWidget {
-  final int tabIndex;
-  final bool isDark;
+class _PlatformShowcase extends StatelessWidget {
+  final String eyebrow;
+  final String title;
+  final String description;
+  final Widget mockup;
+  final bool mockupOnLeft;
+  final Color accent;
+  final Color textColor;
+  final Color secondaryText;
   final bool isMobile;
 
-  const _PreviewMockup({
-    super.key,
-    required this.tabIndex,
-    required this.isDark,
+  const _PlatformShowcase({
+    required this.eyebrow,
+    required this.title,
+    required this.description,
+    required this.mockup,
+    required this.mockupOnLeft,
+    required this.accent,
+    required this.textColor,
+    required this.secondaryText,
     required this.isMobile,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bg = isDark ? WebTheme.darkSurface : WebTheme.lightSurface;
-    final border = isDark ? WebTheme.darkBorder : WebTheme.lightBorder;
-    final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
-    final text = isDark ? WebTheme.darkText : WebTheme.lightText;
-    final textSec = isDark
-        ? WebTheme.darkTextSecondary
-        : WebTheme.lightTextSecondary;
-    final surfaceAlt = isDark
-        ? WebTheme.darkSurfaceAlt
-        : WebTheme.lightSurfaceAlt;
-
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 900),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
-            blurRadius: 40,
-            offset: const Offset(0, 12),
+    final copy = Column(
+      crossAxisAlignment: isMobile
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: accent.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(100),
+            border: Border.all(color: accent.withValues(alpha: 0.28)),
           ),
+          child: Text(
+            eyebrow,
+            style: GoogleFonts.nunitoSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: accent,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          title,
+          textAlign: isMobile ? TextAlign.center : TextAlign.left,
+          style: GoogleFonts.sourceSerif4(
+            fontSize: isMobile ? 28 : 36,
+            fontWeight: FontWeight.w700,
+            height: 1.15,
+            color: textColor,
+          ),
+        ),
+        const SizedBox(height: 14),
+        Text(
+          description,
+          textAlign: isMobile ? TextAlign.center : TextAlign.left,
+          style: GoogleFonts.nunitoSans(
+            fontSize: 16,
+            color: secondaryText,
+            height: 1.6,
+          ),
+        ),
+      ],
+    );
+
+    if (isMobile) {
+      return Column(
+        children: [
+          mockup,
+          const SizedBox(height: 32),
+          copy,
         ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
-        child: SizedBox(
-          height: isMobile ? 320 : 460,
-          child: _buildContent(accent, text, textSec, surfaceAlt, border),
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: mockupOnLeft
+          ? [
+              mockup,
+              const SizedBox(width: 56),
+              Expanded(child: copy),
+            ]
+          : [
+              Expanded(child: copy),
+              const SizedBox(width: 56),
+              mockup,
+            ],
+    );
+  }
+}
+
+class _FeatureGraphic extends StatelessWidget {
+  final double width;
+  final bool isDark;
+
+  // Native dimensions of feature-graphic.jpg.
+  static const _aspect = 1024 / 500;
+
+  const _FeatureGraphic({required this.width, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: AspectRatio(
+        aspectRatio: _aspect,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.5 : 0.18),
+                blurRadius: 40,
+                offset: const Offset(0, 20),
+                spreadRadius: -8,
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Image.asset(
+              'assets/mockups/feature-graphic.jpg',
+              fit: BoxFit.cover,
+              semanticLabel: 'Patterns mobile preview',
+            ),
+          ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildContent(
-    Color accent,
-    Color text,
-    Color textSec,
-    Color surfaceAlt,
-    Color border,
-  ) {
-    switch (tabIndex) {
-      case 0:
-        return _journalPreview(accent, text, textSec, surfaceAlt, border);
-      case 1:
-        return _ocdPreview(accent, text, textSec, surfaceAlt, border);
-      case 2:
-        return _analyticsPreview(accent, text, textSec, surfaceAlt, border);
-      default:
-        return const SizedBox.shrink();
+class _CyclingMockup extends StatefulWidget {
+  final List<String> assets;
+  final double width;
+  final double height;
+  final double aspectRatio;
+  final bool isDark;
+
+  const _CyclingMockup({
+    required this.assets,
+    required this.width,
+    required this.height,
+    required this.aspectRatio,
+    required this.isDark,
+  });
+
+  @override
+  State<_CyclingMockup> createState() => _CyclingMockupState();
+}
+
+class _CyclingMockupState extends State<_CyclingMockup> {
+  int _index = 0;
+  Timer? _timer;
+  bool _precached = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(milliseconds: 3500), (_) {
+      if (!mounted) return;
+      setState(() => _index = (_index + 1) % widget.assets.length);
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Preload every frame so cross-fades don't show a flash while the next
+    // image decodes off disk.
+    if (!_precached) {
+      _precached = true;
+      for (final asset in widget.assets) {
+        precacheImage(AssetImage(asset), context);
+      }
     }
   }
 
-  Widget _journalPreview(
-    Color accent,
-    Color text,
-    Color textSec,
-    Color surfaceAlt,
-    Color border,
-  ) {
-    return Padding(
-      padding: EdgeInsets.all(isMobile ? 20 : 40),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.calendar_today_rounded, size: 16, color: accent),
-              const SizedBox(width: 8),
-              Text(
-                'Wednesday, March 19',
-                style: GoogleFonts.nunitoSans(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: textSec,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  'Saved',
-                  style: GoogleFonts.nunitoSans(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: accent,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'Noticing the small wins',
-            style: GoogleFonts.nunitoSans(
-              fontSize: isMobile ? 20 : 28,
-              fontWeight: FontWeight.w700,
-              color: text,
-              letterSpacing: 0,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Today was a good day. I caught myself spiraling into a compulsive checking pattern but managed to pause, breathe, and redirect my attention. The structured tracking from yesterday helped me recognize the trigger earlier than usual.\n\nSmall victories matter. Each time I choose a different response, it gets a little easier.',
-            style: GoogleFonts.nunitoSans(
-              fontSize: isMobile ? 14 : 16,
-              height: 1.7,
-              color: textSec,
-            ),
-            maxLines: isMobile ? 6 : 10,
-            overflow: TextOverflow.fade,
-          ),
-        ],
-      ),
-    );
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
-  Widget _ocdPreview(
-    Color accent,
-    Color text,
-    Color textSec,
-    Color surfaceAlt,
-    Color border,
-  ) {
-    return Padding(
-      padding: EdgeInsets.all(isMobile ? 20 : 40),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                'Recent Entries',
-                style: GoogleFonts.nunitoSans(
-                  fontSize: isMobile ? 18 : 22,
-                  fontWeight: FontWeight.w700,
-                  color: text,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: accent,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.add, size: 14, color: Colors.black),
-                    if (!isMobile) ...[
-                      const SizedBox(width: 4),
-                      Text(
-                        'Track New',
-                        style: GoogleFonts.nunitoSans(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: ListView(
-              physics: const NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.zero,
-              children: [
-                _ocdEntry(
-                  'Checking (Door locks)',
-                  'Obsession',
-                  6,
-                  accent,
-                  text,
-                  textSec,
-                  surfaceAlt,
-                  border,
-                  '2:30 PM',
-                ),
-                const SizedBox(height: 12),
-                _ocdEntry(
-                  'Hand washing',
-                  'Compulsion',
-                  4,
-                  accent,
-                  text,
-                  textSec,
-                  surfaceAlt,
-                  border,
-                  '11:15 AM',
-                ),
-                if (!isMobile) ...[
-                  const SizedBox(height: 12),
-                  _ocdEntry(
-                    'Intrusive thought',
-                    'Obsession',
-                    7,
-                    accent,
-                    text,
-                    textSec,
-                    surfaceAlt,
-                    border,
-                    '9:00 AM',
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _ocdEntry(
-    String title,
-    String type,
-    int distress,
-    Color accent,
-    Color text,
-    Color textSec,
-    Color surfaceAlt,
-    Color border,
-    String time,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: surfaceAlt,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: border.withValues(alpha: 0.5)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: GoogleFonts.nunitoSans(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: text,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: accent.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        type,
-                        style: GoogleFonts.nunitoSans(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: accent,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      time,
-                      style: GoogleFonts.nunitoSans(
-                        fontSize: 12,
-                        color: textSec,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // Distress meter
-          Column(
-            children: [
-              Text(
-                '$distress',
-                style: GoogleFonts.nunitoSans(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: accent,
-                ),
-              ),
-              Text(
-                '/10',
-                style: GoogleFonts.nunitoSans(fontSize: 11, color: textSec),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _analyticsPreview(
-    Color accent,
-    Color text,
-    Color textSec,
-    Color surfaceAlt,
-    Color border,
-  ) {
-    return Padding(
-      padding: EdgeInsets.all(isMobile ? 20 : 40),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Your Patterns',
-            style: GoogleFonts.nunitoSans(
-              fontSize: isMobile ? 18 : 22,
-              fontWeight: FontWeight.w700,
-              color: text,
-            ),
-          ),
-          const SizedBox(height: 16),
-          // Stats row
-          Row(
-            children: [
-              _statCard(
-                'Entries',
-                '47',
-                accent,
-                text,
-                textSec,
-                surfaceAlt,
-                border,
-              ),
-              SizedBox(width: isMobile ? 8 : 12),
-              _statCard(
-                'Avg Distress',
-                '4.2',
-                accent,
-                text,
-                textSec,
-                surfaceAlt,
-                border,
-              ),
-              SizedBox(width: isMobile ? 8 : 12),
-              _statCard(
-                'Streak',
-                '12d',
-                accent,
-                text,
-                textSec,
-                surfaceAlt,
-                border,
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Chart mockup
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: surfaceAlt,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: border.withValues(alpha: 0.5)),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Distress Levels — Last 7 Days',
-                    style: GoogleFonts.nunitoSans(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: textSec,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Expanded(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final maxBarHeight = constraints.maxHeight - 24;
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [6, 4, 7, 5, 3, 4, 2]
-                              .map(
-                                (val) => Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 4,
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          '$val',
-                                          style: GoogleFonts.nunitoSans(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600,
-                                            color: accent,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Container(
-                                          height: (val / 10) * maxBarHeight,
-                                          decoration: BoxDecoration(
-                                            color: accent.withValues(
-                                              alpha: 0.7,
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-                        .map(
-                          (d) => Expanded(
-                            child: Text(
-                              d,
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.nunitoSans(
-                                fontSize: 10,
-                                color: textSec,
-                              ),
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _statCard(
-    String label,
-    String value,
-    Color accent,
-    Color text,
-    Color textSec,
-    Color surfaceAlt,
-    Color border,
-  ) {
-    return Expanded(
-      child: Container(
-        padding: EdgeInsets.all(isMobile ? 10 : 12),
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: widget.width,
+      height: widget.height,
+      child: DecoratedBox(
         decoration: BoxDecoration(
-          color: surfaceAlt,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: border.withValues(alpha: 0.5)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              value,
-              style: GoogleFonts.nunitoSans(
-                fontSize: isMobile ? 18 : 24,
-                fontWeight: FontWeight.w800,
-                color: accent,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: GoogleFonts.nunitoSans(
-                fontSize: isMobile ? 10 : 12,
-                color: textSec,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: widget.isDark ? 0.5 : 0.18),
+              blurRadius: 40,
+              offset: const Offset(0, 20),
+              spreadRadius: -8,
             ),
           ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 700),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            child: Image.asset(
+              widget.assets[_index],
+              key: ValueKey(_index),
+              fit: BoxFit.cover,
+              semanticLabel: 'Patterns desktop screenshot ${_index + 1}',
+            ),
+          ),
         ),
       ),
     );

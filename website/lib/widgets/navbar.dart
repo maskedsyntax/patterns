@@ -54,157 +54,160 @@ class _NavbarState extends State<Navbar> {
     final textColor = isDark ? WebTheme.darkText : WebTheme.lightText;
     final accent = isDark ? WebTheme.primaryYellow : WebTheme.primaryGold;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          color: bg.withValues(alpha: 0.92),
-          child: ContentContainer(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Row(
-                children: [
-                  // Logo
-                  InkWell(
-                    onTap: () {
-                      _goToSection('hero');
-                    },
-                    mouseCursor: SystemMouseCursors.click,
-                    hoverColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.asset(
-                            'assets/logo.png',
-                            width: 36,
-                            height: 36,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          'Patterns',
-                          style: GoogleFonts.nunitoSans(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: textColor,
-                            letterSpacing: 0,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Spacer(),
-                  if (!isMobile) ...[
-                    _NavLink(
-                      label: 'Features',
-                      onTap: () => _goToSection('features'),
-                      color: textColor,
-                    ),
-                    const SizedBox(width: 32),
-                    _NavLink(
-                      label: 'Preview',
-                      onTap: () => _goToSection('preview'),
-                      color: textColor,
-                    ),
-                    const SizedBox(width: 32),
-                    _NavLink(
-                      label: 'Privacy',
-                      onTap: () => Navigator.of(context).pushNamed('/privacy'),
-                      color: textColor,
-                    ),
-                    const SizedBox(width: 32),
-                    _NavLink(
-                      label: 'Download',
-                      onTap: () => _goToSection('download'),
-                      color: textColor,
-                    ),
-                    const SizedBox(width: 24),
-                    IconButton(
-                      onPressed: widget.onThemeToggle,
+    return SelectionContainer.disabled(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            color: bg.withValues(alpha: 0.92),
+            child: ContentContainer(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Row(
+                  children: [
+                    // Logo
+                    InkWell(
+                      onTap: () {
+                        _goToSection('hero');
+                      },
                       mouseCursor: SystemMouseCursors.click,
-                      icon: Icon(
-                        isDark
-                            ? Icons.light_mode_rounded
-                            : Icons.dark_mode_rounded,
-                        size: 20,
-                        color: textColor.withValues(alpha: 0.7),
+                      hoverColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.asset(
+                              'assets/logo.png',
+                              width: 36,
+                              height: 36,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Patterns',
+                            style: GoogleFonts.nunitoSans(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: textColor,
+                              letterSpacing: 0,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    _GithubButton(accent: accent),
-                  ] else ...[
-                    IconButton(
-                      onPressed: widget.onThemeToggle,
-                      mouseCursor: SystemMouseCursors.click,
-                      icon: Icon(
-                        isDark
-                            ? Icons.light_mode_rounded
-                            : Icons.dark_mode_rounded,
-                        size: 20,
-                        color: textColor.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () =>
-                          setState(() => _mobileMenuOpen = !_mobileMenuOpen),
-                      mouseCursor: SystemMouseCursors.click,
-                      icon: Icon(
-                        _mobileMenuOpen ? Icons.close : Icons.menu,
+                    const Spacer(),
+                    if (!isMobile) ...[
+                      _NavLink(
+                        label: 'Features',
+                        onTap: () => _goToSection('features'),
                         color: textColor,
                       ),
-                    ),
+                      const SizedBox(width: 32),
+                      _NavLink(
+                        label: 'Preview',
+                        onTap: () => _goToSection('preview'),
+                        color: textColor,
+                      ),
+                      const SizedBox(width: 32),
+                      _NavLink(
+                        label: 'Privacy',
+                        onTap: () =>
+                            Navigator.of(context).pushNamed('/privacy'),
+                        color: textColor,
+                      ),
+                      const SizedBox(width: 32),
+                      _NavLink(
+                        label: 'Download',
+                        onTap: () => _goToSection('download'),
+                        color: textColor,
+                      ),
+                      const SizedBox(width: 24),
+                      IconButton(
+                        onPressed: widget.onThemeToggle,
+                        mouseCursor: SystemMouseCursors.click,
+                        icon: Icon(
+                          isDark
+                              ? Icons.light_mode_rounded
+                              : Icons.dark_mode_rounded,
+                          size: 20,
+                          color: textColor.withValues(alpha: 0.7),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      _GithubButton(accent: accent),
+                    ] else ...[
+                      IconButton(
+                        onPressed: widget.onThemeToggle,
+                        mouseCursor: SystemMouseCursors.click,
+                        icon: Icon(
+                          isDark
+                              ? Icons.light_mode_rounded
+                              : Icons.dark_mode_rounded,
+                          size: 20,
+                          color: textColor.withValues(alpha: 0.7),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () =>
+                            setState(() => _mobileMenuOpen = !_mobileMenuOpen),
+                        mouseCursor: SystemMouseCursors.click,
+                        icon: Icon(
+                          _mobileMenuOpen ? Icons.close : Icons.menu,
+                          color: textColor,
+                        ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
-        ),
-        // Mobile menu
-        if (_mobileMenuOpen && isMobile)
-          Container(
-            width: double.infinity,
-            color: bg.withValues(alpha: 0.98),
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _MobileNavLink(
-                  label: 'Features',
-                  onTap: () => _goToSection('features'),
-                  color: textColor,
-                ),
-                _MobileNavLink(
-                  label: 'Preview',
-                  onTap: () => _goToSection('preview'),
-                  color: textColor,
-                ),
-                _MobileNavLink(
-                  label: 'Privacy',
-                  onTap: () {
-                    setState(() => _mobileMenuOpen = false);
-                    Navigator.of(context).pushNamed('/privacy');
-                  },
-                  color: textColor,
-                ),
-                _MobileNavLink(
-                  label: 'Download',
-                  onTap: () => _goToSection('download'),
-                  color: textColor,
-                ),
-                const SizedBox(height: 12),
-                _GithubButton(
-                  accent: isDark
-                      ? WebTheme.primaryYellow
-                      : WebTheme.primaryGold,
-                ),
-              ],
+          // Mobile menu
+          if (_mobileMenuOpen && isMobile)
+            Container(
+              width: double.infinity,
+              color: bg.withValues(alpha: 0.98),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _MobileNavLink(
+                    label: 'Features',
+                    onTap: () => _goToSection('features'),
+                    color: textColor,
+                  ),
+                  _MobileNavLink(
+                    label: 'Preview',
+                    onTap: () => _goToSection('preview'),
+                    color: textColor,
+                  ),
+                  _MobileNavLink(
+                    label: 'Privacy',
+                    onTap: () {
+                      setState(() => _mobileMenuOpen = false);
+                      Navigator.of(context).pushNamed('/privacy');
+                    },
+                    color: textColor,
+                  ),
+                  _MobileNavLink(
+                    label: 'Download',
+                    onTap: () => _goToSection('download'),
+                    color: textColor,
+                  ),
+                  const SizedBox(height: 12),
+                  _GithubButton(
+                    accent: isDark
+                        ? WebTheme.primaryYellow
+                        : WebTheme.primaryGold,
+                  ),
+                ],
+              ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }

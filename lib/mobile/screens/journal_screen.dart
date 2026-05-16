@@ -5,6 +5,7 @@ import 'package:line_icons/line_icons.dart';
 
 import '../../models/models.dart';
 import '../../providers/providers.dart';
+import '../../services/review_prompt.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 
@@ -635,6 +636,12 @@ class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
       _saving = false;
       _saved = true;
     });
+    await ReviewPromptService.recordJournalSaved();
+    if (!mounted) return;
+    await ReviewPromptService.maybeRequestReview(
+      context,
+      trigger: ReviewTrigger.journalSaved,
+    );
   }
 }
 

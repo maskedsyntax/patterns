@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../database/db_helper.dart';
 import '../../main.dart';
 import '../../providers/providers.dart';
+import '../../services/review_prompt.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 import '../biometric_auth.dart';
@@ -124,6 +125,20 @@ class SettingsScreen extends ConsumerWidget {
               title: 'Wipe all data',
               subtitle: 'Delete local entries and reset app preferences',
               onTap: () => _confirmWipeData(context, ref),
+            ),
+            const SizedBox(height: 28),
+            Text(
+              'Feedback',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _SettingsItem(
+              icon: LineIcons.star,
+              title: 'Rate Patterns',
+              subtitle: 'Tell the store what you think',
+              onTap: () => ReviewPromptService.requestReviewManually(context),
             ),
           ]),
         ),

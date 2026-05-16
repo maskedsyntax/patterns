@@ -9,6 +9,7 @@ import 'screens/journal_screen.dart';
 import 'screens/ocd_tracker_screen.dart';
 import 'screens/analytics_screen.dart';
 import 'screens/settings_screen.dart';
+import 'services/review_prompt.dart';
 import 'widgets/platform.dart';
 
 class ThemeModeNotifier extends Notifier<ThemeMode> {
@@ -44,6 +45,7 @@ void main() async {
 
   if (!kIsDesktop) {
     await initMobilePreferences();
+    await ReviewPromptService.recordSessionStart();
   }
 
   runApp(const ProviderScope(child: PatternsApp()));

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:animations/animations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +9,7 @@ import 'package:line_icons/line_icons.dart';
 
 import '../../models/models.dart';
 import '../../providers/providers.dart';
+import '../../services/review_prompt.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 
@@ -22,6 +25,25 @@ class AnalyticsScreen extends ConsumerStatefulWidget {
 class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
   _Range _range = _Range.thirty;
   _Range _previousRange = _Range.thirty;
+  Timer? _lingerTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _lingerTimer = Timer(const Duration(seconds: 20), () {
+      if (!mounted) return;
+      ReviewPromptService.maybeRequestReview(
+        context,
+        trigger: ReviewTrigger.analyticsLinger,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _lingerTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -6,8 +6,10 @@ import 'package:line_icons/line_icons.dart';
 
 import '../../models/models.dart';
 import '../../providers/providers.dart';
+import '../../services/review_prompt.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
+import '../main_shell.dart' show mobileRootNavigatorKey;
 
 class OcdTrackerScreen extends ConsumerStatefulWidget {
   final VoidCallback onAdd;
@@ -265,7 +267,22 @@ class _OcdEventFlowState extends ConsumerState<OcdEventFlow> {
     } else {
       await ref.read(ocdProvider.notifier).addEntry(entry);
     }
+    await ReviewPromptService.recordOcdSaved(entry.distressLevel);
+    final eligibleHappyMoment = !_isEditing &&
+        entry.distressLevel <= ReviewPromptService.maxOcdDistressForTrigger;
     if (mounted) Navigator.pop(context);
+    if (!eligibleHappyMoment) return;
+    // Defer until after the pop settles, then prompt against the root
+    // navigator's context so the dialog lands on the tracker screen rather
+    // than racing the disposing flow.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final rootContext = mobileRootNavigatorKey.currentContext;
+      if (rootContext == null) return;
+      ReviewPromptService.maybeRequestReview(
+        rootContext,
+        trigger: ReviewTrigger.ocdLowDistress,
+      );
+    });
   }
 }
 

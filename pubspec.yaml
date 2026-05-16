@@ -48,6 +48,7 @@ dependencies:
   shared_preferences: ^2.3.0
   url_launcher: ^6.3.2
   local_auth: ^3.0.1
+  in_app_review: ^2.0.10
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.4

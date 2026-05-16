@@ -23,10 +23,8 @@ class _DownloadSectionState extends State<DownloadSection> {
   static const _macAppStoreUrl =
       'https://apps.apple.com/us/app/patterns-ocd-journaling/id6762611172?mt=12';
 
-  // iOS App Store URL is null until the 1.1.2 submission is approved. When
-  // it is, drop in the URL (likely the same App ID without `?mt=12`) and the
-  // App Store button automatically becomes a real link.
-  static const String? _iosAppStoreUrl = null;
+  static const _iosAppStoreUrl =
+      'https://apps.apple.com/us/app/patterns-ocd-journaling/id6762611172';
 
   // Google Play URL is null until the Android beta lands.
   static const String? _playStoreUrl = null;
@@ -139,9 +137,7 @@ class _DownloadSectionState extends State<DownloadSection> {
                 surfaceAlt: surfaceAlt,
                 iosUrl: _iosAppStoreUrl,
                 playUrl: _playStoreUrl,
-                onIosTap: () => _iosAppStoreUrl == null
-                    ? _comingSoon('iOS')
-                    : _open(_iosAppStoreUrl!, 'iOS'),
+                onIosTap: () => _open(_iosAppStoreUrl, 'iOS'),
                 onPlayTap: () => _playStoreUrl == null
                     ? _comingSoon('Android')
                     : _open(_playStoreUrl!, 'Android'),

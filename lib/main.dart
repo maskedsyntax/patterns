@@ -10,6 +10,7 @@ import 'screens/ocd_tracker_screen.dart';
 import 'screens/analytics_screen.dart';
 import 'screens/settings_screen.dart';
 import 'services/review_prompt.dart';
+import 'services/tip_jar.dart';
 import 'widgets/platform.dart';
 
 class ThemeModeNotifier extends Notifier<ThemeMode> {
@@ -47,6 +48,8 @@ void main() async {
     await initMobilePreferences();
     await ReviewPromptService.recordSessionStart();
   }
+
+  TipJarService.init();
 
   runApp(const ProviderScope(child: PatternsApp()));
 }

@@ -4,10 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../database/db_helper.dart';
 import '../providers/providers.dart';
+import '../services/tip_jar.dart';
+import '../widgets/tip_jar_sheet.dart';
 import '../widgets/window_controls.dart';
 import '../main.dart';
+
+const String _githubSponsorsUrl = 'https://github.com/sponsors/maskedsyntax';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -253,6 +258,45 @@ class SettingsScreen extends ConsumerWidget {
                 isDestructive: true,
                 theme: theme,
               ),
+              const SizedBox(height: 48),
+              Text(
+                'Support',
+                style: GoogleFonts.inter(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 24),
+              if (TipJarService.isPlatformSupported)
+                _SettingsItem(
+                  title: 'Support Patterns',
+                  subtitle: 'Leave a small tip to keep development going',
+                  icon: LineIcons.heart,
+                  onTap: () => TipJarSheet.show(context),
+                  trailing: Icon(
+                    LineIcons.angleRight,
+                    size: 18,
+                    color: theme.colorScheme.onSurface.withOpacity(0.3),
+                  ),
+                  theme: theme,
+                )
+              else
+                _SettingsItem(
+                  title: 'Sponsor on GitHub',
+                  subtitle: 'Support development through GitHub Sponsors',
+                  icon: LineIcons.heart,
+                  onTap: () => launchUrl(
+                    Uri.parse(_githubSponsorsUrl),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                  trailing: Icon(
+                    LineIcons.alternateExternalLink,
+                    size: 16,
+                    color: theme.colorScheme.onSurface.withOpacity(0.3),
+                  ),
+                  theme: theme,
+                ),
               const SizedBox(height: 64),
               Center(
                 child: Column(

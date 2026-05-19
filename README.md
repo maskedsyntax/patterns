@@ -18,6 +18,7 @@
   <a href="https://github.com/maskedsyntax/patterns/releases/latest"><img alt="Download for Windows" src="https://img.shields.io/badge/Download-Windows-0078D6?logo=windows&logoColor=white"></a>
   <a href="https://github.com/maskedsyntax/patterns/releases/latest"><img alt="Download for Linux" src="https://img.shields.io/badge/Download-Linux-FCC624?logo=linux&logoColor=black"></a>
   <img alt="Android coming soon" src="https://img.shields.io/badge/Android-Coming%20Soon-3DDC84?logo=android&logoColor=white">
+  <a href="https://github.com/sponsors/maskedsyntax"><img alt="Sponsor on GitHub" src="https://img.shields.io/badge/Sponsor-EA4AAA?logo=githubsponsors&logoColor=white"></a>
 </p>
 
 <p align="center">

@@ -153,6 +153,12 @@ class FooterSection extends StatelessWidget {
           hoverColor: accent,
         ),
         _FooterLink(
+          label: 'Sponsor',
+          url: 'https://github.com/sponsors/maskedsyntax',
+          color: secondaryText,
+          hoverColor: accent,
+        ),
+        _FooterLink(
           label: 'Releases',
           url: 'https://github.com/maskedsyntax/patterns/releases',
           color: secondaryText,

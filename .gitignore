@@ -44,3 +44,6 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/key.properties
+
+# Personal IAP setup notes (not for the repo)
+/playstoreiap.md

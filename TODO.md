@@ -135,6 +135,66 @@
   - [ ] Animated search bar transitions (expand/collapse).
   - [ ] Responsive transitions for the entry editor (Saving/Saved states).
 
+## Support Us / Tip Jar IAP
+
+### Pre-flight (App Store Connect)
+
+- [x] Sign Paid Apps Agreement (active May 19, 2026).
+- [x] Add banking (HDFC, INR account, USD royalty conversion).
+- [x] Submit tax forms (W-8BEN + U.S. Certificate of Foreign Status of Beneficial Owner).
+- [x] Enroll in Apple Small Business Program (15% commission from next quarter).
+- [x] Create three consumable in-app purchases in App Store Connect.
+  - `com.maskedsyntax.patterns.tip.small` — $1.99 — "Small Tip" / "A small thank you for the team"
+  - `com.maskedsyntax.patterns.tip.medium` — $4.99 — "Medium Tip" / "A generous thank you for the team"
+  - `com.maskedsyntax.patterns.tip.large` — $9.99 — "Large Tip" / "An incredibly generous show of support"
+- [ ] Create at least two sandbox tester accounts (US + India regions) under Users and Access > Sandbox > Test Accounts.
+
+### Flutter implementation
+
+- [x] Add `in_app_purchase: ^3.2.0` to `pubspec.yaml`.
+- [x] Create `lib/services/tip_jar.dart`.
+  - Wrap `InAppPurchase.instance` with availability check, product query, purchase initiation, and `purchaseStream` listener.
+  - Hardcode the three product IDs as constants.
+  - Always call `completePurchase()` on `PurchaseStatus.purchased` to avoid stuck transactions.
+  - Subscription is initialized at app startup via `TipJarService.init()` from `main.dart` so pending purchases from a previous session are completed.
+- [x] Create `lib/widgets/tip_jar_sheet.dart`.
+  - Three tip rows showing live localized prices from `ProductDetails.price` (never hardcode currency strings).
+  - Loading state while products are fetched, error state with retry, disabled state during in-flight purchase.
+- [x] Create `lib/widgets/tip_thanks_dialog.dart` for the post-purchase confirmation.
+- [x] Add a "Support Patterns" tile to `lib/screens/settings_screen.dart` and `lib/mobile/screens/settings_screen.dart`.
+  - macOS desktop uses the IAP tip jar; Windows and Linux desktop show a "Sponsor on GitHub" tile that opens the GitHub Sponsors page in the browser.
+- [x] Wire GitHub Sponsors for Windows and Linux.
+  - GitHub Sponsors profile live at https://github.com/sponsors/maskedsyntax.
+  - Added `.github/FUNDING.yml` so the repo page shows a Sponsor button.
+  - Added a Sponsor badge to the README badges row.
+- [x] Verify `com.apple.security.network.client` is enabled in `macos/Runner/Release.entitlements` and `DebugProfile.entitlements`.
+  - Debug already had it; added to Release for IAP traffic in Mac App Store builds.
+
+### Sandbox testing
+
+- [ ] Sign a test device into a sandbox tester account (Settings > App Store > Sandbox Account).
+- [ ] Verify the tip sheet opens and all three products load with localized prices.
+- [ ] Verify successful purchase flow for each tier.
+- [ ] Verify multiple tips in a row succeed (consumable behavior).
+- [ ] Verify cancel and Touch ID denial paths are silent (no error noise).
+- [ ] Verify network-failure handling.
+- [ ] Verify the tile is hidden when `InAppPurchase.isAvailable` returns false.
+- [ ] Verify INR prices display correctly when signed into an India sandbox tester.
+
+### App Store review submission
+
+- [ ] Capture review screenshots of the live tip sheet (one per IAP or one combined image).
+- [ ] Fill the Review Information section on each of the three IAPs in App Store Connect (screenshot + review notes).
+- [ ] Bump app version to 1.1.4 in `pubspec.yaml`.
+- [ ] Attach all three IAPs to the new app version in App Store Connect.
+- [ ] Upload build, submit for review.
+
+### Google Play (deferred until Android launch)
+
+- [ ] Complete Google Play payments profile (bank + tax info) when ready to ship on Android.
+- [ ] Create matching consumable products in Play Console using the same product IDs.
+- [ ] Re-test the same Flutter flow on Android using a Play Console license tester.
+
 ## Submission & Compliance Gaps
 
 - [x] Add Semantics labels to all interactive cards for VoiceOver/TalkBack support.

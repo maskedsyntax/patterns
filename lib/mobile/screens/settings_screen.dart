@@ -11,8 +11,10 @@ import '../../database/db_helper.dart';
 import '../../main.dart';
 import '../../providers/providers.dart';
 import '../../services/review_prompt.dart';
+import '../../services/tip_jar.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
+import '../../widgets/tip_jar_sheet.dart';
 import '../biometric_auth.dart';
 import '../preferences.dart';
 
@@ -140,6 +142,15 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: 'Tell the store what you think',
               onTap: () => ReviewPromptService.requestReviewManually(context),
             ),
+            if (TipJarService.isPlatformSupported) ...[
+              const SizedBox(height: 10),
+              _SettingsItem(
+                icon: LineIcons.heart,
+                title: 'Support Patterns',
+                subtitle: 'Leave a small tip to keep development going',
+                onTap: () => TipJarSheet.show(context),
+              ),
+            ],
           ]),
         ),
       ),

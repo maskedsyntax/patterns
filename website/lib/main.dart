@@ -6,6 +6,7 @@ import 'sections/features_section.dart';
 import 'sections/preview_section.dart';
 import 'sections/download_section.dart';
 import 'sections/footer_section.dart';
+import 'sections/support_section.dart';
 import 'screens/privacy_page.dart';
 
 void main() {
@@ -130,6 +131,7 @@ class _HomePageState extends State<_HomePage> {
                     key: _downloadKey,
                     child: DownloadSection(isDark: widget.isDark),
                   ),
+                  SupportSection(isDark: widget.isDark),
                   FooterSection(isDark: widget.isDark),
                 ],
               ),

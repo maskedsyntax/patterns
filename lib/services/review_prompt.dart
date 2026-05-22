@@ -280,7 +280,7 @@ class _SoftPromptDialog extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: () =>
                     Navigator.of(context).pop(_PromptChoice.feedback),
-                child: const Text('Not really — share feedback'),
+                child: const Text('Not really — feedback'),
               ),
             ),
             const SizedBox(height: 4),

@@ -6,6 +6,7 @@ import 'package:line_icons/line_icons.dart';
 
 import '../services/tip_jar.dart';
 import '../theme/app_theme.dart';
+import 'app_snack_bar.dart';
 import 'tip_thanks_dialog.dart';
 
 class TipJarSheet extends StatefulWidget {
@@ -86,16 +87,7 @@ class _TipJarSheetState extends State<TipJarSheet> {
         TipThanksDialog.show(context);
       case TipJarError(:final message):
         setState(() => _purchaseInFlight = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              message,
-              style: const TextStyle(color: AppTheme.textPrimary),
-            ),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: AppTheme.charcoalInput,
-          ),
-        );
+        showAppSnackBar(context, message);
       case TipJarCanceled():
         setState(() => _purchaseInFlight = false);
     }
@@ -112,16 +104,7 @@ class _TipJarSheetState extends State<TipJarSheet> {
     } catch (error) {
       if (!mounted) return;
       setState(() => _purchaseInFlight = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            'Could not start the purchase. Please try again.',
-            style: TextStyle(color: AppTheme.textPrimary),
-          ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: AppTheme.charcoalInput,
-        ),
-      );
+      showAppSnackBar(context, 'Could not start the purchase. Please try again.');
     }
   }
 

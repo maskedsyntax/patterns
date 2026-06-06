@@ -50,6 +50,7 @@ dependencies:
   local_auth: ^3.0.1
   in_app_review: ^2.0.10
   in_app_purchase: ^3.2.0
+  pdf: ^3.11.3
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.4
@@ -77,13 +78,11 @@ flutter:
 
   assets:
     - assets/logo.png
+    # Loaded directly via rootBundle by PdfReportService for PDF export.
+    - assets/fonts/Manrope-Regular.ttf
+    - assets/fonts/Manrope-Bold.ttf
 
   fonts:
-    - family: Inter
-      fonts:
-        - asset: assets/fonts/Inter-Regular.ttf
-        - asset: assets/fonts/Inter-Bold.ttf
-          weight: 700
     - family: PlusJakartaSans
       fonts:
         - asset: assets/fonts/PlusJakartaSans-Variable.ttf

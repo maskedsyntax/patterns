@@ -361,11 +361,11 @@ class AppTheme {
     ),
     scaffoldBackgroundColor: darkBg,
     dividerColor: darkBorder,
-    fontFamily: 'Inter',
+    fontFamily: 'Manrope',
     textTheme: const TextTheme().apply(
       bodyColor: darkTextPrimary,
       displayColor: darkTextPrimary,
-      fontFamily: 'Inter',
+      fontFamily: 'Manrope',
     ),
     cardTheme: CardThemeData(
       color: darkSurface,
@@ -384,7 +384,7 @@ class AppTheme {
         fontSize: 17,
         fontWeight: FontWeight.w600,
         color: darkTextPrimary,
-        fontFamily: 'Inter',
+        fontFamily: 'Manrope',
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -397,7 +397,7 @@ class AppTheme {
         textStyle: const TextStyle(
           fontWeight: FontWeight.w700,
           letterSpacing: -0.2,
-          fontFamily: 'Inter',
+          fontFamily: 'Manrope',
         ),
       ),
     ),
@@ -409,7 +409,7 @@ class AppTheme {
         textStyle: const TextStyle(
           fontWeight: FontWeight.w700,
           letterSpacing: -0.2,
-          fontFamily: 'Inter',
+          fontFamily: 'Manrope',
         ),
       ),
     ),
@@ -447,11 +447,11 @@ class AppTheme {
     ),
     scaffoldBackgroundColor: lightBg,
     dividerColor: lightBorder,
-    fontFamily: 'Inter',
+    fontFamily: 'Manrope',
     textTheme: const TextTheme().apply(
       bodyColor: lightTextPrimary,
       displayColor: lightTextPrimary,
-      fontFamily: 'Inter',
+      fontFamily: 'Manrope',
     ),
     cardTheme: CardThemeData(
       color: lightSurface,
@@ -470,7 +470,7 @@ class AppTheme {
         fontSize: 17,
         fontWeight: FontWeight.w700,
         color: lightTextPrimary,
-        fontFamily: 'Inter',
+        fontFamily: 'Manrope',
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -483,7 +483,7 @@ class AppTheme {
         textStyle: const TextStyle(
           fontWeight: FontWeight.w700,
           letterSpacing: -0.2,
-          fontFamily: 'Inter',
+          fontFamily: 'Manrope',
         ),
       ),
     ),
@@ -495,7 +495,7 @@ class AppTheme {
         textStyle: const TextStyle(
           fontWeight: FontWeight.w700,
           letterSpacing: -0.2,
-          fontFamily: 'Inter',
+          fontFamily: 'Manrope',
         ),
       ),
     ),

@@ -4,19 +4,31 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
-import '../providers/providers.dart';
+import '../models/export_report_options.dart';
 import '../models/models.dart';
+import '../providers/providers.dart';
+import '../services/analytics_service.dart';
+import '../widgets/export_report_sheet.dart';
+import '../widgets/platform.dart';
 import '../widgets/window_controls.dart';
 
-class AnalyticsScreen extends ConsumerWidget {
+class AnalyticsScreen extends ConsumerStatefulWidget {
   const AnalyticsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AnalyticsScreen> createState() => _AnalyticsScreenState();
+}
+
+class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
+  AnalyticsDateRange _range = AnalyticsDateRange.thirty;
+
+  @override
+  Widget build(BuildContext context) {
     final journalAsync = ref.watch(journalProvider);
     final ocdAsync = ref.watch(ocdProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final filter = DateRangeFilter.fromPreset(_range);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -41,7 +53,18 @@ class AnalyticsScreen extends ConsumerWidget {
                   fontSize: 14,
                 ),
               ),
-              actions: const [WindowControls()],
+              actions: [
+                if (isPdfExportSupported)
+                  IconButton(
+                    tooltip: 'Export report',
+                    onPressed: () => ExportReportSheet.show(
+                      context,
+                      initialOptions: ExportReportOptions(range: _range),
+                    ),
+                    icon: const Icon(LineIcons.fileExport, size: 18),
+                  ),
+                const WindowControls(),
+              ],
             ),
           ),
         ),
@@ -49,35 +72,21 @@ class AnalyticsScreen extends ConsumerWidget {
         data: (journals) {
           return ocdAsync.when(
             data: (ocds) {
-              int totalObsessions = ocds
-                  .where((e) => e.type == OcdType.obsession)
-                  .length;
-              int totalCompulsions = ocds
-                  .where((e) => e.type == OcdType.compulsion)
-                  .length;
-              double avgDistress = ocds.isEmpty
-                  ? 0
-                  : ocds.map((e) => e.distressLevel).reduce((a, b) => a + b) /
-                        ocds.length;
+              final filteredJournals =
+                  AnalyticsService.filterJournals(journals, filter);
+              final filteredOcds = AnalyticsService.filterOcds(ocds, filter);
+              final totalObsessions =
+                  AnalyticsService.obsessionCount(filteredOcds);
+              final totalCompulsions =
+                  AnalyticsService.compulsionCount(filteredOcds);
+              final avgDistress =
+                  AnalyticsService.averageDistress(filteredOcds);
 
-              final sortedOcds = List<OcdEntry>.from(ocds)
+              final sortedOcds = List<OcdEntry>.from(filteredOcds)
                 ..sort((a, b) => a.datetime.compareTo(b.datetime));
               final last10 = sortedOcds.length > 10
                   ? sortedOcds.sublist(sortedOcds.length - 10)
                   : sortedOcds;
-
-              Map<DateTime, int> journalHeatMapData = {};
-              for (var entry in journals) {
-                try {
-                  final date = DateTime.parse(entry.date);
-                  journalHeatMapData[DateTime(
-                        date.year,
-                        date.month,
-                        date.day,
-                      )] =
-                      1;
-                } catch (_) {}
-              }
 
               return Center(
                 child: Container(
@@ -88,14 +97,25 @@ class AnalyticsScreen extends ConsumerWidget {
                       vertical: 24,
                     ),
                     children: [
-                      Text(
-                        'Overview',
-                        style: GoogleFonts.inter(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.5,
-                          color: theme.colorScheme.onSurface,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Overview',
+                              style: GoogleFonts.inter(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.5,
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                          _DesktopRangeSelector(
+                            range: _range,
+                            onChanged: (range) =>
+                                setState(() => _range = range),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -103,7 +123,7 @@ class AnalyticsScreen extends ConsumerWidget {
                           Expanded(
                             child: _StatCard(
                               title: 'Journal Entries',
-                              value: journals.length.toString(),
+                              value: filteredJournals.length.toString(),
                               icon: LineIcons.book,
                               theme: theme,
                             ),
@@ -112,7 +132,7 @@ class AnalyticsScreen extends ConsumerWidget {
                           Expanded(
                             child: _StatCard(
                               title: 'OCD Events',
-                              value: ocds.length.toString(),
+                              value: filteredOcds.length.toString(),
                               icon: LineIcons.bullseye,
                               theme: theme,
                             ),
@@ -129,10 +149,7 @@ class AnalyticsScreen extends ConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 24),
-
-                      const SizedBox(height: 24),
-
-                      if (ocds.isNotEmpty) ...[
+                      if (filteredOcds.isNotEmpty) ...[
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -168,7 +185,6 @@ class AnalyticsScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 24),
                       ],
-
                       Text(
                         'Breakdown',
                         style: GoogleFonts.inter(
@@ -214,6 +230,91 @@ class AnalyticsScreen extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, s) => Center(child: Text('Error: $e')),
+      ),
+    );
+  }
+}
+
+class _DesktopRangeSelector extends StatelessWidget {
+  final AnalyticsDateRange range;
+  final ValueChanged<AnalyticsDateRange> onChanged;
+
+  const _DesktopRangeSelector({
+    required this.range,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: theme.dividerColor),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final option in const [
+            AnalyticsDateRange.seven,
+            AnalyticsDateRange.thirty,
+            AnalyticsDateRange.ninety,
+            AnalyticsDateRange.year,
+          ])
+            _DesktopRangeChip(
+              label: switch (option) {
+                AnalyticsDateRange.seven => '7D',
+                AnalyticsDateRange.thirty => '30D',
+                AnalyticsDateRange.ninety => '90D',
+                AnalyticsDateRange.year => 'Year',
+                _ => '',
+              },
+              selected: range == option,
+              onTap: () => onChanged(option),
+              theme: theme,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DesktopRangeChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final ThemeData theme;
+
+  const _DesktopRangeChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? theme.colorScheme.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: selected
+                ? theme.colorScheme.onPrimary
+                : theme.colorScheme.onSurface.withOpacity(0.5),
+          ),
+        ),
       ),
     );
   }
@@ -485,218 +586,4 @@ class _StatCard extends StatelessWidget {
       ),
     );
   }
-}
-
-String commonTriggerForTesting(List<OcdEntry> entries) =>
-    _commonTrigger(entries);
-
-String _commonTrigger(List<OcdEntry> entries) {
-  if (entries.isEmpty) return 'None yet';
-
-  final scores = <String, int>{};
-  final displayForms = <String, Map<String, int>>{};
-
-  for (final entry in entries) {
-    final tokens = _meaningfulTokens(entry.content);
-
-    for (final token in tokens) {
-      _recordTriggerCandidate(
-        key: token.stem,
-        display: token.original,
-        scores: scores,
-        displayForms: displayForms,
-      );
-    }
-
-    for (var i = 0; i < tokens.length - 1; i++) {
-      final first = tokens[i];
-      final second = tokens[i + 1];
-      _recordTriggerCandidate(
-        key: '${first.stem} ${second.stem}',
-        display: '${first.original} ${second.original}',
-        scores: scores,
-        displayForms: displayForms,
-      );
-    }
-  }
-
-  if (scores.isEmpty) return 'Not clear';
-
-  final sorted = scores.entries.toList()
-    ..sort((a, b) {
-      final countCompare = b.value.compareTo(a.value);
-      if (countCompare != 0) return countCompare;
-
-      final phraseCompare = b.key
-          .split(' ')
-          .length
-          .compareTo(a.key.split(' ').length);
-      if (phraseCompare != 0) return phraseCompare;
-
-      return a.key.compareTo(b.key);
-    });
-
-  return _bestDisplayForm(displayForms[sorted.first.key] ?? const {});
-}
-
-const Set<String> _triggerStopWords = {
-  'a',
-  'an',
-  'and',
-  'are',
-  'as',
-  'at',
-  'be',
-  'because',
-  'been',
-  'but',
-  'by',
-  'did',
-  'do',
-  'does',
-  'doing',
-  'for',
-  'from',
-  'had',
-  'has',
-  'have',
-  'having',
-  'he',
-  'her',
-  'here',
-  'hers',
-  'him',
-  'his',
-  'i',
-  'if',
-  'in',
-  'into',
-  'is',
-  'it',
-  'its',
-  'me',
-  'my',
-  'of',
-  'on',
-  'or',
-  'our',
-  'she',
-  'so',
-  'than',
-  'that',
-  'the',
-  'their',
-  'them',
-  'then',
-  'there',
-  'they',
-  'this',
-  'to',
-  'too',
-  'was',
-  'we',
-  'were',
-  'when',
-  'where',
-  'which',
-  'who',
-  'will',
-  'with',
-  'you',
-  'your',
-  'about',
-  'again',
-  'always',
-  'feel',
-  'feeling',
-  'felt',
-  'just',
-  'like',
-  'maybe',
-  'ocd',
-  'really',
-  'something',
-  'still',
-  'thing',
-  'things',
-  'think',
-  'thinking',
-  'thought',
-  'thoughts',
-  'today',
-  'very',
-};
-
-List<_TriggerToken> _meaningfulTokens(String text) {
-  final words = RegExp(
-    r"[a-zA-Z][a-zA-Z']*",
-  ).allMatches(text.toLowerCase()).map((match) => match.group(0)!);
-
-  return [
-    for (final word in words)
-      if (_isMeaningfulTriggerWord(word))
-        _TriggerToken(original: word, stem: _stemWord(word)),
-  ];
-}
-
-bool _isMeaningfulTriggerWord(String word) {
-  if (word.length < 4) return false;
-  if (_triggerStopWords.contains(word)) return false;
-  return true;
-}
-
-String _stemWord(String word) {
-  if (word.length > 5 && word.endsWith('ing')) {
-    return _trimDoubleConsonant(word.substring(0, word.length - 3));
-  }
-  if (word.length > 4 && word.endsWith('ed')) {
-    return _trimDoubleConsonant(word.substring(0, word.length - 2));
-  }
-  if (word.length > 5 && word.endsWith('es')) {
-    return word.substring(0, word.length - 2);
-  }
-  if (word.length > 4 && word.endsWith('s') && !word.endsWith('ss')) {
-    return word.substring(0, word.length - 1);
-  }
-  return word;
-}
-
-String _trimDoubleConsonant(String stem) {
-  if (stem.length < 2) return stem;
-
-  final last = stem[stem.length - 1];
-  final previous = stem[stem.length - 2];
-  if (last == previous && !'aeiou'.contains(last)) {
-    return stem.substring(0, stem.length - 1);
-  }
-  return stem;
-}
-
-void _recordTriggerCandidate({
-  required String key,
-  required String display,
-  required Map<String, int> scores,
-  required Map<String, Map<String, int>> displayForms,
-}) {
-  scores[key] = (scores[key] ?? 0) + 1;
-  final forms = displayForms.putIfAbsent(key, () => {});
-  forms[display] = (forms[display] ?? 0) + 1;
-}
-
-String _bestDisplayForm(Map<String, int> forms) {
-  if (forms.isEmpty) return 'Not clear';
-  final sorted = forms.entries.toList()
-    ..sort((a, b) {
-      final countCompare = b.value.compareTo(a.value);
-      if (countCompare != 0) return countCompare;
-      return a.key.compareTo(b.key);
-    });
-  return sorted.first.key;
-}
-
-class _TriggerToken {
-  final String original;
-  final String stem;
-
-  const _TriggerToken({required this.original, required this.stem});
 }

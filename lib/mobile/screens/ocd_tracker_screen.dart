@@ -9,6 +9,7 @@ import '../../providers/providers.dart';
 import '../../services/review_prompt.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
+import '../../widgets/app_snack_bar.dart';
 import '../main_shell.dart' show mobileRootNavigatorKey;
 
 class OcdTrackerScreen extends ConsumerStatefulWidget {
@@ -501,9 +502,7 @@ class _OcdEventCard extends ConsumerWidget {
                           .read(ocdProvider.notifier)
                           .deleteEntry(entry.id!);
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Event deleted')),
-                        );
+                        showAppSnackBar(context, 'Event deleted');
                       }
                     },
                     child: const Text('Delete'),

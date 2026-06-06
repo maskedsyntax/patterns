@@ -10,6 +10,8 @@ import '../providers/providers.dart';
 import '../services/tip_jar.dart';
 import '../widgets/tip_jar_sheet.dart';
 import '../widgets/window_controls.dart';
+import '../widgets/export_report_sheet.dart';
+import '../widgets/platform.dart';
 import '../main.dart';
 
 const String _githubSponsorsUrl = 'https://github.com/sponsors/maskedsyntax';
@@ -36,11 +38,11 @@ class SettingsScreen extends ConsumerWidget {
 
         final file = File(finalPath);
         await file.writeAsString(jsonStr);
-
+        
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Data exported successfully'),
+              content: Text('Data exported successfully'), 
               behavior: SnackBarBehavior.floating,
               backgroundColor: Colors.green,
             ),
@@ -52,7 +54,7 @@ class SettingsScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Export failed: $e'),
+            content: Text('Export failed: $e'), 
             behavior: SnackBarBehavior.floating,
             backgroundColor: Colors.redAccent,
           ),
@@ -66,21 +68,13 @@ class SettingsScreen extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Import Data?'),
-        content: const Text(
-          'This will overwrite all your current entries. This action cannot be undone.',
-        ),
+        content: const Text('This will overwrite all your current entries. This action cannot be undone.'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Import & Overwrite'),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
+            onPressed: () => Navigator.pop(context, true), 
+            child: const Text('Import & Overwrite')
           ),
         ],
       ),
@@ -93,7 +87,7 @@ class SettingsScreen extends ConsumerWidget {
         dialogTitle: 'Select Patterns Backup',
         type: FileType.any,
       );
-
+      
       if (result != null && result.files.single.path != null) {
         final file = File(result.files.single.path!);
         final jsonStr = await file.readAsString();
@@ -103,7 +97,7 @@ class SettingsScreen extends ConsumerWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Data imported successfully'),
+              content: Text('Data imported successfully'), 
               behavior: SnackBarBehavior.floating,
               backgroundColor: Colors.green,
             ),
@@ -115,7 +109,7 @@ class SettingsScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Import failed: $e'),
+            content: Text('Import failed: $e'), 
             behavior: SnackBarBehavior.floating,
             backgroundColor: Colors.redAccent,
           ),
@@ -135,42 +129,26 @@ class SettingsScreen extends ConsumerWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(48),
         child: Container(
-            decoration: BoxDecoration(
-              color: isDark ? Colors.black : Colors.white,
-              border: Border(
-                bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
-              ),
-            ),
-            child: AppBar(
-              toolbarHeight: 48,
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              title: Text(
-                'Settings',
-                style: TextStyle(
-                  color: theme.colorScheme.onSurface,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-              actions: const [WindowControls()],
-            ),
+          decoration: BoxDecoration(
+            color: isDark ? Colors.black : Colors.white,
+            border: Border(bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5))),
+          ),
+          child: AppBar(
+            toolbarHeight: 48,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: Text('Settings', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
+            actions: const [WindowControls()],
           ),
         ),
+      ),
       body: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 800),
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
             children: [
-              Text(
-                'Appearance',
-                style: GoogleFonts.inter(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: theme.colorScheme.onSurface,
-                ),
-              ),
+              Text('Appearance', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface)),
               const SizedBox(height: 24),
               _SettingsCard(
                 theme: theme,
@@ -185,9 +163,7 @@ class SettingsScreen extends ConsumerWidget {
                     const SizedBox(height: 20),
                     Container(
                       decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.white.withOpacity(0.05)
-                            : Colors.black.withOpacity(0.05),
+                        color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       padding: const EdgeInsets.all(4),
@@ -196,25 +172,19 @@ class SettingsScreen extends ConsumerWidget {
                           _ThemeOption(
                             label: 'System',
                             isSelected: themeMode == ThemeMode.system,
-                            onTap: () => ref
-                                .read(themeModeProvider.notifier)
-                                .setThemeMode(ThemeMode.system),
+                            onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.system),
                             theme: theme,
                           ),
                           _ThemeOption(
                             label: 'Light',
                             isSelected: themeMode == ThemeMode.light,
-                            onTap: () => ref
-                                .read(themeModeProvider.notifier)
-                                .setThemeMode(ThemeMode.light),
+                            onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.light),
                             theme: theme,
                           ),
                           _ThemeOption(
                             label: 'Dark',
                             isSelected: themeMode == ThemeMode.dark,
-                            onTap: () => ref
-                                .read(themeModeProvider.notifier)
-                                .setThemeMode(ThemeMode.dark),
+                            onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark),
                             theme: theme,
                           ),
                         ],
@@ -224,37 +194,31 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 48),
-              Text(
-                'Data Management',
-                style: GoogleFonts.inter(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: theme.colorScheme.onSurface,
-                ),
-              ),
+              Text('Data Management', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface)),
               const SizedBox(height: 24),
               _SettingsItem(
                 title: 'Export Data',
                 subtitle: 'Save your records to a local JSON file',
                 icon: LineIcons.download,
                 onTap: () => _exportData(context),
-                trailing: Icon(
-                  LineIcons.angleRight,
-                  size: 18,
-                  color: theme.colorScheme.onSurface.withOpacity(0.3),
-                ),
+                trailing: Icon(LineIcons.angleRight, size: 18, color: theme.colorScheme.onSurface.withOpacity(0.3)),
                 theme: theme,
               ),
+              if (isPdfExportSupported)
+                _SettingsItem(
+                  title: 'Export report (PDF)',
+                  subtitle: 'Save journal, OCD log, and insights for a date range',
+                  icon: LineIcons.fileExport,
+                  onTap: () => ExportReportSheet.show(context),
+                  trailing: Icon(LineIcons.angleRight, size: 18, color: theme.colorScheme.onSurface.withOpacity(0.3)),
+                  theme: theme,
+                ),
               _SettingsItem(
                 title: 'Import Data',
                 subtitle: 'Restore entries from a JSON file',
                 icon: LineIcons.upload,
                 onTap: () => _importData(context, ref),
-                trailing: Icon(
-                  LineIcons.angleRight,
-                  size: 18,
-                  color: theme.colorScheme.onSurface.withOpacity(0.3),
-                ),
+                trailing: Icon(LineIcons.angleRight, size: 18, color: theme.colorScheme.onSurface.withOpacity(0.3)),
                 isDestructive: true,
                 theme: theme,
               ),
@@ -302,20 +266,13 @@ class SettingsScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     Text(
-                      'Patterns v1.1.1',
-                      style: TextStyle(
-                        color: theme.colorScheme.onSurface.withOpacity(0.2),
-                        fontSize: 12,
-                      ),
+                      'Patterns v1.0.0',
+                      style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.2), fontSize: 12),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Clarity for the mind through structured reflection.',
-                      style: TextStyle(
-                        color: theme.colorScheme.onSurface.withOpacity(0.2),
-                        fontSize: 11,
-                        fontStyle: FontStyle.italic,
-                      ),
+                      style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.2), fontSize: 11, fontStyle: FontStyle.italic),
                     ),
                   ],
                 ),
@@ -353,12 +310,7 @@ class _SettingsRow extends StatelessWidget {
   final IconData icon;
   final ThemeData theme;
 
-  const _SettingsRow({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.theme,
-  });
+  const _SettingsRow({required this.title, required this.subtitle, required this.icon, required this.theme});
 
   @override
   Widget build(BuildContext context) {
@@ -376,21 +328,11 @@ class _SettingsRow extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
-                color: theme.colorScheme.onSurface,
-              ),
-            ),
+            Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: theme.colorScheme.onSurface)),
             const SizedBox(height: 2),
             Text(
-              subtitle,
-              style: TextStyle(
-                color: theme.colorScheme.onSurface.withOpacity(0.4),
-                fontSize: 13,
-              ),
+              subtitle, 
+              style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.4), fontSize: 13)
             ),
           ],
         ),
@@ -430,9 +372,7 @@ class _ThemeOption extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: isSelected
-                    ? theme.colorScheme.onPrimary
-                    : theme.colorScheme.onSurface.withOpacity(0.4),
+                color: isSelected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface.withOpacity(0.4),
               ),
             ),
           ),
@@ -480,46 +420,26 @@ class _SettingsItem extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color:
-                      (isDestructive
-                              ? Colors.redAccent
-                              : theme.colorScheme.primary)
-                          .withOpacity(0.1),
+                  color: (isDestructive ? Colors.redAccent : theme.colorScheme.primary).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(
-                  icon,
-                  size: 20,
-                  color: isDestructive
-                      ? Colors.redAccent
-                      : theme.colorScheme.primary,
-                ),
+                child: Icon(icon, size: 20, color: isDestructive ? Colors.redAccent : theme.colorScheme.primary),
               ),
               const SizedBox(width: 20),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
+                    Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: theme.colorScheme.onSurface)),
                     const SizedBox(height: 2),
                     Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: theme.colorScheme.onSurface.withOpacity(0.4),
-                        fontSize: 13,
-                      ),
+                      subtitle, 
+                      style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.4), fontSize: 13)
                     ),
                   ],
                 ),
               ),
-              if (trailing != null) trailing!,
+              ?trailing,
             ],
           ),
         ),

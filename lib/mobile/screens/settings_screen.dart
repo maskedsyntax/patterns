@@ -14,6 +14,9 @@ import '../../services/review_prompt.dart';
 import '../../services/tip_jar.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
+import '../../widgets/app_snack_bar.dart';
+import '../../widgets/export_report_sheet.dart';
+import '../../widgets/platform.dart';
 import '../../widgets/tip_jar_sheet.dart';
 import '../biometric_auth.dart';
 import '../preferences.dart';
@@ -92,6 +95,15 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: 'Save your records to a local JSON file',
               onTap: () => _confirmExport(context),
             ),
+            if (isPdfExportSupported) ...[
+              const SizedBox(height: 10),
+              _SettingsItem(
+                icon: LineIcons.fileExport,
+                title: 'Export report (PDF)',
+                subtitle: 'Save journal, OCD log, and insights for a date range',
+                onTap: () => ExportReportSheet.show(context),
+              ),
+            ],
             const SizedBox(height: 10),
             _SettingsItem(
               icon: LineIcons.upload,
@@ -396,16 +408,7 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   void _showMessage(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(color: AppTheme.textPrimary),
-        ),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: AppTheme.charcoalInput,
-      ),
-    );
+    showAppSnackBar(context, message);
   }
 
   Future<void> _setAppLock(
@@ -481,7 +484,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Patterns stores journal entries, OCD events, distress ratings, and reflections on this device. Manual export creates an unencrypted JSON file wherever you choose to save it.',
+              'Patterns stores journal entries, OCD events, distress ratings, and reflections on this device. Manual export creates an unencrypted JSON backup or PDF report wherever you choose to save it.',
               style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
             ),
             const SizedBox(height: 12),

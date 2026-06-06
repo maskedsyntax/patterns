@@ -47,3 +47,7 @@ app.*.map.json
 
 # Personal IAP setup notes (not for the repo)
 /playstoreiap.md
+socials/
+
+# Local assistant guidance (not for the repo)
+/CLAUDE.md

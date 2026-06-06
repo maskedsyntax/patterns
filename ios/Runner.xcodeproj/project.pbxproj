@@ -205,6 +205,7 @@
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				ACE6839D25E23192700D9D72 /* [CP] Embed Pods Frameworks */,
+				F1A2B3C41CF9000F007C117E /* Re-sign Embedded Frameworks */,
 			);
 			buildRules = (
 			);
@@ -345,6 +346,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F1A2B3C41CF9000F007C117E /* Re-sign Embedded Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Re-sign Embedded Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh \"${SRCROOT}/scripts/resign_embedded_frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		B54E946F4F062800824A9622 /* [CP] Check Pods Manifest.lock */ = {

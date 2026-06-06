@@ -17,7 +17,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest
+          # Pinned to macos-14: the macos-15 runner's default Xcode fails the
+          # Runner scheme build ("Scheme Runner is not currently configured for
+          # the build action"). macos-14 (Xcode 15.x) builds the app cleanly.
+          - os: macos-14
             platform: macos
             jobs: macos-dmg
           - os: ubuntu-latest

@@ -26,8 +26,8 @@ class _DownloadSectionState extends State<DownloadSection> {
   static const _iosAppStoreUrl =
       'https://apps.apple.com/us/app/patterns-ocd-journaling/id6762611172';
 
-  // Google Play URL is null until the Android beta lands.
-  static const String? _playStoreUrl = null;
+  static const String? _playStoreUrl =
+      'https://play.google.com/store/apps/details?id=com.maskedsyntax.patterns';
 
   String? _linuxUrl;
   String? _windowsUrl;

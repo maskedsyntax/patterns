@@ -1,17 +1,26 @@
-# patterns_website
+# Patterns Website
 
-A new Flutter project.
+Marketing site for [Patterns](https://patterns.maskedsyntax.com/), built with SvelteKit and deployed to GitHub Pages.
 
-## Getting Started
+## Development
 
-This project is a starting point for a Flutter application.
+```bash
+cd website
+npm install
+npm run dev
+```
 
-A few resources to get you started if this is your first Flutter project:
+Open [http://localhost:5173](http://localhost:5173).
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Build
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+npm run build
+npm run preview
+```
+
+Static output is written to `build/`.
+
+## Deploy
+
+Pushes to `master` that change `website/**` trigger the GitHub Actions workflow at `.github/workflows/deploy-website.yml`.

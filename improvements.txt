@@ -1,0 +1,445 @@
+# Patterns – ERP Companion Vision & Feature Roadmap
+
+---
+
+# PRIORITY CHANGES (do these first)
+
+These take precedence over the long-term ERP roadmap below. Move on to the
+rest of the roadmap only after these are shipped.
+
+## P1: Rich-text formatting in the journal
+
+Let users emphasise words while writing a journal entry — at minimum **bold**
+and *italics*.
+
+- Add formatting controls to the journal editor (toolbar buttons and/or
+  keyboard shortcuts).
+- Decide on a storage format that round-trips cleanly (e.g. Markdown or a
+  lightweight delta) and migrate/display existing plain-text entries without
+  data loss.
+- Make sure formatted text renders correctly everywhere an entry is shown
+  (list previews, detail view, PDF export).
+- Verify both rendering paths: `lib/screens/` (desktop) and
+  `lib/mobile/screens/` (mobile).
+
+## P2: Bugfix — allow clearing / resetting a date's journal
+
+Today an empty journal cannot be saved, so an entry written on the wrong date
+(e.g. meant for the 11th but written on the 12th) cannot be emptied and moved.
+
+- Add an explicit "Reset / clear this date's entry" action with a confirmation
+  pop-up before deletion.
+- After reset, the date should behave as if it was never written (free to
+  re-enter, no leftover empty record blocking re-use).
+- Confirm the OCD log path has the same gap and fix it there too if so.
+
+## P3: Gentle, non-strict validation messages
+
+When a required field is missing and saving isn't possible, show clear
+validation messages — but keep the tone warm and supportive. This is an app
+for people managing OCD and other mental-health struggles, so messages should
+be kind and encouraging, never blunt or scolding.
+
+- Audit every save flow (journal, OCD log, etc.) for required-field checks.
+- Replace any harsh/technical errors with gentle copy.
+
+## P4: Bugfix — "Rate Patterns" does nothing on Android & iOS
+
+The rate feature is broken on both mobile platforms. It should reliably send
+the user somewhere they can rate the app.
+
+- Prefer the native in-app review flow (e.g. `in_app_review`) when available.
+- Otherwise fall back to opening the platform store listing
+  (Play Store on Android, App Store on iOS).
+- See `ReviewPromptService` in `lib/services/` for the existing entry point.
+
+---
+
+## Product Vision
+
+Most OCD apps function as journals. Users record thoughts, compulsions, and anxiety levels, but receive little guidance on what to do next.
+
+Patterns should move beyond passive tracking and become an active ERP companion that helps users apply evidence-based OCD treatment techniques in their daily lives.
+
+The goal is not simply to document OCD.
+
+The goal is to help users practice recovery.
+
+---
+
+# Core Philosophy
+
+## Passive Tracking
+
+Examples:
+- Log intrusive thoughts
+- Record compulsions
+- Rate anxiety
+- View history
+
+Useful for awareness, but often insufficient for meaningful behavioral change.
+
+---
+
+## Active ERP Support
+
+Examples:
+- Delay compulsions
+- Practice response prevention
+- Plan exposures
+- Complete ERP exercises
+- Build tolerance for uncertainty
+- Track behavioral progress
+
+Patterns should prioritize this approach.
+
+---
+
+# Feature 1: Compulsion Delay Tool
+
+## Goal
+
+Help users practice delaying compulsions rather than immediately acting on them.
+
+## Flow
+
+1. User selects a compulsion.
+2. User chooses a delay duration.
+3. Timer begins.
+4. User sits with discomfort.
+5. Reflection appears afterward.
+
+## Reflection Questions
+
+- Did the urge decrease?
+- Did you resist?
+- Did you perform the compulsion?
+- How strong is the urge now?
+
+## Benefits
+
+Creates distance between urges and actions while strengthening response prevention.
+
+---
+
+# Feature 2: Guided ERP Exercises
+
+## Goal
+
+Provide structured ERP exercises directly inside the app.
+
+## Example Exercises
+
+### Delay Checking
+
+Resist checking behavior for a chosen duration.
+
+### Delay Reassurance Seeking
+
+Avoid asking for reassurance during the exercise.
+
+### Delay Googling
+
+Postpone researching symptoms or fears.
+
+### Delay Rumination
+
+Notice the urge to mentally solve uncertainty without engaging.
+
+### Delay Washing
+
+Wait before washing or cleaning.
+
+## Exercise Structure
+
+- Introduction
+- Why it works
+- Instructions
+- Timer or activity
+- Reflection
+
+---
+
+# Feature 3: ERP Action Planner
+
+## Goal
+
+Plan responses before triggers occur.
+
+## Example
+
+Trigger:
+"I feel the urge to Google a symptom."
+
+Response:
+"I will wait 15 minutes before searching."
+
+## Fields
+
+- Situation / Trigger
+- Planned Action
+- Date
+- Notes
+- Completion Status
+
+---
+
+# Feature 4: Exposure Hierarchy Builder
+
+## Goal
+
+Help users gradually confront fears through ERP.
+
+## Example
+
+Compulsion:
+Checking Locks
+
+Exposure Ladder:
+
+1. Leave room without rechecking.
+2. Leave house after checking once.
+3. Wait 15 minutes before checking.
+4. Entire day without checking.
+5. Weekend without checking.
+
+## Features
+
+- Difficulty rating
+- Anxiety rating
+- Progress tracking
+- Completion history
+
+---
+
+# Feature 5: Coping Strategy Library
+
+## Goal
+
+Provide healthy alternatives during periods of anxiety.
+
+## Categories
+
+### During Urges
+
+- Deep breathing
+- Grounding techniques
+- Urge surfing
+- Acceptance statements
+- Mindful observation
+
+### During Anxiety
+
+- Progressive muscle relaxation
+- Mindfulness exercises
+- Self-compassion prompts
+- Walking exercises
+
+---
+
+# Feature 6: Urge Surfing Tracker
+
+## Goal
+
+Help users experience urges without responding to them.
+
+## Flow
+
+1. Rate urge intensity.
+2. Start timer.
+3. Re-rate periodically.
+4. Visualize urge changes.
+
+## Metrics
+
+- Initial urge
+- Peak urge
+- Final urge
+- Time elapsed
+
+## Benefits
+
+Teaches that urges naturally rise and fall without compulsions.
+
+---
+
+# Feature 7: Response Prevention Tracker
+
+## Goal
+
+Track ERP outcomes after exposures and urges.
+
+## Questions
+
+- Did you resist the compulsion?
+- Did you delay it?
+- Did you partially perform it?
+- Did you fully perform it?
+- How anxious were you?
+
+## Metrics
+
+- ERP success rate
+- Delay success rate
+- Exposure completion rate
+- Average urge reduction
+
+---
+
+# Feature 8: Emergency OCD Toolkit
+
+## Goal
+
+Provide immediate support during high-distress moments.
+
+## Quick Actions
+
+- Start Delay Timer
+- Start Breathing Exercise
+- Begin Urge Surfing
+- View Coping Statements
+- Review ERP Reminders
+- Open Personal Notes
+
+---
+
+# Feature 9: Implementation Intentions
+
+## Goal
+
+Create automatic responses to OCD triggers.
+
+## Examples
+
+If I feel the urge to Google a symptom,
+then I will wait 15 minutes first.
+
+If I feel uncertain,
+then I will continue what I was doing.
+
+If I feel the urge to ask for reassurance,
+then I will write my thoughts down instead.
+
+---
+
+# Feature 10: Structured ERP Programs
+
+## Goal
+
+Guide users through progressively harder ERP exercises.
+
+## Example Program
+
+### Week 1
+
+Delay compulsions for 1 minute.
+
+### Week 2
+
+Delay compulsions for 5 minutes.
+
+### Week 3
+
+Delay compulsions for 15 minutes.
+
+### Week 4
+
+Complete one exposure each day.
+
+---
+
+# Feature 11: Behavioral Experiments
+
+## Goal
+
+Challenge OCD predictions through evidence gathering.
+
+## Example
+
+Prediction:
+"If I don't check the lock five times, someone will break in."
+
+Experiment:
+Check once and leave.
+
+Result:
+Record what actually happened.
+
+## Fields
+
+- Fear Prediction
+- Confidence (%)
+- Experiment
+- Outcome
+- Learning
+
+---
+
+# Feature 12: Exposure Reflection Journal
+
+## Goal
+
+Capture insights after ERP exercises.
+
+## Questions
+
+- What happened?
+- What did OCD predict?
+- What actually happened?
+- What did I learn?
+- What would I do differently next time?
+
+---
+
+# Feature 13: Uncertainty Training
+
+## Goal
+
+Teach willingness to live with uncertainty.
+
+## Exercises
+
+- Maybe, maybe not statements
+- Leaving questions unanswered
+- Resisting certainty-seeking
+- Probability estimation challenges
+
+---
+
+# Feature 14: ERP Streaks & Recovery Metrics
+
+## Metrics
+
+- Exposures completed
+- Delayed compulsions
+- Urges surfed
+- Response prevention streak
+- Weekly ERP consistency
+
+Focus on effort rather than symptom elimination.
+
+---
+
+# Long-Term Product Direction
+
+Patterns should evolve from:
+
+"OCD Journal"
+
+into
+
+"Daily ERP Companion"
+
+The app should help users:
+
+- Understand OCD
+- Plan exposures
+- Delay compulsions
+- Resist reassurance seeking
+- Track ERP progress
+- Build tolerance for uncertainty
+- Practice recovery every day
+
+The primary action inside the app should not be journaling.
+
+The primary action should be doing ERP.

@@ -32,7 +32,7 @@ class TipJarService {
 
   static bool get isPlatformSupported {
     if (kIsWeb) return false;
-    return Platform.isIOS || Platform.isAndroid || Platform.isMacOS;
+    return Platform.isIOS || Platform.isMacOS;
   }
 
   /// Call once at app start. Subscribes to the purchase stream so any

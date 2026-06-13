@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
@@ -9,6 +11,7 @@ import 'screens/journal_screen.dart';
 import 'screens/ocd_tracker_screen.dart';
 import 'screens/analytics_screen.dart';
 import 'screens/settings_screen.dart';
+import 'services/notification_service.dart';
 import 'services/review_prompt.dart';
 import 'services/tip_jar.dart';
 import 'widgets/platform.dart';
@@ -47,6 +50,19 @@ void main() async {
   if (!kIsDesktop) {
     await initMobilePreferences();
     await ReviewPromptService.recordSessionStart();
+    await NotificationService.init();
+    // Re-arm the saved reminder so it survives app updates and reinstalls of
+    // the schedule (the OS clears pending notifications on app upgrade).
+    if (mobilePreferences?.getBool(reminderEnabledKey) ?? false) {
+      await NotificationService.scheduleDailyReminder(
+        TimeOfDay(
+          hour: mobilePreferences?.getInt(reminderHourKey) ??
+              NotificationService.defaultHour,
+          minute: mobilePreferences?.getInt(reminderMinuteKey) ??
+              NotificationService.defaultMinute,
+        ),
+      );
+    }
   }
 
   TipJarService.init();
@@ -67,6 +83,12 @@ class PatternsApp extends ConsumerWidget {
       theme: kIsDesktop ? AppTheme.lightTheme : AppTheme.mobileLightTheme,
       darkTheme: kIsDesktop ? AppTheme.darkTheme : AppTheme.mobileDarkTheme,
       themeMode: themeMode,
+      localizationsDelegates: const [
+        FlutterQuillLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       navigatorKey: kIsDesktop ? null : mobileRootNavigatorKey,
       builder: kIsDesktop
           ? null

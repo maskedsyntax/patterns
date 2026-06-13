@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../database/db_helper.dart';
 import '../../main.dart';
 import '../../providers/providers.dart';
+import '../../services/notification_service.dart';
 import '../../services/review_prompt.dart';
 import '../../services/tip_jar.dart';
 import '../../theme/app_theme.dart';
@@ -29,6 +30,7 @@ class SettingsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final themeMode = ref.watch(themeModeProvider);
     final appLockEnabled = ref.watch(appLockEnabledProvider);
+    final reminder = ref.watch(reminderProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -111,6 +113,38 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: 'Restore entries from a JSON file',
               onTap: () => _confirmImport(context, ref),
             ),
+            if (NotificationService.isSupported) ...[
+              const SizedBox(height: 28),
+              Text(
+                'Reminders',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _SettingsSwitchItem(
+                icon: LineIcons.bell,
+                title: 'Daily reminder',
+                subtitle: reminder.enabled
+                    ? 'A gentle nudge at '
+                          '${TimeOfDay(hour: reminder.hour, minute: reminder.minute).format(context)}'
+                    : 'A gentle nudge to check in each day',
+                value: reminder.enabled,
+                onChanged: (value) => _setReminderEnabled(context, ref, value),
+              ),
+              if (reminder.enabled) ...[
+                const SizedBox(height: 10),
+                _SettingsItem(
+                  icon: LineIcons.clock,
+                  title: 'Reminder time',
+                  subtitle: TimeOfDay(
+                    hour: reminder.hour,
+                    minute: reminder.minute,
+                  ).format(context),
+                  onTap: () => _pickReminderTime(context, ref),
+                ),
+              ],
+            ],
             const SizedBox(height: 28),
             Text(
               'Privacy',
@@ -463,6 +497,57 @@ class SettingsScreen extends ConsumerWidget {
       }
     } catch (_) {
       if (context.mounted) _showMessage(context, 'Could not enable app lock');
+    }
+  }
+
+  Future<void> _setReminderEnabled(
+    BuildContext context,
+    WidgetRef ref,
+    bool enabled,
+  ) async {
+    if (!enabled) {
+      await ref.read(reminderProvider.notifier).setEnabled(false);
+      await NotificationService.cancelReminder();
+      if (context.mounted) _showMessage(context, 'Daily reminder turned off');
+      return;
+    }
+
+    final granted = await NotificationService.requestPermission();
+    if (!granted) {
+      if (context.mounted) {
+        _showMessage(
+          context,
+          'Notifications are off for Patterns. Enable them in your device '
+          'settings to get reminders.',
+        );
+      }
+      return;
+    }
+
+    final settings = ref.read(reminderProvider);
+    await NotificationService.scheduleDailyReminder(
+      TimeOfDay(hour: settings.hour, minute: settings.minute),
+    );
+    await ref.read(reminderProvider.notifier).setEnabled(true);
+    if (context.mounted) _showMessage(context, 'Daily reminder is on');
+  }
+
+  Future<void> _pickReminderTime(BuildContext context, WidgetRef ref) async {
+    final settings = ref.read(reminderProvider);
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: settings.hour, minute: settings.minute),
+    );
+    if (picked == null) return;
+    await ref.read(reminderProvider.notifier).setTime(picked.hour, picked.minute);
+    if (ref.read(reminderProvider).enabled) {
+      await NotificationService.scheduleDailyReminder(picked);
+      if (context.mounted) {
+        _showMessage(
+          context,
+          'Reminder set for ${picked.format(context)}',
+        );
+      }
     }
   }
 

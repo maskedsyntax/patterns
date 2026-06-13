@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../database/db_helper.dart';
+import '../widgets/rich_journal.dart';
 
 class JournalNotifier extends AsyncNotifier<List<JournalEntry>> {
   @override
@@ -20,6 +21,19 @@ class JournalNotifier extends AsyncNotifier<List<JournalEntry>> {
         updatedAt: DateTime.now(),
       );
       await DbHelper.instance.upsertJournalEntry(entry);
+      final entries = await DbHelper.instance.getJournalEntries();
+      entries.sort((a, b) => a.date.compareTo(b.date));
+      return entries;
+    });
+  }
+
+  /// Removes the entry for [date] entirely, freeing the date to be written
+  /// again. Used by the "Reset entry" action — clearing the text and saving is
+  /// intentionally not allowed (empty entries can't be saved).
+  Future<void> deleteEntry(String date) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await DbHelper.instance.deleteJournalEntry(date);
       final entries = await DbHelper.instance.getJournalEntries();
       entries.sort((a, b) => a.date.compareTo(b.date));
       return entries;
@@ -51,7 +65,7 @@ final filteredJournalProvider = Provider<AsyncValue<List<JournalEntry>>>((ref) {
   return journalAsync.whenData((entries) {
     if (query.isEmpty) return entries;
     return entries.where((entry) {
-      return entry.content.toLowerCase().contains(query) ||
+      return plainTextFromStored(entry.content).toLowerCase().contains(query) ||
           entry.date.contains(query);
     }).toList();
   });

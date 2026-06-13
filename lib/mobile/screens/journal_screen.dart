@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
@@ -8,6 +9,8 @@ import '../../providers/providers.dart';
 import '../../services/review_prompt.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
+import '../../widgets/app_snack_bar.dart';
+import '../../widgets/rich_journal.dart';
 
 class TodayScreen extends ConsumerStatefulWidget {
   final VoidCallback onJournal;
@@ -320,8 +323,16 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                   final sorted = List<JournalEntry>.from(entries)
                     ..sort((a, b) => b.date.compareTo(a.date));
                   final query = ref.watch(journalSearchQueryProvider);
+                  final todayKey = DateFormat('yyyy-MM-dd').format(
+                    DateTime.now(),
+                  );
+                  final hasTodayEntry = entries.any(
+                    (entry) => entry.date == todayKey,
+                  );
                   final children = <Widget>[
-                    if (!_isSearching) ...[
+                    // The shortcut card is only useful before today's entry
+                    // exists — once saved, it sits at the top of the list.
+                    if (!_isSearching && !hasTodayEntry) ...[
                       _TodayEntryCard(
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute<void>(
@@ -501,14 +512,32 @@ class JournalEntryEditor extends ConsumerStatefulWidget {
 }
 
 class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
-  final TextEditingController _controller = TextEditingController();
+  final QuillController _controller = QuillController.basic();
+  final FocusNode _focusNode = FocusNode();
   bool _loaded = false;
   bool _saving = false;
   bool _saved = true;
+  String _savedSnapshot = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_onDocumentChanged);
+  }
+
+  void _onDocumentChanged() {
+    // Compare against the last-saved snapshot so cursor/selection moves don't
+    // flip the indicator to "Unsaved" — only real content edits do.
+    if (!_loaded) return;
+    final saved = storedFromDocument(_controller.document) == _savedSnapshot;
+    if (saved != _saved) setState(() => _saved = saved);
+  }
 
   @override
   void dispose() {
+    _controller.removeListener(_onDocumentChanged);
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -517,6 +546,9 @@ class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
     final entriesAsync = ref.watch(journalProvider);
     final theme = Theme.of(context);
     final dateKey = DateFormat('yyyy-MM-dd').format(widget.date);
+    final hasExistingEntry =
+        entriesAsync.asData?.value.any((entry) => entry.date == dateKey) ??
+        false;
 
     entriesAsync.whenData((entries) {
       if (_loaded) return;
@@ -525,7 +557,9 @@ class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
           .firstOrNull;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        _controller.text = existing?.content ?? '';
+        _controller.document = documentFromStored(existing?.content ?? '');
+        _controller.moveCursorToEnd();
+        _savedSnapshot = storedFromDocument(_controller.document);
         setState(() {
           _loaded = true;
           _saved = true;
@@ -579,8 +613,15 @@ class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
                       ],
                     ),
                   ),
+                  if (hasExistingEntry)
+                    IconButton(
+                      tooltip: 'Reset entry',
+                      onPressed: _saving ? null : () => _confirmReset(dateKey),
+                      icon: const Icon(LineIcons.trash),
+                      color: AppTheme.textSecondary,
+                    ),
                   TextButton(
-                    onPressed: _saving ? null : _save,
+                    onPressed: (_saving || _saved) ? null : _save,
                     child: const Text('Save'),
                   ),
                 ],
@@ -589,33 +630,36 @@ class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(22, 18, 22, 22),
-                child: TextField(
+                child: QuillEditor.basic(
                   controller: _controller,
-                  expands: true,
-                  maxLines: null,
-                  minLines: null,
-                  textAlignVertical: TextAlignVertical.top,
-                  autofocus: true,
-                  onChanged: (_) => setState(() => _saved = false),
-                  style: TextStyle(
-                    fontFamily: AppTheme.sansFamily,
-                    fontSize: 19,
-                    height: 1.65,
-                    letterSpacing: -0.1,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: 'Start writing...',
-                    hintStyle: TextStyle(
-                      color: AppTheme.textSecondary.withValues(alpha: 0.5),
-                    ),
-                    filled: false,
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    contentPadding: EdgeInsets.zero,
+                  focusNode: _focusNode,
+                  config: QuillEditorConfig(
+                    autoFocus: true,
+                    expands: true,
+                    placeholder: 'Start writing...',
+                    customStyles: _editorStyles(theme),
                   ),
                 ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(
+                    color: theme.dividerColor.withValues(alpha: 0.6),
+                  ),
+                ),
+              ),
+              child: Row(
+                children: [
+                  JournalFormatToolbar(controller: _controller),
+                  const Spacer(),
+                  Text(
+                    'Select text to format',
+                    style: _muted(theme, 11),
+                  ),
+                ],
               ),
             ),
           ],
@@ -624,14 +668,107 @@ class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
     );
   }
 
+  DefaultStyles _editorStyles(ThemeData theme) {
+    final base = TextStyle(
+      fontFamily: AppTheme.sansFamily,
+      fontSize: 19,
+      height: 1.65,
+      letterSpacing: -0.1,
+      color: theme.colorScheme.onSurface,
+    );
+    return DefaultStyles(
+      paragraph: DefaultTextBlockStyle(
+        base,
+        const HorizontalSpacing(0, 0),
+        const VerticalSpacing(0, 0),
+        const VerticalSpacing(0, 0),
+        null,
+      ),
+      placeHolder: DefaultTextBlockStyle(
+        base.copyWith(
+          color: AppTheme.textSecondary.withValues(alpha: 0.5),
+        ),
+        const HorizontalSpacing(0, 0),
+        const VerticalSpacing(0, 0),
+        const VerticalSpacing(0, 0),
+        null,
+      ),
+    );
+  }
+
+  Future<void> _confirmReset(String dateKey) async {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => _BottomPanel(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Reset this entry?',
+              style: Theme.of(sheetContext).textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'This clears everything saved for '
+              '${DateFormat('MMMM d, yyyy').format(widget.date)} so the day '
+              'starts fresh. You can write here again anytime.',
+              style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(sheetContext),
+                    child: const Text('Keep it'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(sheetContext);
+                      await _resetEntry(dateKey);
+                    },
+                    child: const Text('Reset'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _resetEntry(String dateKey) async {
+    await ref.read(journalProvider.notifier).deleteEntry(dateKey);
+    if (!mounted) return;
+    _controller.document = Document();
+    _savedSnapshot = storedFromDocument(_controller.document);
+    setState(() => _saved = true);
+    Navigator.pop(context);
+    showAppSnackBar(context, 'Entry reset. This day is clear now.');
+  }
+
   Future<void> _save() async {
-    if (_controller.text.trim().isEmpty) return;
+    if (_controller.document.toPlainText().trim().isEmpty) {
+      showAppSnackBar(
+        context,
+        'Nothing to save yet. Add a line whenever you feel ready.',
+      );
+      return;
+    }
     setState(() => _saving = true);
     final dateKey = DateFormat('yyyy-MM-dd').format(widget.date);
     await ref
         .read(journalProvider.notifier)
-        .saveEntry(dateKey, _controller.text.trim());
+        .saveEntry(dateKey, storedFromDocument(_controller.document));
     if (!mounted) return;
+    _savedSnapshot = storedFromDocument(_controller.document);
     setState(() {
       _saving = false;
       _saved = true;
@@ -673,11 +810,13 @@ class _JournalListCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              entry.content,
+            Text.rich(
+              richPreviewSpan(
+                entry.content,
+                _muted(theme, 14).copyWith(height: 1.45),
+              ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: _muted(theme, 14).copyWith(height: 1.45),
             ),
           ],
         ),

@@ -4,6 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 SharedPreferences? mobilePreferences;
 
 const appLockPreferenceKey = 'appLockEnabled';
+const reminderEnabledKey = 'reminderEnabled';
+const reminderHourKey = 'reminderHour';
+const reminderMinuteKey = 'reminderMinute';
 
 Future<void> initMobilePreferences() async {
   mobilePreferences = await SharedPreferences.getInstance();
@@ -25,4 +28,50 @@ class AppLockNotifier extends Notifier<bool> {
 
 final appLockEnabledProvider = NotifierProvider<AppLockNotifier, bool>(
   AppLockNotifier.new,
+);
+
+/// Daily reminder preference (on/off + time of day). Persistence only — the
+/// Settings screen owns the OS permission + scheduling side effects, mirroring
+/// how the app-lock toggle works.
+class ReminderSettings {
+  final bool enabled;
+  final int hour;
+  final int minute;
+
+  const ReminderSettings({
+    required this.enabled,
+    required this.hour,
+    required this.minute,
+  });
+
+  ReminderSettings copyWith({bool? enabled, int? hour, int? minute}) =>
+      ReminderSettings(
+        enabled: enabled ?? this.enabled,
+        hour: hour ?? this.hour,
+        minute: minute ?? this.minute,
+      );
+}
+
+class ReminderNotifier extends Notifier<ReminderSettings> {
+  @override
+  ReminderSettings build() => ReminderSettings(
+    enabled: mobilePreferences?.getBool(reminderEnabledKey) ?? false,
+    hour: mobilePreferences?.getInt(reminderHourKey) ?? 20,
+    minute: mobilePreferences?.getInt(reminderMinuteKey) ?? 0,
+  );
+
+  Future<void> setEnabled(bool enabled) async {
+    await mobilePreferences?.setBool(reminderEnabledKey, enabled);
+    state = state.copyWith(enabled: enabled);
+  }
+
+  Future<void> setTime(int hour, int minute) async {
+    await mobilePreferences?.setInt(reminderHourKey, hour);
+    await mobilePreferences?.setInt(reminderMinuteKey, minute);
+    state = state.copyWith(hour: hour, minute: minute);
+  }
+}
+
+final reminderProvider = NotifierProvider<ReminderNotifier, ReminderSettings>(
+  ReminderNotifier.new,
 );

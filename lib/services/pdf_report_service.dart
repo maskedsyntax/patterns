@@ -7,6 +7,7 @@ import 'package:pdf/widgets.dart' as pw;
 
 import '../models/export_report_options.dart';
 import '../models/models.dart';
+import '../widgets/rich_journal.dart';
 import 'analytics_service.dart';
 
 class PdfReportService {
@@ -164,7 +165,7 @@ class PdfReportService {
             ),
           ),
           pw.SizedBox(height: 4),
-          pw.Text(entry.content, style: const pw.TextStyle(fontSize: 11)),
+          _markdownText(entry.content, fontSize: 11),
           pw.SizedBox(height: 16),
         ]);
       }
@@ -228,6 +229,30 @@ class PdfReportService {
     }
 
     return widgets;
+  }
+
+  /// Renders a journal entry's rich text as styled PDF text. Bold uses the
+  /// theme's bold font; italic falls back to regular (no italic font is
+  /// bundled) but the text content is always rendered cleanly.
+  static pw.Widget _markdownText(String content, {required double fontSize}) {
+    final runs = richRunsFromStored(content);
+    return pw.RichText(
+      text: pw.TextSpan(
+        style: pw.TextStyle(fontSize: fontSize),
+        children: [
+          for (final run in runs)
+            pw.TextSpan(
+              text: run.text,
+              style: pw.TextStyle(
+                fontWeight:
+                    run.bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+                fontStyle:
+                    run.italic ? pw.FontStyle.italic : pw.FontStyle.normal,
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   static pw.Widget _sectionTitle(String title) {

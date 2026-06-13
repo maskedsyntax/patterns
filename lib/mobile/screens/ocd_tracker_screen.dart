@@ -247,7 +247,13 @@ class _OcdEventFlowState extends ConsumerState<OcdEventFlow> {
   }
 
   Future<void> _save() async {
-    if (_contentController.text.trim().isEmpty) return;
+    if (_contentController.text.trim().isEmpty) {
+      showAppSnackBar(
+        context,
+        'Whenever you’re ready, add a few words about what happened.',
+      );
+      return;
+    }
     setState(() => _saving = true);
     final existing = widget.entry;
     final now = DateTime.now();

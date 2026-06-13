@@ -37,6 +37,7 @@ class ReviewPromptService {
   static const _reprompAfterDeclineDays = 30;
 
   static const _iosAppStoreId = '6762611172';
+  static const _androidPackage = 'com.maskedsyntax.patterns';
   static const _supportEmail = 'aftaab@aftaab.dev';
 
   static bool _inFlight = false;
@@ -166,7 +167,11 @@ class ReviewPromptService {
           );
         }
       case _PromptChoice.yes:
-        await _launchNativeReviewSheet();
+        // Manual taps go straight to the store listing — the native in-app
+        // review sheet is rate-limited and frequently no-ops silently, which
+        // looks broken when the user explicitly asked to rate. The automatic
+        // "happy moment" path still prefers the in-app sheet.
+        await _launchReview(preferStoreListing: manual);
         await prefs?.setBool(_kCompleted, true);
       case _PromptChoice.feedback:
         if (!manual) await prefs?.setBool(_kOptedOut, true);
@@ -174,17 +179,41 @@ class ReviewPromptService {
     }
   }
 
-  static Future<void> _launchNativeReviewSheet() async {
+  /// Routes the user to a place they can rate the app.
+  ///
+  /// When [preferStoreListing] is false we first try the native in-app review
+  /// sheet (the right UX for an automatic "happy moment"). When true — or when
+  /// the in-app sheet is unavailable — we open the store listing directly, with
+  /// a plain URL launch as the final fallback so the user always lands
+  /// somewhere.
+  static Future<void> _launchReview({required bool preferStoreListing}) async {
     if (!_isMobile) return;
     final review = InAppReview.instance;
-    try {
-      if (await review.isAvailable()) {
-        await review.requestReview();
-        return;
-      }
-    } catch (_) {/* fall through to store listing */}
+    if (!preferStoreListing) {
+      try {
+        if (await review.isAvailable()) {
+          await review.requestReview();
+          return;
+        }
+      } catch (_) {/* fall through to store listing */}
+    }
     try {
       await review.openStoreListing(appStoreId: _iosAppStoreId);
+      return;
+    } catch (_) {/* fall through to direct URL */}
+    await _openStoreUrl();
+  }
+
+  static Future<void> _openStoreUrl() async {
+    final uri = Platform.isAndroid
+        ? Uri.parse(
+            'https://play.google.com/store/apps/details?id=$_androidPackage',
+          )
+        : Uri.parse(
+            'https://apps.apple.com/app/id$_iosAppStoreId?action=write-review',
+          );
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (_) {/* nothing we can do */}
   }
 

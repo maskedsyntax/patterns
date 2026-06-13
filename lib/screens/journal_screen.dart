@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
 import '../providers/providers.dart';
 import '../models/models.dart';
 import '../database/db_helper.dart';
+import '../theme/app_theme.dart';
+import '../widgets/rich_journal.dart';
 import '../widgets/window_controls.dart';
 
 class JournalScreen extends ConsumerStatefulWidget {
@@ -17,26 +19,43 @@ class JournalScreen extends ConsumerStatefulWidget {
 }
 
 class _JournalScreenState extends ConsumerState<JournalScreen> {
-  final TextEditingController _controller = TextEditingController();
+  final QuillController _controller = QuillController.basic();
+  final FocusNode _editorFocus = FocusNode();
   final TextEditingController _searchController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
   bool _isSaving = false;
   bool _hasUnsavedChanges = false;
   bool _initialLoadDone = false;
   bool _isFocusMode = false;
+  String _savedSnapshot = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_onDocumentChanged);
+  }
+
+  void _onDocumentChanged() {
+    final dirty = storedFromDocument(_controller.document) != _savedSnapshot;
+    if (dirty != _hasUnsavedChanges) {
+      setState(() => _hasUnsavedChanges = dirty);
+    }
+  }
 
   @override
   void dispose() {
+    _controller.removeListener(_onDocumentChanged);
     _controller.dispose();
+    _editorFocus.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
   Future<void> _save() async {
-    if (_controller.text.isEmpty) {
+    if (_controller.document.toPlainText().trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Cannot save an empty entry'),
+          content: Text('Nothing to save yet. Add a line whenever you feel ready.'),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -47,9 +66,10 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
     final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
     await ref
         .read(journalProvider.notifier)
-        .saveEntry(dateStr, _controller.text);
+        .saveEntry(dateStr, storedFromDocument(_controller.document));
 
     if (mounted) {
+      _savedSnapshot = storedFromDocument(_controller.document);
       setState(() {
         _isSaving = false;
         _hasUnsavedChanges = false;
@@ -67,9 +87,11 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
     final dateStr = DateFormat('yyyy-MM-dd').format(date);
     final existing = entries.where((e) => e.date == dateStr).firstOrNull;
 
+    _controller.document = documentFromStored(existing?.content ?? '');
+    _controller.moveCursorToEnd();
+    _savedSnapshot = storedFromDocument(_controller.document);
     setState(() {
       _selectedDate = date;
-      _controller.text = existing?.content ?? '';
       _hasUnsavedChanges = false;
     });
   }
@@ -101,7 +123,8 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
       await DbHelper.instance.deleteJournalEntry(date);
       ref.invalidate(journalProvider);
       if (date == DateFormat('yyyy-MM-dd').format(_selectedDate)) {
-        _controller.clear();
+        _controller.document = Document();
+        _savedSnapshot = storedFromDocument(_controller.document);
       }
     }
   }
@@ -222,11 +245,12 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                 ],
               ),
               actions: [
+                JournalFormatToolbar(controller: _controller),
                 const SizedBox(width: 12),
                 SizedBox(
                   height: 28,
                   child: ElevatedButton.icon(
-                    onPressed: _isSaving ? null : _save,
+                    onPressed: (_isSaving || !_hasUnsavedChanges) ? null : _save,
                     icon: _isSaving
                         ? SizedBox(
                             width: 10,
@@ -353,30 +377,13 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                 child: Container(
                   constraints: const BoxConstraints(maxWidth: 800),
                   padding: const EdgeInsets.fromLTRB(48, 48, 48, 0),
-                  child: TextField(
+                  child: QuillEditor.basic(
                     controller: _controller,
-                    maxLines: null,
-                    expands: true,
-                    onChanged: (value) {
-                      if (!_hasUnsavedChanges) {
-                        setState(() => _hasUnsavedChanges = true);
-                      }
-                    },
-                    style: GoogleFonts.inter(
-                      fontSize: 19,
-                      height: 1.7,
-                      color: theme.colorScheme.onSurface,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'Start writing...',
-                      hintStyle: TextStyle(
-                        color: theme.colorScheme.onSurface.withOpacity(0.1),
-                      ),
-                      filled: false,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
+                    focusNode: _editorFocus,
+                    config: QuillEditorConfig(
+                      expands: true,
+                      placeholder: 'Start writing...',
+                      customStyles: _desktopEditorStyles(theme),
                     ),
                   ),
                 ),
@@ -384,6 +391,32 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  DefaultStyles _desktopEditorStyles(ThemeData theme) {
+    final base = TextStyle(
+      fontFamily: AppTheme.sansFamily,
+      fontSize: 19,
+      height: 1.7,
+      color: theme.colorScheme.onSurface,
+      fontWeight: FontWeight.w400,
+    );
+    return DefaultStyles(
+      paragraph: DefaultTextBlockStyle(
+        base,
+        const HorizontalSpacing(0, 0),
+        const VerticalSpacing(0, 0),
+        const VerticalSpacing(0, 0),
+        null,
+      ),
+      placeHolder: DefaultTextBlockStyle(
+        base.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.1)),
+        const HorizontalSpacing(0, 0),
+        const VerticalSpacing(0, 0),
+        const VerticalSpacing(0, 0),
+        null,
       ),
     );
   }
@@ -493,16 +526,18 @@ class _JournalTileState extends State<_JournalTile> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    widget.entry.content,
+                  Text.rich(
+                    richPreviewSpan(
+                      widget.entry.content,
+                      TextStyle(
+                        color: widget.theme.colorScheme.onSurface.withOpacity(
+                          widget.isSelected ? 0.6 : 0.3,
+                        ),
+                        fontSize: 12,
+                      ),
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: widget.theme.colorScheme.onSurface.withOpacity(
-                        widget.isSelected ? 0.6 : 0.3,
-                      ),
-                      fontSize: 12,
-                    ),
                   ),
                 ],
               ),

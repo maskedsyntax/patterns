@@ -20,6 +20,7 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
-    "lucide-svelte": "^0.511.0"
+    "lucide-svelte": "^0.511.0",
+    "simple-icons": "^16.23.0"
   }
 }

@@ -5,7 +5,10 @@
   import { links } from '$lib/data/links';
   import { fetchLatestRelease } from '$lib/utils/github-releases';
   import { logDownload, logGitHubClick } from '$lib/utils/analytics';
-  import { Apple, Download as DownloadIcon, ExternalLink } from 'lucide-svelte';
+  import BrandIcon from '$lib/components/BrandIcon.svelte';
+  import WindowsIcon from '$lib/components/WindowsIcon.svelte';
+  import { siAppstore, siGoogleplay, siLinux, siMacos } from 'simple-icons';
+  import { Download as DownloadIcon, ExternalLink } from 'lucide-svelte';
 
   let loading = $state(true);
   let linuxUrl = $state<string | null>(null);
@@ -67,14 +70,14 @@
           </p>
           <div class="store-badges">
             <a class="store-badge" href={links.ios} target="_blank" rel="noopener noreferrer" onclick={() => open(links.ios, 'iOS')}>
-              <Apple size={24} color="#fff" />
+              <BrandIcon icon={siAppstore} size={24} color="#fff" />
               <span>
                 <small>Download on the</small>
                 <strong>App Store</strong>
               </span>
             </a>
             <a class="store-badge" href={links.playStore} target="_blank" rel="noopener noreferrer" onclick={() => open(links.playStore, 'Android')}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M3.6 1.8l10.2 10.2L3.6 22.2c-.4-.2-.6-.6-.6-1.1V2.9c0-.5.2-.9.6-1.1zm12.3 8.7l2.5-2.5 3.4 1.9c.5.3.8.8.8 1.4s-.3 1.1-.8 1.4l-3.4 1.9-2.5-2.5 2.5-2.6zm-2.5 2.6l-2.5 2.5 3.4 1.9c.5.3 1 .3 1.5 0l3.4-1.9-3.4-1.9-3.4 1.9zM3 2.9v18.2l10.2-10.2L3 2.9z"/></svg>
+              <BrandIcon icon={siGoogleplay} size={24} color="#fff" />
               <span>
                 <small>Get it on</small>
                 <strong>Google Play</strong>
@@ -103,7 +106,7 @@
 
       <div class="platform-grid">
         <button type="button" class="platform-card" onclick={() => open(links.macos, 'macOS')}>
-          <Apple size={28} color="var(--accent)" />
+          <BrandIcon icon={siMacos} size={28} color="var(--accent)" />
           <h4>macOS</h4>
           <p>macOS 12 Monterey or later</p>
           <span class="action"><ExternalLink size={14} /> Open in App Store</span>
@@ -113,7 +116,7 @@
           class="platform-card"
           onclick={() => open(windowsUrl ?? links.releasesLatest, 'Windows')}
         >
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="var(--accent)" aria-hidden="true"><path d="M3 5.5L10.5 4.6V11.5H3V5.5zm0 13V12.5h7.5v7.9L3 18.5zM11.5 11.5h9.7l.1-7.9L11.5 4.4V11.5zm9.8 1.5H11.5V20l9.9-1.4V13z"/></svg>
+          <WindowsIcon size={28} color="var(--accent)" />
           <h4>Windows</h4>
           <p>Windows 10 or later</p>
           <span class="action">
@@ -129,7 +132,7 @@
           class="platform-card"
           onclick={() => open(linuxUrl ?? links.releasesLatest, 'Linux')}
         >
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="var(--accent)" aria-hidden="true"><path d="M12.5 2c-3.6 0-6.5 2.4-6.5 5.4 0 1.5.7 2.9 1.9 3.9-.3.8-.5 1.7-.5 2.6 0 3.3 2.5 6 5.6 6.3.4 1.5 1.8 2.6 3.5 2.6h1.2c1.7 0 3.1-1.1 3.5-2.6 3.1-.3 5.6-3 5.6-6.3 0-.9-.2-1.8-.5-2.6 1.2-1 1.9-2.4 1.9-3.9C19 4.4 16.1 2 12.5 2zm-2.8 14.5c-.8 0-1.4-.6-1.4-1.4s.6-1.4 1.4-1.4 1.4.6 1.4 1.4-.6 1.4-1.4 1.4zm5.6 0c-.8 0-1.4-.6-1.4-1.4s.6-1.4 1.4-1.4 1.4.6 1.4 1.4-.6 1.4-1.4 1.4z"/></svg>
+          <BrandIcon icon={siLinux} size={28} color="var(--accent)" />
           <h4>Linux</h4>
           <p>Ubuntu, Debian, and derivatives</p>
           <span class="action">

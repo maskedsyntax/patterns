@@ -11,13 +11,6 @@ export function isIOS(): boolean {
   );
 }
 
-/** True when Mobile Safari can show the native Smart App Banner. */
-export function isIOSSafari(): boolean {
-  if (!isIOS()) return false;
-  const ua = navigator.userAgent;
-  return /Safari/.test(ua) && !/CriOS|FxiOS|OPiOS|EdgiOS/.test(ua);
-}
-
 export function isAndroid(): boolean {
   if (typeof navigator === 'undefined') return false;
   return /Android/.test(navigator.userAgent);
@@ -41,10 +34,9 @@ export function dismissInstallBanner(): void {
   localStorage.setItem(DISMISS_KEY, '1');
 }
 
-/** Custom banner for Android and non-Safari iOS browsers. Safari uses the native Smart App Banner. */
+/** Custom banner on mobile. Kept even on iOS Safari because the native Smart App Banner is unreliable. */
 export function shouldShowCustomInstallBanner(): boolean {
   if (typeof window === 'undefined') return false;
   if (isStandalone() || isInstallBannerDismissed()) return false;
-  if (isIOSSafari()) return false;
   return isIOS() || isAndroid();
 }

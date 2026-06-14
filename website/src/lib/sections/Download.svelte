@@ -7,8 +7,8 @@
   import { logDownload, logGitHubClick } from '$lib/utils/analytics';
   import BrandIcon from '$lib/components/BrandIcon.svelte';
   import WindowsIcon from '$lib/components/WindowsIcon.svelte';
-  import { siAppstore, siGoogleplay, siLinux, siMacos } from 'simple-icons';
-  import { Download as DownloadIcon, ExternalLink } from 'lucide-svelte';
+  import { siAppstore, siGoogleplay, siLinux } from 'simple-icons';
+  import { Download as DownloadIcon } from 'lucide-svelte';
 
   let loading = $state(true);
   let linuxUrl = $state<string | null>(null);
@@ -106,10 +106,10 @@
 
       <div class="platform-grid">
         <button type="button" class="platform-card" onclick={() => open(links.macos, 'macOS')}>
-          <BrandIcon icon={siMacos} size={28} color="var(--accent)" />
+          <BrandIcon icon={siAppstore} size={28} color="var(--accent)" />
           <h4>macOS</h4>
           <p>macOS 12 Monterey or later</p>
-          <span class="action"><ExternalLink size={14} /> Open in App Store</span>
+          <span class="action"><BrandIcon icon={siAppstore} size={14} color="var(--accent)" /> Open in App Store</span>
         </button>
         <button
           type="button"

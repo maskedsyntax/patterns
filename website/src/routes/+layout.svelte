@@ -3,6 +3,7 @@
   import { browser } from '$app/environment';
   import { page } from '$app/stores';
   import '../app.css';
+  import AppInstallBanner from '$lib/components/AppInstallBanner.svelte';
   import Navbar from '$lib/components/Navbar.svelte';
   import { theme } from '$lib/stores/theme';
   import { links } from '$lib/data/links';
@@ -116,11 +117,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   <meta name="apple-mobile-web-app-title" content="Patterns" />
-  <meta name="apple-itunes-app" content="app-id=6762611172" />
   <link rel="apple-touch-icon" href="/icons/Icon-192.png" />
 </svelte:head>
 
 <Navbar />
+<AppInstallBanner />
 <main>
   {@render children()}
 </main>

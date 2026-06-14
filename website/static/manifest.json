@@ -7,7 +7,19 @@
     "theme_color": "#0A0A0A",
     "description": "A privacy-first app for daily journaling, OCD self-tracking, and structured reflection.",
     "orientation": "portrait-primary",
-    "prefer_related_applications": false,
+    "prefer_related_applications": true,
+    "related_applications": [
+        {
+            "platform": "itunes",
+            "url": "https://apps.apple.com/us/app/patterns-ocd-journaling/id6762611172",
+            "id": "6762611172"
+        },
+        {
+            "platform": "play",
+            "url": "https://play.google.com/store/apps/details?id=com.maskedsyntax.patterns",
+            "id": "com.maskedsyntax.patterns"
+        }
+    ],
     "icons": [
         {
             "src": "icons/Icon-192.png",

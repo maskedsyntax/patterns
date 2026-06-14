@@ -58,6 +58,10 @@ html {
   }
 }
 
+body.has-install-banner main {
+  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+}
+
 body {
   margin: 0;
   font-family: var(--font-body);

@@ -253,7 +253,9 @@ class SettingsScreen extends ConsumerWidget {
       if (path == null) return;
       if (context.mounted) _showMessage(context, 'Data exported');
     } catch (error) {
-      if (context.mounted) _showMessage(context, 'Export failed');
+      if (context.mounted) {
+        _showMessage(context, 'Export failed', type: ToastType.error);
+      }
     }
   }
 
@@ -305,17 +307,26 @@ class SettingsScreen extends ConsumerWidget {
       if (result == null) return;
       final bytes = result.files.single.bytes;
       if (bytes == null) {
-        if (context.mounted)
-          _showMessage(context, 'Could not read backup file');
+        if (context.mounted) {
+          _showMessage(
+            context,
+            'Could not read backup file',
+            type: ToastType.error,
+          );
+        }
         return;
       }
       final jsonStr = utf8.decode(bytes);
       final summary = DbHelper.previewBackup(jsonStr);
       if (context.mounted) _showImportPreview(context, ref, jsonStr, summary);
     } on FormatException {
-      if (context.mounted) _showMessage(context, 'Backup file is not valid');
+      if (context.mounted) {
+        _showMessage(context, 'Backup file is not valid', type: ToastType.error);
+      }
     } catch (error) {
-      if (context.mounted) _showMessage(context, 'Import failed');
+      if (context.mounted) {
+        _showMessage(context, 'Import failed', type: ToastType.error);
+      }
     }
   }
 
@@ -382,9 +393,13 @@ class SettingsScreen extends ConsumerWidget {
       ref.invalidate(ocdProvider);
       if (context.mounted) _showMessage(context, 'Data imported');
     } on FormatException {
-      if (context.mounted) _showMessage(context, 'Backup file is not valid');
+      if (context.mounted) {
+        _showMessage(context, 'Backup file is not valid', type: ToastType.error);
+      }
     } catch (error) {
-      if (context.mounted) _showMessage(context, 'Import failed');
+      if (context.mounted) {
+        _showMessage(context, 'Import failed', type: ToastType.error);
+      }
     }
   }
 
@@ -441,8 +456,12 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  void _showMessage(BuildContext context, String message) {
-    showAppSnackBar(context, message);
+  void _showMessage(
+    BuildContext context,
+    String message, {
+    ToastType type = ToastType.success,
+  }) {
+    showAppSnackBar(context, message, type: type);
   }
 
   Future<void> _setAppLock(
@@ -460,7 +479,13 @@ class SettingsScreen extends ConsumerWidget {
       final auth = ref.read(biometricAuthenticatorProvider);
       final supported = await auth.isDeviceSupported();
       if (!supported) {
-        if (context.mounted) _showMessage(context, 'Device lock unavailable');
+        if (context.mounted) {
+          _showMessage(
+            context,
+            'Device lock unavailable',
+            type: ToastType.error,
+          );
+        }
         return;
       }
       // local_auth 3.x returns true only on success; everything else (cancel,
@@ -478,25 +503,40 @@ class SettingsScreen extends ConsumerWidget {
           // User-initiated abort — no message, the toggle simply stays off.
           break;
         case LocalAuthExceptionCode.temporaryLockout:
-          _showMessage(context, 'Too many attempts. Try again in a moment.');
+          _showMessage(
+            context,
+            'Too many attempts. Try again in a moment.',
+            type: ToastType.error,
+          );
           break;
         case LocalAuthExceptionCode.biometricLockout:
           _showMessage(
             context,
             'Biometric authentication is locked. Unlock your device with your passcode first.',
+            type: ToastType.error,
           );
           break;
         case LocalAuthExceptionCode.noBiometricsEnrolled:
         case LocalAuthExceptionCode.noCredentialsSet:
         case LocalAuthExceptionCode.noBiometricHardware:
         case LocalAuthExceptionCode.biometricHardwareTemporarilyUnavailable:
-          _showMessage(context, 'Device lock unavailable');
+          _showMessage(context, 'Device lock unavailable', type: ToastType.error);
           break;
         default:
-          _showMessage(context, 'Could not enable app lock');
+          _showMessage(
+            context,
+            'Could not enable app lock',
+            type: ToastType.error,
+          );
       }
     } catch (_) {
-      if (context.mounted) _showMessage(context, 'Could not enable app lock');
+      if (context.mounted) {
+        _showMessage(
+          context,
+          'Could not enable app lock',
+          type: ToastType.error,
+        );
+      }
     }
   }
 
@@ -519,6 +559,7 @@ class SettingsScreen extends ConsumerWidget {
           context,
           'Notifications are off for Patterns. Enable them in your device '
           'settings to get reminders.',
+          type: ToastType.info,
         );
       }
       return;

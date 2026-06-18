@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../database/db_helper.dart';
 import '../providers/providers.dart';
 import '../services/tip_jar.dart';
+import '../widgets/app_snack_bar.dart';
 import '../widgets/tip_jar_sheet.dart';
 import '../widgets/window_controls.dart';
 import '../widgets/export_report_sheet.dart';
@@ -40,24 +41,16 @@ class SettingsScreen extends ConsumerWidget {
         await file.writeAsString(jsonStr);
         
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Data exported successfully'), 
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Colors.green,
-            ),
-          );
+          showAppSnackBar(context, 'Data exported', type: ToastType.success);
         }
       }
     } catch (e) {
       debugPrint('Export Error: $e');
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Export failed: $e'), 
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.redAccent,
-          ),
+        showAppSnackBar(
+          context,
+          'Export failed. Please try again.',
+          type: ToastType.error,
         );
       }
     }
@@ -95,24 +88,16 @@ class SettingsScreen extends ConsumerWidget {
         ref.invalidate(journalProvider);
         ref.invalidate(ocdProvider);
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Data imported successfully'), 
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Colors.green,
-            ),
-          );
+          showAppSnackBar(context, 'Data imported', type: ToastType.success);
         }
       }
     } catch (e) {
       debugPrint('Import Error: $e');
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Import failed: $e'), 
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.redAccent,
-          ),
+        showAppSnackBar(
+          context,
+          'Import failed. The backup may be invalid.',
+          type: ToastType.error,
         );
       }
     }

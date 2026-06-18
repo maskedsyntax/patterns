@@ -254,6 +254,7 @@ class AppTheme {
       inactiveTrackColor: softBorder,
       overlayColor: Color(0x29F4C95D),
     ),
+    snackBarTheme: _snackBarTheme(charcoalCard, textPrimary, softBorder),
   );
 
   static ThemeData mobileLightTheme = ThemeData(
@@ -344,6 +345,11 @@ class AppTheme {
       thumbColor: primaryGold,
       inactiveTrackColor: mobileLightBorder,
     ),
+    snackBarTheme: _snackBarTheme(
+      mobileLightBg,
+      lightTextPrimary,
+      mobileLightBorder,
+    ),
   );
 
   static ThemeData darkTheme = ThemeData(
@@ -430,6 +436,7 @@ class AppTheme {
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),
+    snackBarTheme: _snackBarTheme(darkSurface, darkTextPrimary, darkBorder),
   );
 
   static ThemeData lightTheme = ThemeData(
@@ -516,5 +523,27 @@ class AppTheme {
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),
+    snackBarTheme: _snackBarTheme(lightSurface, lightTextPrimary, lightBorder),
   );
+
+  static SnackBarThemeData _snackBarTheme(
+    Color background,
+    Color content,
+    Color border,
+  ) {
+    return SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: background,
+      contentTextStyle: TextStyle(
+        fontFamily: sansFamily,
+        color: content,
+        fontWeight: FontWeight.w600,
+      ),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: border),
+      ),
+    );
+  }
 }

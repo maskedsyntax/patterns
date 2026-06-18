@@ -77,6 +77,7 @@ class _CompulsionDelayFlowState extends ConsumerState<CompulsionDelayFlow>
       showAppSnackBar(
         context,
         'Whenever you’re ready, name the urge you want to sit with.',
+        type: ToastType.info,
       );
       return;
     }
@@ -153,6 +154,7 @@ class _CompulsionDelayFlowState extends ConsumerState<CompulsionDelayFlow>
       showAppSnackBar(
         context,
         'When you’re ready, choose what you ended up doing.',
+        type: ToastType.info,
       );
       return;
     }
@@ -173,7 +175,11 @@ class _CompulsionDelayFlowState extends ConsumerState<CompulsionDelayFlow>
     await ref.read(delaySessionProvider.notifier).addSession(session);
     if (!mounted) return;
     Navigator.pop(context);
-    showAppSnackBar(context, 'Practice logged. That took real courage.');
+    showAppSnackBar(
+      context,
+      'Practice logged. That took real courage.',
+      type: ToastType.success,
+    );
   }
 
   // ----- build -----

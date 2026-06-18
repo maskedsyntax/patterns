@@ -14,6 +14,7 @@ import 'screens/settings_screen.dart';
 import 'services/notification_service.dart';
 import 'services/review_prompt.dart';
 import 'services/tip_jar.dart';
+import 'widgets/app_snack_bar.dart';
 import 'widgets/platform.dart';
 
 class ThemeModeNotifier extends Notifier<ThemeMode> {
@@ -83,6 +84,7 @@ class PatternsApp extends ConsumerWidget {
       theme: kIsDesktop ? AppTheme.lightTheme : AppTheme.mobileLightTheme,
       darkTheme: kIsDesktop ? AppTheme.darkTheme : AppTheme.mobileDarkTheme,
       themeMode: themeMode,
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
       localizationsDelegates: const [
         FlutterQuillLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

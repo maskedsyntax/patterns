@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
 import '../models/models.dart';
 import '../providers/providers.dart';
+import '../widgets/app_snack_bar.dart';
 import '../widgets/window_controls.dart';
 
 class OcdTrackerScreen extends ConsumerStatefulWidget {
@@ -402,9 +403,16 @@ class _OcdCardState extends State<_OcdCard> {
                                         size: 18,
                                         color: Colors.redAccent,
                                       ),
-                                      onPressed: () => ref
-                                          .read(ocdProvider.notifier)
-                                          .deleteEntry(widget.entry.id!),
+                                      onPressed: () {
+                                        ref
+                                            .read(ocdProvider.notifier)
+                                            .deleteEntry(widget.entry.id!);
+                                        showAppSnackBar(
+                                          context,
+                                          'Event deleted',
+                                          type: ToastType.success,
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),
@@ -652,7 +660,14 @@ class _OcdEntryDialogState extends ConsumerState<OcdEntryDialog> {
                       createdAt: DateTime.now(),
                     );
                     await ref.read(ocdProvider.notifier).addEntry(entry);
-                    if (mounted) Navigator.pop(context);
+                    if (mounted) {
+                      showAppSnackBar(
+                        context,
+                        'Event saved',
+                        type: ToastType.success,
+                      );
+                      Navigator.pop(context);
+                    }
                   },
                   child: const Text('Save Entry'),
                 ),

@@ -261,6 +261,7 @@ class _OcdEventFlowState extends ConsumerState<OcdEventFlow> {
       showAppSnackBar(
         context,
         'Whenever you’re ready, add a few words about what happened.',
+        type: ToastType.info,
       );
       return;
     }
@@ -287,7 +288,14 @@ class _OcdEventFlowState extends ConsumerState<OcdEventFlow> {
     await ReviewPromptService.recordOcdSaved(entry.distressLevel);
     final eligibleHappyMoment = !_isEditing &&
         entry.distressLevel <= ReviewPromptService.maxOcdDistressForTrigger;
-    if (mounted) Navigator.pop(context);
+    if (mounted) {
+      showAppSnackBar(
+        context,
+        _isEditing ? 'Event updated' : 'Event saved',
+        type: ToastType.success,
+      );
+      Navigator.pop(context);
+    }
     if (!eligibleHappyMoment) return;
     // Defer until after the pop settles, then prompt against the root
     // navigator's context so the dialog lands on the tracker screen rather
@@ -518,7 +526,11 @@ class _OcdEventCard extends ConsumerWidget {
                           .read(ocdProvider.notifier)
                           .deleteEntry(entry.id!);
                       if (context.mounted) {
-                        showAppSnackBar(context, 'Event deleted');
+                        showAppSnackBar(
+                          context,
+                          'Event deleted',
+                          type: ToastType.success,
+                        );
                       }
                     },
                     child: const Text('Delete'),

@@ -755,7 +755,11 @@ class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
     _savedSnapshot = storedFromDocument(_controller.document);
     setState(() => _saved = true);
     Navigator.pop(context);
-    showAppSnackBar(context, 'Entry reset. This day is clear now.');
+    showAppSnackBar(
+      context,
+      'Entry reset. This day is clear now.',
+      type: ToastType.success,
+    );
   }
 
   Future<void> _save() async {
@@ -763,6 +767,7 @@ class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
       showAppSnackBar(
         context,
         'Nothing to save yet. Add a line whenever you feel ready.',
+        type: ToastType.info,
       );
       return;
     }
@@ -777,6 +782,7 @@ class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
       _saving = false;
       _saved = true;
     });
+    showAppSnackBar(context, 'Entry saved', type: ToastType.success);
     await ReviewPromptService.recordJournalSaved();
     if (!mounted) return;
     await ReviewPromptService.maybeRequestReview(

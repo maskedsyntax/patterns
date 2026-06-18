@@ -87,7 +87,7 @@ class _TipJarSheetState extends State<TipJarSheet> {
         TipThanksDialog.show(context);
       case TipJarError(:final message):
         setState(() => _purchaseInFlight = false);
-        showAppSnackBar(context, message);
+        showAppSnackBar(context, message, type: ToastType.error);
       case TipJarCanceled():
         setState(() => _purchaseInFlight = false);
     }
@@ -104,7 +104,11 @@ class _TipJarSheetState extends State<TipJarSheet> {
     } catch (error) {
       if (!mounted) return;
       setState(() => _purchaseInFlight = false);
-      showAppSnackBar(context, 'Could not start the purchase. Please try again.');
+      showAppSnackBar(
+        context,
+        'Could not start the purchase. Please try again.',
+        type: ToastType.error,
+      );
     }
   }
 

@@ -8,6 +8,7 @@ import '../providers/providers.dart';
 import '../models/models.dart';
 import '../database/db_helper.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_snack_bar.dart';
 import '../widgets/rich_journal.dart';
 import '../widgets/window_controls.dart';
 
@@ -53,11 +54,10 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
 
   Future<void> _save() async {
     if (_controller.document.toPlainText().trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Nothing to save yet. Add a line whenever you feel ready.'),
-          behavior: SnackBarBehavior.floating,
-        ),
+      showAppSnackBar(
+        context,
+        'Nothing to save yet. Add a line whenever you feel ready.',
+        type: ToastType.info,
       );
       return;
     }
@@ -74,12 +74,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
         _isSaving = false;
         _hasUnsavedChanges = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Entry saved successfully'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      showAppSnackBar(context, 'Entry saved', type: ToastType.success);
     }
   }
 

@@ -291,12 +291,22 @@ class _ExportReportSheetState extends ConsumerState<ExportReportSheet> {
 
       if (saved) {
         navigator.pop();
-        showAppSnackBar(context, 'Report saved', messenger: messenger);
+        showAppSnackBar(
+          context,
+          'Report saved',
+          type: ToastType.success,
+          messenger: messenger,
+        );
       }
     } catch (error, stack) {
       debugPrint('PDF export failed: $error\n$stack');
       if (mounted) setState(() => _saving = false);
-      showAppSnackBar(context, 'Could not create report', messenger: messenger);
+      showAppSnackBar(
+        context,
+        'Could not create report',
+        type: ToastType.error,
+        messenger: messenger,
+      );
     }
   }
 }

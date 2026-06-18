@@ -67,17 +67,24 @@ class _FadeSlideInState extends State<FadeSlideIn>
 }
 
 /// Helper: wraps a list of children with a cascading [stagger] delay.
+///
+/// For long lists, pass [maxSteps] to cap how far the delay accumulates —
+/// children past that index share the same (capped) delay and animate in
+/// together, so the tail of a long list doesn't appear seconds after the top.
 List<Widget> staggered(
   List<Widget> children, {
   Duration stagger = const Duration(milliseconds: 55),
   Duration initialDelay = Duration.zero,
   Duration duration = const Duration(milliseconds: 420),
   double offset = 14,
+  int? maxSteps,
 }) {
   return [
     for (var i = 0; i < children.length; i++)
       FadeSlideIn(
-        delay: initialDelay + stagger * i,
+        delay:
+            initialDelay +
+            stagger * (maxSteps == null ? i : i.clamp(0, maxSteps)),
         duration: duration,
         offset: offset,
         child: children[i],

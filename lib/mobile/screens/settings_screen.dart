@@ -197,7 +197,7 @@ class SettingsScreen extends ConsumerWidget {
                 onTap: () => TipJarSheet.show(context),
               ),
             ],
-          ]),
+          ], maxSteps: 6),
         ),
       ),
     );

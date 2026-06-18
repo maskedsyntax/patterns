@@ -14,8 +14,13 @@ import '../main_shell.dart' show mobileRootNavigatorKey;
 
 class OcdTrackerScreen extends ConsumerStatefulWidget {
   final VoidCallback onAdd;
+  final VoidCallback onDelay;
 
-  const OcdTrackerScreen({super.key, required this.onAdd});
+  const OcdTrackerScreen({
+    super.key,
+    required this.onAdd,
+    required this.onDelay,
+  });
 
   @override
   ConsumerState<OcdTrackerScreen> createState() => _OcdTrackerScreenState();
@@ -38,7 +43,12 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
             FadeSlideIn(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
-                child: Text('Track', style: _screenTitle(theme)),
+                child: Row(
+                  children: [
+                    Expanded(child: Text('Track', style: _screenTitle(theme))),
+                    _PauseUrgePill(onTap: widget.onDelay),
+                  ],
+                ),
               ),
             ),
             FadeSlideIn(
@@ -644,6 +654,51 @@ class _DistressCard extends StatelessWidget {
             onChanged: onChanged,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PauseUrgePill extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _PauseUrgePill({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primary.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: theme.colorScheme.primary.withValues(alpha: 0.24),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              LineIcons.hourglassHalf,
+              color: theme.colorScheme.primary,
+              size: 16,
+            ),
+            const SizedBox(width: 7),
+            Text(
+              'Pause an urge',
+              style: TextStyle(
+                color: theme.colorScheme.primary,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

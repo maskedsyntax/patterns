@@ -15,12 +15,14 @@ import '../../widgets/rich_journal.dart';
 class TodayScreen extends ConsumerStatefulWidget {
   final VoidCallback onJournal;
   final VoidCallback onTrack;
+  final VoidCallback onDelay;
   final VoidCallback onSettings;
 
   const TodayScreen({
     super.key,
     required this.onJournal,
     required this.onTrack,
+    required this.onDelay,
     required this.onSettings,
   });
 
@@ -118,6 +120,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 14),
+            _DelayCard(onTap: widget.onDelay),
             const SizedBox(height: 28),
             Text(
               'Recent Activity',
@@ -888,6 +892,63 @@ class _ActionCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _DelayCard extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _DelayCard({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return _Card(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              LineIcons.hourglassHalf,
+              color: theme.colorScheme.primary,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Pause an urge',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Sit with it for a while before acting.',
+                  style: _muted(theme, 14).copyWith(height: 1.35),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Icon(
+            LineIcons.angleRight,
+            color: AppTheme.textSecondary,
+            size: 18,
+          ),
+        ],
       ),
     );
   }

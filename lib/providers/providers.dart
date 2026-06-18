@@ -126,3 +126,23 @@ final filteredOcdProvider = Provider<AsyncValue<List<OcdEntry>>>((ref) {
     return entries.where((entry) => entry.distressLevel >= 7).toList();
   });
 });
+
+class DelaySessionNotifier extends AsyncNotifier<List<DelaySession>> {
+  @override
+  Future<List<DelaySession>> build() async {
+    return await DbHelper.instance.getDelaySessions();
+  }
+
+  Future<void> addSession(DelaySession session) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await DbHelper.instance.insertDelaySession(session);
+      return await DbHelper.instance.getDelaySessions();
+    });
+  }
+}
+
+final delaySessionProvider =
+    AsyncNotifierProvider<DelaySessionNotifier, List<DelaySession>>(() {
+      return DelaySessionNotifier();
+    });

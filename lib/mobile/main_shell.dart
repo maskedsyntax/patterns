@@ -12,6 +12,7 @@ import '../widgets/animations.dart';
 import 'biometric_auth.dart';
 import 'preferences.dart';
 import 'screens/analytics_screen.dart';
+import 'screens/compulsion_delay_screen.dart';
 import 'screens/journal_screen.dart';
 import 'screens/ocd_tracker_screen.dart';
 import 'screens/settings_screen.dart';
@@ -516,6 +517,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
     final today = TodayScreen(
       onJournal: () => _openJournalEditor(context),
       onTrack: () => _openOcdFlow(context),
+      onDelay: () => _openDelayFlow(context),
       onSettings: () => Navigator.of(
         context,
       ).push(MaterialPageRoute<void>(builder: (_) => const SettingsScreen())),
@@ -523,7 +525,10 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
     final pages = {
       _Tab.home: today,
       _Tab.journal: const JournalScreen(),
-      _Tab.track: OcdTrackerScreen(onAdd: () => _openOcdFlow(context)),
+      _Tab.track: OcdTrackerScreen(
+        onAdd: () => _openOcdFlow(context),
+        onDelay: () => _openDelayFlow(context),
+      ),
       _Tab.insights: const AnalyticsScreen(),
     };
 
@@ -625,6 +630,15 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
     );
   }
 
+  void _openDelayFlow(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => const CompulsionDelayFlow(),
+      ),
+    );
+  }
+
   void _showAddSheet(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
@@ -637,6 +651,10 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
         onOcd: () {
           Navigator.pop(context);
           _openOcdFlow(context);
+        },
+        onDelay: () {
+          Navigator.pop(context);
+          _openDelayFlow(context);
         },
       ),
     );
@@ -896,8 +914,13 @@ class _TabItem extends StatelessWidget {
 class _ActionSheet extends StatelessWidget {
   final VoidCallback onJournal;
   final VoidCallback onOcd;
+  final VoidCallback onDelay;
 
-  const _ActionSheet({required this.onJournal, required this.onOcd});
+  const _ActionSheet({
+    required this.onJournal,
+    required this.onOcd,
+    required this.onDelay,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -951,6 +974,15 @@ class _ActionSheet extends StatelessWidget {
                 icon: LineIcons.bullseye,
                 title: 'OCD Event',
                 onTap: onOcd,
+              ),
+            ),
+            const SizedBox(height: 10),
+            FadeSlideIn(
+              delay: const Duration(milliseconds: 210),
+              child: _SheetAction(
+                icon: LineIcons.hourglassHalf,
+                title: 'Pause an Urge',
+                onTap: onDelay,
               ),
             ),
           ],

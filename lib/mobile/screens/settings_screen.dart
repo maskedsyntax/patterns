@@ -341,7 +341,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'This backup contains ${summary.journalCount} journal entries and ${summary.ocdCount} OCD events. Importing replaces your current entries.',
+              'This backup contains ${summary.journalCount} journal entries, ${summary.ocdCount} OCD events, and ${summary.delaySessionCount} delay sessions. Importing replaces your current entries.',
               style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
             ),
             const SizedBox(height: 20),

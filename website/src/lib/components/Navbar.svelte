@@ -4,7 +4,7 @@
   import { theme } from '$lib/stores/theme';
   import { links } from '$lib/data/links';
   import ContentContainer from './ContentContainer.svelte';
-  import { Menu, X, Sun, Moon, Star } from 'lucide-svelte';
+  import { Menu, X, Sun, Moon, Star, ChevronDown } from 'lucide-svelte';
 
   let {
     onNavigate
@@ -14,6 +14,16 @@
 
   let mobileMenuOpen = $state(false);
   let scrolled = $state(false);
+
+  const learnLinks = [
+    { label: 'Understanding OCD', href: '/ocd' },
+    { label: 'ERP & how it helps', href: '/erp' },
+    { label: 'FAQ', href: '/faq' }
+  ];
+
+  function closeMobile() {
+    mobileMenuOpen = false;
+  }
 
   $effect(() => {
     const onScroll = () => {
@@ -62,7 +72,16 @@
 
       <div class="desktop-links">
         <button type="button" onclick={() => scrollToSection('features')}>Features</button>
-        <button type="button" onclick={() => scrollToSection('preview')}>Preview</button>
+        <div class="dropdown">
+          <button type="button" class="dropdown-trigger" aria-haspopup="true">
+            Learn <ChevronDown size={15} />
+          </button>
+          <div class="dropdown-menu" role="menu">
+            {#each learnLinks as link}
+              <a href={link.href} role="menuitem">{link.label}</a>
+            {/each}
+          </div>
+        </div>
         <button type="button" onclick={goPrivacy}>Privacy</button>
         <button type="button" onclick={() => scrollToSection('download')}>Download</button>
         <button
@@ -116,6 +135,10 @@
     <div class="mobile-menu">
       <button type="button" onclick={() => scrollToSection('features')}>Features</button>
       <button type="button" onclick={() => scrollToSection('preview')}>Preview</button>
+      <span class="mobile-group-label">Learn</span>
+      {#each learnLinks as link}
+        <a class="mobile-sublink" href={link.href} onclick={closeMobile}>{link.label}</a>
+      {/each}
       <button type="button" onclick={goPrivacy}>Privacy</button>
       <button type="button" onclick={() => scrollToSection('download')}>Download</button>
       <a class="github-btn mobile-github" href={links.github} target="_blank" rel="noopener noreferrer">
@@ -182,6 +205,57 @@
     color: var(--text);
   }
 
+  .dropdown {
+    position: relative;
+  }
+
+  .dropdown-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.18s, transform 0.18s, visibility 0.18s;
+    z-index: 200;
+  }
+
+  .dropdown:hover .dropdown-menu,
+  .dropdown:focus-within .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .dropdown-menu a {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: color-mix(in srgb, var(--text) 75%, transparent);
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .dropdown-menu a:hover {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent);
+  }
+
   .icon-btn {
     display: flex;
     align-items: center;
@@ -226,6 +300,23 @@
     font-size: 16px;
     font-weight: 500;
     color: color-mix(in srgb, var(--text) 80%, transparent);
+  }
+
+  .mobile-group-label {
+    margin-top: 8px;
+    padding: 8px 0 2px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .mobile-sublink {
+    padding: 10px 0 10px 14px;
+    font-size: 15px;
+    font-weight: 500;
+    color: color-mix(in srgb, var(--text) 70%, transparent);
   }
 
   .mobile-github {

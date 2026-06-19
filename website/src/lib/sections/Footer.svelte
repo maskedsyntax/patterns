@@ -3,7 +3,14 @@
   import { links } from '$lib/data/links';
   import { logEvent } from '$lib/utils/analytics';
 
-  const footerLinks = [
+  const resourceLinks = [
+    { label: 'Understanding OCD', url: '/ocd' },
+    { label: 'ERP & how it helps', url: '/erp' },
+    { label: 'FAQ', url: '/faq' },
+    { label: 'Privacy', url: '/privacy' }
+  ];
+
+  const projectLinks = [
     { label: 'GitHub', url: links.github },
     { label: 'Ko-fi', url: links.kofi },
     { label: 'Sponsor', url: links.sponsors },
@@ -28,16 +35,25 @@
         <span>Patterns</span>
         <p>Clarity for the mind through<br />structured reflection.</p>
       </div>
-      <nav class="links" aria-label="Footer">
-        {#each footerLinks as link}
-          <a
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onclick={() => trackClick(link.label)}
-          >{link.label}</a>
-        {/each}
-      </nav>
+      <div class="link-groups">
+        <nav class="links" aria-label="Resources">
+          <span class="group-label">Learn</span>
+          {#each resourceLinks as link}
+            <a href={link.url} onclick={() => trackClick(link.label)}>{link.label}</a>
+          {/each}
+        </nav>
+        <nav class="links" aria-label="Project">
+          <span class="group-label">Project</span>
+          {#each projectLinks as link}
+            <a
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onclick={() => trackClick(link.label)}
+            >{link.label}</a>
+          {/each}
+        </nav>
+      </div>
     </div>
     <hr class="divider" />
     <p class="copyright">© {year} Patterns. MIT License.</p>
@@ -86,11 +102,26 @@
     color: var(--text-secondary);
   }
 
-  .links {
+  .link-groups {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 12px 24px;
+    gap: 40px 64px;
+  }
+
+  .links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .group-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
   }
 
   .links a {
@@ -140,8 +171,13 @@
       margin-left: 38px;
     }
 
-    .links {
+    .link-groups {
+      flex-wrap: nowrap;
       justify-content: flex-end;
+    }
+
+    .links {
+      align-items: flex-start;
     }
   }
 </style>

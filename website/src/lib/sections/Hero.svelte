@@ -43,8 +43,8 @@
       </h1>
 
       <p class="subhead">
-        A focused app for daily journaling and tracking obsessive-compulsive patterns through
-        structured reflection.
+        A calm, private app for daily journaling and tracking obsessions and compulsions —
+        built to support your ERP practice and help you see the pattern clearly.
       </p>
 
       <div class="cta-row">

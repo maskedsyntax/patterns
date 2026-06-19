@@ -25,13 +25,13 @@ export const features: Feature[] = [
     icon: Target,
     title: 'OCD Tracking',
     description:
-      'Document obsessions and compulsions as they happen. Record the nature of thoughts, actions taken in response, and distress levels on a 0-10 scale.'
+      'Document obsessions and compulsions as they happen. Record the nature of thoughts, actions taken in response, and distress levels on a 0-10 (SUDS) scale.'
   },
   {
     icon: LineChart,
     title: 'Pattern Analytics',
     description:
-      'Visualize trends over time with intuitive charts and heatmaps. Identify patterns that help prepare clear information for professional consultations.'
+      'Visualize distress trends over time with intuitive charts and heatmaps. See anxiety rise and fall, and prepare clear information for therapy and ERP sessions.'
   },
   {
     icon: Shield,

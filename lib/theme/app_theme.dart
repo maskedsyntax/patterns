@@ -32,6 +32,9 @@ class AppTheme {
   static const Color warmYellow = Color(0xFFF4C95D);
   static const Color softGreen = Color(0xFF7BBF91);
   static const Color mutedRed = Color(0xFFD26A6A);
+  // Type chips on the Track list: obsession (indigo) vs compulsion (amber).
+  static const Color obsessionChip = Color(0xFF41356A);
+  static const Color compulsionChip = Color(0xFFB5731A);
   static const Color deepCharcoal = Color(0xFF141414);
   static const Color charcoalCard = Color(0xFF1E1E1E);
   static const Color charcoalInput = Color(0xFF252525);

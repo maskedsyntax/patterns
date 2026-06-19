@@ -396,9 +396,6 @@ class _OcdEventCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final typeLabel = entry.type == OcdType.obsession
-        ? 'Obsession'
-        : 'Compulsion';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -409,7 +406,7 @@ class _OcdEventCard extends ConsumerWidget {
         children: [
           Row(
             children: [
-              _TypeChip(label: typeLabel),
+              _TypeChip(type: entry.type),
               const Spacer(),
               Text(
                 DateFormat('MMM d, h:mm a').format(entry.datetime),
@@ -717,29 +714,29 @@ class _PauseUrgePill extends StatelessWidget {
 }
 
 class _TypeChip extends StatelessWidget {
-  final String label;
+  final OcdType type;
 
-  const _TypeChip({required this.label});
+  const _TypeChip({required this.type});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isObsession = type == OcdType.obsession;
+    final color = isObsession
+        ? AppTheme.obsessionChip
+        : AppTheme.compulsionChip;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: theme.colorScheme.primary.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: theme.colorScheme.primary.withValues(alpha: 0.24),
-        ),
+        color: color,
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        label,
-        style: TextStyle(
-          color: theme.colorScheme.primary,
-          fontSize: 12,
-          fontWeight: FontWeight.w800,
+        isObsession ? 'Obsession' : 'Compulsion',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );

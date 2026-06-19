@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:math' as math;
 
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +9,7 @@ import 'package:local_auth/local_auth.dart' show LocalAuthException, LocalAuthEx
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../widgets/animations.dart';
+import '../widgets/liquid_glass.dart';
 import 'biometric_auth.dart';
 import 'preferences.dart';
 import 'screens/analytics_screen.dart';
@@ -661,126 +662,162 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
   }
 }
 
-class _FloatingTabBar extends StatelessWidget {
+class _FloatingTabBar extends StatefulWidget {
   final _Tab selectedTab;
   final ValueChanged<_Tab> onSelected;
 
   const _FloatingTabBar({required this.selectedTab, required this.onSelected});
 
+  @override
+  State<_FloatingTabBar> createState() => _FloatingTabBarState();
+}
+
+class _FloatingTabBarState extends State<_FloatingTabBar>
+    with SingleTickerProviderStateMixin {
   static const _tabs = _Tab.values;
+
+  late final AnimationController _slide = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 440),
+  )..value = 1;
+  late int _fromIndex = _tabs.indexOf(widget.selectedTab);
+  late int _toIndex = _fromIndex;
+
+  @override
+  void didUpdateWidget(_FloatingTabBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedTab != widget.selectedTab) {
+      _fromIndex = _toIndex;
+      _toIndex = _tabs.indexOf(widget.selectedTab);
+      _slide.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _slide.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final gradientColors = isDark
-        ? [
-            Colors.white.withValues(alpha: 0.10),
-            theme.colorScheme.surface.withValues(alpha: 0.44),
-            Colors.black.withValues(alpha: 0.10),
-          ]
-        : [
-            Colors.white.withValues(alpha: 0.32),
-            Colors.white.withValues(alpha: 0.18),
-            Colors.white.withValues(alpha: 0.10),
-          ];
-    final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.12)
-        : Colors.white.withValues(alpha: 0.55);
+    return LiquidGlass(
+      borderRadius: 30,
+      shadows: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.10),
+          blurRadius: 26,
+          offset: const Offset(0, 14),
+        ),
+      ],
+      child: SizedBox(
+        height: 68,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            const inset = 6.0;
+            const indicatorH = 52.0;
+            final itemWidth = constraints.maxWidth / _tabs.length;
+            final indicatorW = itemWidth - inset * 2;
 
-    final selectedIndex = _tabs.indexOf(selectedTab);
+            return AnimatedBuilder(
+              animation: _slide,
+              builder: (context, _) {
+                // Springy position with a subtle overshoot.
+                final t = Curves.easeOutBack.transform(_slide.value);
+                final pos = _fromIndex + (_toIndex - _fromIndex) * t;
+                final left = pos * itemWidth + inset;
+                // Squash-and-stretch: widen mid-transit, settle back to 1 — the
+                // "liquid" feel.
+                final pulse = math.sin(math.pi * _slide.value.clamp(0.0, 1.0));
+                final stretchX = 1 + pulse * 0.16;
+                final squashY = 1 - pulse * 0.06;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(30),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
-        child: Container(
-          height: 68,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: gradientColors,
-            ),
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: borderColor),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.08),
-                blurRadius: 26,
-                offset: const Offset(0, 14),
-              ),
-              BoxShadow(
-                color: Colors.white.withValues(alpha: 0.04),
-                blurRadius: 1,
-                offset: const Offset(0, 1),
-              ),
-            ],
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              const indicatorInset = 6.0;
-              final itemWidth = constraints.maxWidth / _tabs.length;
-              final indicatorWidth = itemWidth - indicatorInset * 2;
-              final indicatorLeft = selectedIndex * itemWidth + indicatorInset;
-              return Stack(
-                children: [
-                  AnimatedPositioned(
-                    duration: const Duration(milliseconds: 360),
-                    curve: Curves.easeOutCubic,
-                    left: indicatorLeft,
-                    top: (68 - 52) / 2,
-                    width: indicatorWidth,
-                    height: 52,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withValues(
-                          alpha: isDark ? 0.14 : 0.18,
-                        ),
-                        borderRadius: BorderRadius.circular(22),
-                        border: Border.all(
-                          color: theme.colorScheme.primary.withValues(
-                            alpha: 0.22,
-                          ),
-                          width: 1,
-                        ),
+                return Stack(
+                  children: [
+                    Positioned(
+                      left: left,
+                      top: (68 - indicatorH) / 2,
+                      width: indicatorW,
+                      height: indicatorH,
+                      child: Transform.scale(
+                        scaleX: stretchX,
+                        scaleY: squashY,
+                        child: _GlassIndicator(isDark: isDark),
                       ),
                     ),
-                  ),
-                  Row(
-                    children: [
-                      _TabItem(
-                        icon: LineIcons.home,
-                        label: 'Home',
-                        active: selectedTab == _Tab.home,
-                        onTap: () => onSelected(_Tab.home),
-                      ),
-                      _TabItem(
-                        icon: LineIcons.bookOpen,
-                        label: 'Journal',
-                        active: selectedTab == _Tab.journal,
-                        onTap: () => onSelected(_Tab.journal),
-                      ),
-                      _TabItem(
-                        icon: LineIcons.bullseye,
-                        label: 'Track',
-                        active: selectedTab == _Tab.track,
-                        onTap: () => onSelected(_Tab.track),
-                      ),
-                      _TabItem(
-                        icon: LineIcons.barChart,
-                        label: 'Insights',
-                        active: selectedTab == _Tab.insights,
-                        onTap: () => onSelected(_Tab.insights),
-                      ),
-                    ],
-                  ),
-                ],
-              );
-            },
-          ),
+                    Row(
+                      children: [
+                        _TabItem(
+                          icon: LineIcons.home,
+                          label: 'Home',
+                          active: widget.selectedTab == _Tab.home,
+                          onTap: () => widget.onSelected(_Tab.home),
+                        ),
+                        _TabItem(
+                          icon: LineIcons.bookOpen,
+                          label: 'Journal',
+                          active: widget.selectedTab == _Tab.journal,
+                          onTap: () => widget.onSelected(_Tab.journal),
+                        ),
+                        _TabItem(
+                          icon: LineIcons.bullseye,
+                          label: 'Track',
+                          active: widget.selectedTab == _Tab.track,
+                          onTap: () => widget.onSelected(_Tab.track),
+                        ),
+                        _TabItem(
+                          icon: LineIcons.barChart,
+                          label: 'Insights',
+                          active: widget.selectedTab == _Tab.insights,
+                          onTap: () => widget.onSelected(_Tab.insights),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            );
+          },
         ),
+      ),
+    );
+  }
+}
+
+/// The glassy capsule behind the active tab — a brighter glass pane with a top
+/// specular highlight and a soft accent glow.
+class _GlassIndicator extends StatelessWidget {
+  final bool isDark;
+
+  const _GlassIndicator({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            primary.withValues(alpha: isDark ? 0.30 : 0.34),
+            primary.withValues(alpha: isDark ? 0.12 : 0.16),
+          ],
+        ),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: isDark ? 0.22 : 0.40),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: primary.withValues(alpha: 0.18),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
     );
   }
@@ -807,37 +844,41 @@ class _FloatingPenButton extends StatelessWidget {
       child: PressScale(
         onTap: onTap,
         scale: 0.9,
-        child: Container(
-          width: 52,
-          height: 52,
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primary,
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: theme.scaffoldBackgroundColor.withValues(alpha: 0.55),
-              width: 3,
+        child: LiquidGlass(
+          circle: true,
+          tint: theme.colorScheme.primary,
+          blurSigma: 18,
+          shadows: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.28),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.24),
-                blurRadius: 18,
-                offset: const Offset(0, 8),
+            BoxShadow(
+              color: theme.colorScheme.primary.withValues(alpha: 0.25),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+          child: SizedBox(
+            width: 52,
+            height: 52,
+            child: Center(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 260),
+                switchInCurve: Curves.easeOutBack,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) => ScaleTransition(
+                  scale: animation,
+                  child: FadeTransition(opacity: animation, child: child),
+                ),
+                child: Icon(
+                  icon,
+                  key: ValueKey(icon.codePoint),
+                  color: theme.colorScheme.onPrimary,
+                  size: 26,
+                ),
               ),
-            ],
-          ),
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 260),
-            switchInCurve: Curves.easeOutBack,
-            switchOutCurve: Curves.easeInCubic,
-            transitionBuilder: (child, animation) => ScaleTransition(
-              scale: animation,
-              child: FadeTransition(opacity: animation, child: child),
-            ),
-            child: Icon(
-              icon,
-              key: ValueKey(icon.codePoint),
-              color: theme.colorScheme.onPrimary,
-              size: 26,
             ),
           ),
         ),
@@ -927,18 +968,23 @@ class _ActionSheet extends StatelessWidget {
     final theme = Theme.of(context);
 
     return SafeArea(
-      child: Container(
-        margin: const EdgeInsets.all(14),
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: theme.dividerColor),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: LiquidGlass(
+          borderRadius: 28,
+          shadows: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.30),
+              blurRadius: 30,
+              offset: const Offset(0, 12),
+            ),
+          ],
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             Center(
               child: Container(
                 width: 42,
@@ -985,7 +1031,9 @@ class _ActionSheet extends StatelessWidget {
                 onTap: onDelay,
               ),
             ),
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );

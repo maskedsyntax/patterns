@@ -16,6 +16,7 @@ class TodayScreen extends ConsumerStatefulWidget {
   final VoidCallback onJournal;
   final VoidCallback onTrack;
   final VoidCallback onDelay;
+  final VoidCallback onErp;
   final VoidCallback onSettings;
 
   const TodayScreen({
@@ -23,6 +24,7 @@ class TodayScreen extends ConsumerStatefulWidget {
     required this.onJournal,
     required this.onTrack,
     required this.onDelay,
+    required this.onErp,
     required this.onSettings,
   });
 
@@ -120,6 +122,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 14),
+            _ErpCard(onTap: widget.onErp),
             const SizedBox(height: 14),
             _DelayCard(onTap: widget.onDelay),
             const SizedBox(height: 28),
@@ -255,18 +259,18 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                 duration: const Duration(milliseconds: 220),
                 switchInCurve: Curves.easeOutCubic,
                 switchOutCurve: Curves.easeInCubic,
-                transitionBuilder: (child, animation) => FadeTransition(
-                  opacity: animation,
-                  child: child,
-                ),
+                transitionBuilder: (child, animation) =>
+                    FadeTransition(opacity: animation, child: child),
                 child: _isSearching
                     ? _InlineSearchBar(
                         key: const ValueKey('search'),
                         controller: _searchController,
                         focusNode: _searchFocus,
-                        onChanged: (value) => ref
-                            .read(journalSearchQueryProvider.notifier)
-                            .query = value,
+                        onChanged: (value) =>
+                            ref
+                                    .read(journalSearchQueryProvider.notifier)
+                                    .query =
+                                value,
                         onCancel: _exitSearch,
                       )
                     : Row(
@@ -309,8 +313,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                             isToday: index == 0,
                             onTap: () => Navigator.of(context).push(
                               MaterialPageRoute<void>(
-                                builder: (_) =>
-                                    JournalEntryEditor(date: date),
+                                builder: (_) => JournalEntryEditor(date: date),
                               ),
                             ),
                           );
@@ -327,9 +330,9 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                   final sorted = List<JournalEntry>.from(entries)
                     ..sort((a, b) => b.date.compareTo(a.date));
                   final query = ref.watch(journalSearchQueryProvider);
-                  final todayKey = DateFormat('yyyy-MM-dd').format(
-                    DateTime.now(),
-                  );
+                  final todayKey = DateFormat(
+                    'yyyy-MM-dd',
+                  ).format(DateTime.now());
                   final hasTodayEntry = entries.any(
                     (entry) => entry.date == todayKey,
                   );
@@ -360,9 +363,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                             : 'A few quiet lines are enough to begin.',
                       )
                     else
-                      ...sorted.map(
-                        (entry) => _JournalListCard(entry: entry),
-                      ),
+                      ...sorted.map((entry) => _JournalListCard(entry: entry)),
                   ];
                   return ListView(
                     padding: const EdgeInsets.fromLTRB(20, 12, 20, 116),
@@ -444,11 +445,7 @@ class _InlineSearchBarState extends State<_InlineSearchBar> {
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Row(
               children: [
-                Icon(
-                  LineIcons.search,
-                  size: 18,
-                  color: AppTheme.textSecondary,
-                ),
+                Icon(LineIcons.search, size: 18, color: AppTheme.textSecondary),
                 const SizedBox(width: 10),
                 Expanded(
                   child: TextField(
@@ -597,19 +594,21 @@ class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
                           duration: const Duration(milliseconds: 240),
                           transitionBuilder: (child, animation) =>
                               FadeTransition(
-                            opacity: animation,
-                            child: SizeTransition(
-                              sizeFactor: animation,
-                              axisAlignment: -1,
-                              child: child,
-                            ),
-                          ),
+                                opacity: animation,
+                                child: SizeTransition(
+                                  sizeFactor: animation,
+                                  axisAlignment: -1,
+                                  child: child,
+                                ),
+                              ),
                           child: Text(
                             _saving
                                 ? 'Saving...'
                                 : (_saved ? 'Saved' : 'Unsaved'),
                             key: ValueKey(
-                              _saving ? 'saving' : (_saved ? 'saved' : 'unsaved'),
+                              _saving
+                                  ? 'saving'
+                                  : (_saved ? 'saved' : 'unsaved'),
                             ),
                             style: _muted(theme, 12),
                           ),
@@ -659,10 +658,7 @@ class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
                 children: [
                   JournalFormatToolbar(controller: _controller),
                   const Spacer(),
-                  Text(
-                    'Select text to format',
-                    style: _muted(theme, 11),
-                  ),
+                  Text('Select text to format', style: _muted(theme, 11)),
                 ],
               ),
             ),
@@ -689,9 +685,7 @@ class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
         null,
       ),
       placeHolder: DefaultTextBlockStyle(
-        base.copyWith(
-          color: AppTheme.textSecondary.withValues(alpha: 0.5),
-        ),
+        base.copyWith(color: AppTheme.textSecondary.withValues(alpha: 0.5)),
         const HorizontalSpacing(0, 0),
         const VerticalSpacing(0, 0),
         const VerticalSpacing(0, 0),
@@ -711,8 +705,9 @@ class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
           children: [
             Text(
               'Reset this entry?',
-              style: Theme.of(sheetContext).textTheme.titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800),
+              style: Theme.of(
+                sheetContext,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 10),
             Text(
@@ -949,11 +944,60 @@ class _DelayCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Icon(
-            LineIcons.angleRight,
-            color: AppTheme.textSecondary,
-            size: 18,
+          Icon(LineIcons.angleRight, color: AppTheme.textSecondary, size: 18),
+        ],
+      ),
+    );
+  }
+}
+
+class _ErpCard extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _ErpCard({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return _Card(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              Icons.self_improvement_rounded,
+              color: theme.colorScheme.primary,
+              size: 24,
+            ),
           ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Practice ERP',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Choose a guided exercise for the urge in front of you.',
+                  style: _muted(theme, 14).copyWith(height: 1.35),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Icon(LineIcons.angleRight, color: AppTheme.textSecondary, size: 18),
         ],
       ),
     );

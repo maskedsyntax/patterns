@@ -146,3 +146,62 @@ final delaySessionProvider =
     AsyncNotifierProvider<DelaySessionNotifier, List<DelaySession>>(() {
       return DelaySessionNotifier();
     });
+
+class ErpExercisePlanNotifier extends AsyncNotifier<List<ErpExercisePlan>> {
+  @override
+  Future<List<ErpExercisePlan>> build() async {
+    return await DbHelper.instance.getActiveErpExercisePlans();
+  }
+
+  Future<void> addPlan(ErpExercisePlan plan) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await DbHelper.instance.insertErpExercisePlan(plan);
+      return await DbHelper.instance.getActiveErpExercisePlans();
+    });
+  }
+
+  Future<void> updatePlan(ErpExercisePlan plan) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await DbHelper.instance.updateErpExercisePlan(plan);
+      return await DbHelper.instance.getActiveErpExercisePlans();
+    });
+  }
+
+  Future<void> archivePlan(int id) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await DbHelper.instance.archiveErpExercisePlan(id);
+      return await DbHelper.instance.getActiveErpExercisePlans();
+    });
+  }
+}
+
+final erpExercisePlanProvider =
+    AsyncNotifierProvider<ErpExercisePlanNotifier, List<ErpExercisePlan>>(() {
+      return ErpExercisePlanNotifier();
+    });
+
+class ErpExerciseSessionNotifier
+    extends AsyncNotifier<List<ErpExerciseSession>> {
+  @override
+  Future<List<ErpExerciseSession>> build() async {
+    return await DbHelper.instance.getErpExerciseSessions();
+  }
+
+  Future<void> addSession(ErpExerciseSession session) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await DbHelper.instance.insertErpExerciseSession(session);
+      return await DbHelper.instance.getErpExerciseSessions();
+    });
+  }
+}
+
+final erpExerciseSessionProvider =
+    AsyncNotifierProvider<ErpExerciseSessionNotifier, List<ErpExerciseSession>>(
+      () {
+        return ErpExerciseSessionNotifier();
+      },
+    );

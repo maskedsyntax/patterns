@@ -5,17 +5,21 @@ import 'package:sqflite/sqflite.dart' as mobile_sqflite;
 import 'package:sqflite_common/sqlite_api.dart';
 import '../models/models.dart';
 
-const int _backupSchemaVersion = 2;
+const int _backupSchemaVersion = 3;
 
 class BackupSummary {
   final int journalCount;
   final int ocdCount;
   final int delaySessionCount;
+  final int erpExercisePlanCount;
+  final int erpExerciseSessionCount;
 
   const BackupSummary({
     required this.journalCount,
     required this.ocdCount,
     this.delaySessionCount = 0,
+    this.erpExercisePlanCount = 0,
+    this.erpExerciseSessionCount = 0,
   });
 }
 
@@ -38,7 +42,7 @@ class DbHelper {
     return await _databaseFactory.openDatabase(
       path,
       options: OpenDatabaseOptions(
-        version: 2,
+        version: 3,
         onCreate: _createDB,
         onUpgrade: _onUpgrade,
       ),
@@ -72,12 +76,19 @@ class DbHelper {
     ''');
 
     await _createDelaySessionsTable(db);
+    await _createErpExercisePlansTable(db);
+    await _createErpExerciseSessionsTable(db);
   }
 
   Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
     // v2: Compulsion Delay Tool — added the delay_sessions table.
     if (oldVersion < 2) {
       await _createDelaySessionsTable(db);
+    }
+    // v3: Guided ERP Exercises — added completed exercise sessions.
+    if (oldVersion < 3) {
+      await _createErpExercisePlansTable(db);
+      await _createErpExerciseSessionsTable(db);
     }
   }
 
@@ -94,6 +105,47 @@ class DbHelper {
         urge_before INTEGER,
         urge_after INTEGER,
         outcome INTEGER,
+        note TEXT,
+        created_at TEXT
+      )
+    ''');
+  }
+
+  Future<void> _createErpExercisePlansTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS erp_exercise_plans (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        exercise_id TEXT,
+        exercise_title TEXT,
+        trigger_or_exposure TEXT,
+        fear_prediction TEXT,
+        prevention_commitment TEXT,
+        default_seconds INTEGER,
+        archived INTEGER,
+        created_at TEXT,
+        updated_at TEXT
+      )
+    ''');
+  }
+
+  Future<void> _createErpExerciseSessionsTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS erp_exercise_sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        plan_id INTEGER,
+        exercise_id TEXT,
+        exercise_title TEXT,
+        trigger_or_exposure TEXT,
+        fear_prediction TEXT,
+        prevention_commitment TEXT,
+        planned_seconds INTEGER,
+        actual_seconds INTEGER,
+        completed INTEGER,
+        anxiety_before INTEGER,
+        anxiety_after INTEGER,
+        outcome INTEGER,
+        what_happened TEXT,
+        learning TEXT,
         note TEXT,
         created_at TEXT
       )
@@ -180,12 +232,70 @@ class DbHelper {
     return await db.insert('delay_sessions', session.toMap());
   }
 
+  // Guided ERP Exercise Methods
+  Future<List<ErpExercisePlan>> getActiveErpExercisePlans() async {
+    final db = await instance.database;
+    final result = await db.query(
+      'erp_exercise_plans',
+      where: 'archived = ?',
+      whereArgs: [0],
+      orderBy: 'updated_at DESC',
+    );
+    return result.map((json) => ErpExercisePlan.fromMap(json)).toList();
+  }
+
+  Future<int> insertErpExercisePlan(ErpExercisePlan plan) async {
+    final db = await instance.database;
+    return await db.insert('erp_exercise_plans', plan.toMap());
+  }
+
+  Future<int> updateErpExercisePlan(ErpExercisePlan plan) async {
+    final id = plan.id;
+    if (id == null) {
+      throw ArgumentError('Cannot update an ERP exercise plan without an id');
+    }
+    final db = await instance.database;
+    final map = plan.toMap()..remove('id');
+    return await db.update(
+      'erp_exercise_plans',
+      map,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> archiveErpExercisePlan(int id) async {
+    final db = await instance.database;
+    return await db.update(
+      'erp_exercise_plans',
+      {'archived': 1, 'updated_at': DateTime.now().toIso8601String()},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<List<ErpExerciseSession>> getErpExerciseSessions() async {
+    final db = await instance.database;
+    final result = await db.query(
+      'erp_exercise_sessions',
+      orderBy: 'created_at DESC',
+    );
+    return result.map((json) => ErpExerciseSession.fromMap(json)).toList();
+  }
+
+  Future<int> insertErpExerciseSession(ErpExerciseSession session) async {
+    final db = await instance.database;
+    return await db.insert('erp_exercise_sessions', session.toMap());
+  }
+
   Future<void> clearAll() async {
     final db = await instance.database;
     await db.transaction((txn) async {
       await txn.delete('journal');
       await txn.delete('ocd');
       await txn.delete('delay_sessions');
+      await txn.delete('erp_exercise_plans');
+      await txn.delete('erp_exercise_sessions');
     });
   }
 
@@ -195,11 +305,15 @@ class DbHelper {
     final journal = await db.query('journal');
     final ocd = await db.query('ocd');
     final delaySessions = await db.query('delay_sessions');
+    final erpExercisePlans = await db.query('erp_exercise_plans');
+    final erpExerciseSessions = await db.query('erp_exercise_sessions');
     final data = {
       'schema_version': _backupSchemaVersion,
       'journal': journal,
       'ocd': ocd,
       'delay_sessions': delaySessions,
+      'erp_exercise_plans': erpExercisePlans,
+      'erp_exercise_sessions': erpExerciseSessions,
     };
     return jsonEncode(data);
   }
@@ -213,6 +327,8 @@ class DbHelper {
       await txn.delete('journal');
       await txn.delete('ocd');
       await txn.delete('delay_sessions');
+      await txn.delete('erp_exercise_plans');
+      await txn.delete('erp_exercise_sessions');
       for (final item in _backupList(data, 'journal')) {
         await txn.insert('journal', Map<String, dynamic>.from(item));
       }
@@ -221,6 +337,15 @@ class DbHelper {
       }
       for (final item in _backupList(data, 'delay_sessions')) {
         await txn.insert('delay_sessions', Map<String, dynamic>.from(item));
+      }
+      for (final item in _backupList(data, 'erp_exercise_plans')) {
+        await txn.insert('erp_exercise_plans', Map<String, dynamic>.from(item));
+      }
+      for (final item in _backupList(data, 'erp_exercise_sessions')) {
+        await txn.insert(
+          'erp_exercise_sessions',
+          Map<String, dynamic>.from(item),
+        );
       }
     });
   }
@@ -232,6 +357,11 @@ class DbHelper {
       journalCount: _backupList(data, 'journal').length,
       ocdCount: _backupList(data, 'ocd').length,
       delaySessionCount: _backupList(data, 'delay_sessions').length,
+      erpExercisePlanCount: _backupList(data, 'erp_exercise_plans').length,
+      erpExerciseSessionCount: _backupList(
+        data,
+        'erp_exercise_sessions',
+      ).length,
     );
   }
 
@@ -256,6 +386,8 @@ class DbHelper {
     final journal = _backupList(data, 'journal');
     final ocd = _backupList(data, 'ocd');
     final delaySessions = _backupList(data, 'delay_sessions');
+    final erpExercisePlans = _backupList(data, 'erp_exercise_plans');
+    final erpExerciseSessions = _backupList(data, 'erp_exercise_sessions');
     for (final item in journal) {
       _validateJournalItem(item);
     }
@@ -264,6 +396,12 @@ class DbHelper {
     }
     for (final item in delaySessions) {
       _validateDelaySessionItem(item);
+    }
+    for (final item in erpExercisePlans) {
+      _validateErpExercisePlanItem(item);
+    }
+    for (final item in erpExerciseSessions) {
+      _validateErpExerciseSessionItem(item);
     }
   }
 
@@ -306,6 +444,66 @@ class DbHelper {
       throw const FormatException('Invalid distress level');
     }
     DateTime.parse(item['datetime'] as String);
+    DateTime.parse(item['created_at'] as String);
+  }
+
+  static void _validateErpExercisePlanItem(dynamic item) {
+    if (item is! Map) {
+      throw const FormatException('Invalid ERP exercise plan');
+    }
+    _requireString(item, 'exercise_id');
+    _requireString(item, 'exercise_title');
+    _requireString(item, 'trigger_or_exposure');
+    _requireString(item, 'fear_prediction');
+    _requireString(item, 'prevention_commitment');
+    _requireInt(item, 'default_seconds');
+    _requireInt(item, 'archived');
+    _requireString(item, 'created_at');
+    _requireString(item, 'updated_at');
+    final archived = item['archived'] as int;
+    if (archived != 0 && archived != 1) {
+      throw const FormatException('Invalid ERP exercise plan archive state');
+    }
+    DateTime.parse(item['created_at'] as String);
+    DateTime.parse(item['updated_at'] as String);
+  }
+
+  static void _validateErpExerciseSessionItem(dynamic item) {
+    if (item is! Map) {
+      throw const FormatException('Invalid ERP exercise session');
+    }
+    if (item['plan_id'] != null && item['plan_id'] is! int) {
+      throw const FormatException('Invalid ERP exercise plan id');
+    }
+    _requireString(item, 'exercise_id');
+    _requireString(item, 'exercise_title');
+    _requireString(item, 'trigger_or_exposure');
+    _requireString(item, 'fear_prediction');
+    _requireString(item, 'prevention_commitment');
+    _requireInt(item, 'planned_seconds');
+    _requireInt(item, 'actual_seconds');
+    _requireInt(item, 'completed');
+    _requireInt(item, 'anxiety_before');
+    _requireInt(item, 'anxiety_after');
+    _requireInt(item, 'outcome');
+    _requireString(item, 'what_happened');
+    _requireString(item, 'learning');
+    _requireString(item, 'created_at');
+    if (item['note'] != null && item['note'] is! String) {
+      throw const FormatException('Invalid ERP exercise session note');
+    }
+    final anxietyBefore = item['anxiety_before'] as int;
+    final anxietyAfter = item['anxiety_after'] as int;
+    final outcome = item['outcome'] as int;
+    if (anxietyBefore < 0 ||
+        anxietyBefore > 10 ||
+        anxietyAfter < 0 ||
+        anxietyAfter > 10) {
+      throw const FormatException('Invalid anxiety level');
+    }
+    if (outcome < 0 || outcome >= DelayOutcome.values.length) {
+      throw const FormatException('Invalid ERP exercise outcome');
+    }
     DateTime.parse(item['created_at'] as String);
   }
 

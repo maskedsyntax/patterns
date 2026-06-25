@@ -4,7 +4,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:local_auth/local_auth.dart' show LocalAuthException, LocalAuthExceptionCode;
+import 'package:local_auth/local_auth.dart'
+    show LocalAuthException, LocalAuthExceptionCode;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../database/db_helper.dart';
@@ -102,7 +103,8 @@ class SettingsScreen extends ConsumerWidget {
               _SettingsItem(
                 icon: LineIcons.fileExport,
                 title: 'Export report (PDF)',
-                subtitle: 'Save journal, OCD log, and insights for a date range',
+                subtitle:
+                    'Save journal, OCD log, and insights for a date range',
                 onTap: () => ExportReportSheet.show(context),
               ),
             ],
@@ -321,7 +323,11 @@ class SettingsScreen extends ConsumerWidget {
       if (context.mounted) _showImportPreview(context, ref, jsonStr, summary);
     } on FormatException {
       if (context.mounted) {
-        _showMessage(context, 'Backup file is not valid', type: ToastType.error);
+        _showMessage(
+          context,
+          'Backup file is not valid',
+          type: ToastType.error,
+        );
       }
     } catch (error) {
       if (context.mounted) {
@@ -352,7 +358,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'This backup contains ${summary.journalCount} journal entries, ${summary.ocdCount} OCD events, and ${summary.delaySessionCount} delay sessions. Importing replaces your current entries.',
+              'This backup contains ${summary.journalCount} journal entries, ${summary.ocdCount} OCD events, ${summary.delaySessionCount} delay sessions, ${summary.erpExercisePlanCount} ERP plans, and ${summary.erpExerciseSessionCount} ERP practices. Importing replaces your current entries.',
               style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
             ),
             const SizedBox(height: 20),
@@ -391,10 +397,17 @@ class SettingsScreen extends ConsumerWidget {
       await DbHelper.instance.importAll(jsonStr);
       ref.invalidate(journalProvider);
       ref.invalidate(ocdProvider);
+      ref.invalidate(delaySessionProvider);
+      ref.invalidate(erpExercisePlanProvider);
+      ref.invalidate(erpExerciseSessionProvider);
       if (context.mounted) _showMessage(context, 'Data imported');
     } on FormatException {
       if (context.mounted) {
-        _showMessage(context, 'Backup file is not valid', type: ToastType.error);
+        _showMessage(
+          context,
+          'Backup file is not valid',
+          type: ToastType.error,
+        );
       }
     } catch (error) {
       if (context.mounted) {
@@ -420,7 +433,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'This deletes local journal entries, OCD events, and app preferences from this device. This cannot be undone.',
+              'This deletes local journal entries, OCD events, ERP practice history, and app preferences from this device. This cannot be undone.',
               style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
             ),
             const SizedBox(height: 20),
@@ -441,6 +454,9 @@ class SettingsScreen extends ConsumerWidget {
                       await clearLocalPreferences();
                       ref.invalidate(journalProvider);
                       ref.invalidate(ocdProvider);
+                      ref.invalidate(delaySessionProvider);
+                      ref.invalidate(erpExercisePlanProvider);
+                      ref.invalidate(erpExerciseSessionProvider);
                       if (context.mounted) {
                         _showMessage(context, 'Local data wiped');
                       }
@@ -520,7 +536,11 @@ class SettingsScreen extends ConsumerWidget {
         case LocalAuthExceptionCode.noCredentialsSet:
         case LocalAuthExceptionCode.noBiometricHardware:
         case LocalAuthExceptionCode.biometricHardwareTemporarilyUnavailable:
-          _showMessage(context, 'Device lock unavailable', type: ToastType.error);
+          _showMessage(
+            context,
+            'Device lock unavailable',
+            type: ToastType.error,
+          );
           break;
         default:
           _showMessage(
@@ -580,14 +600,13 @@ class SettingsScreen extends ConsumerWidget {
       initialTime: TimeOfDay(hour: settings.hour, minute: settings.minute),
     );
     if (picked == null) return;
-    await ref.read(reminderProvider.notifier).setTime(picked.hour, picked.minute);
+    await ref
+        .read(reminderProvider.notifier)
+        .setTime(picked.hour, picked.minute);
     if (ref.read(reminderProvider).enabled) {
       await NotificationService.scheduleDailyReminder(picked);
       if (context.mounted) {
-        _showMessage(
-          context,
-          'Reminder set for ${picked.format(context)}',
-        );
+        _showMessage(context, 'Reminder set for ${picked.format(context)}');
       }
     }
   }

@@ -4,7 +4,8 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:local_auth/local_auth.dart' show LocalAuthException, LocalAuthExceptionCode;
+import 'package:local_auth/local_auth.dart'
+    show LocalAuthException, LocalAuthExceptionCode;
 
 import '../models/models.dart';
 import '../theme/app_theme.dart';
@@ -14,6 +15,7 @@ import 'biometric_auth.dart';
 import 'preferences.dart';
 import 'screens/analytics_screen.dart';
 import 'screens/compulsion_delay_screen.dart';
+import 'screens/erp_exercises_screen.dart';
 import 'screens/journal_screen.dart';
 import 'screens/ocd_tracker_screen.dart';
 import 'screens/settings_screen.dart';
@@ -141,9 +143,7 @@ class _PrivacyScreenState extends ConsumerState<_PrivacyScreen>
         _lifecycleCovered = false;
         _didBackground = false;
       });
-      if (shouldReauth &&
-          _locked &&
-          ref.read(appLockEnabledProvider)) {
+      if (shouldReauth && _locked && ref.read(appLockEnabledProvider)) {
         _authenticate();
       }
       return;
@@ -228,12 +228,15 @@ class _PrivacyScreenState extends ConsumerState<_PrivacyScreen>
           // Unlock button so the user can retry on their own.
           break;
         case LocalAuthExceptionCode.temporaryLockout:
-          setState(() => _errorMessage =
-              'Too many attempts. Try again in a moment.');
+          setState(
+            () => _errorMessage = 'Too many attempts. Try again in a moment.',
+          );
           break;
         case LocalAuthExceptionCode.biometricLockout:
-          setState(() => _errorMessage =
-              'Biometric authentication is locked. Unlock your device with your passcode to reset it.');
+          setState(
+            () => _errorMessage =
+                'Biometric authentication is locked. Unlock your device with your passcode to reset it.',
+          );
           break;
         case LocalAuthExceptionCode.noBiometricsEnrolled:
         case LocalAuthExceptionCode.noCredentialsSet:
@@ -251,13 +254,13 @@ class _PrivacyScreenState extends ConsumerState<_PrivacyScreen>
           }
           break;
         default:
-          setState(() => _errorMessage =
-              'Could not unlock Patterns. Try again.');
+          setState(
+            () => _errorMessage = 'Could not unlock Patterns. Try again.',
+          );
       }
     } catch (_) {
       if (mounted) {
-        setState(() => _errorMessage =
-            'Could not unlock Patterns. Try again.');
+        setState(() => _errorMessage = 'Could not unlock Patterns. Try again.');
       }
     } finally {
       // Defer clearing the in-progress flag until after the next frame. The
@@ -327,10 +330,7 @@ class _PrivacyCover extends StatelessWidget {
                 child: Text(
                   message!,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppTheme.textSecondary,
-                    height: 1.4,
-                  ),
+                  style: TextStyle(color: AppTheme.textSecondary, height: 1.4),
                 ),
               ),
             ],
@@ -501,7 +501,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 }
 
-enum _Tab { home, journal, track, insights }
+enum _Tab { home, journal, track, erp, insights }
 
 class MobileHome extends ConsumerStatefulWidget {
   const MobileHome({super.key});
@@ -519,6 +519,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
       onJournal: () => _openJournalEditor(context),
       onTrack: () => _openOcdFlow(context),
       onDelay: () => _openDelayFlow(context),
+      onErp: _openErpTab,
       onSettings: () => Navigator.of(
         context,
       ).push(MaterialPageRoute<void>(builder: (_) => const SettingsScreen())),
@@ -530,6 +531,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
         onAdd: () => _openOcdFlow(context),
         onDelay: () => _openDelayFlow(context),
       ),
+      _Tab.erp: const ErpExercisesScreen(),
       _Tab.insights: const AnalyticsScreen(),
     };
 
@@ -640,6 +642,11 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
     );
   }
 
+  void _openErpTab() {
+    if (_selectedTab == _Tab.erp) return;
+    setState(() => _selectedTab = _Tab.erp);
+  }
+
   void _showAddSheet(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
@@ -656,6 +663,10 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
         onDelay: () {
           Navigator.pop(context);
           _openDelayFlow(context);
+        },
+        onErp: () {
+          Navigator.pop(context);
+          _openErpTab();
         },
       ),
     );
@@ -767,6 +778,12 @@ class _FloatingTabBarState extends State<_FloatingTabBar>
                           label: 'Track',
                           active: widget.selectedTab == _Tab.track,
                           onTap: () => widget.onSelected(_Tab.track),
+                        ),
+                        _TabItem(
+                          icon: Icons.self_improvement_rounded,
+                          label: 'ERP',
+                          active: widget.selectedTab == _Tab.erp,
+                          onTap: () => widget.onSelected(_Tab.erp),
                         ),
                         _TabItem(
                           icon: LineIcons.barChart,
@@ -956,11 +973,13 @@ class _ActionSheet extends StatelessWidget {
   final VoidCallback onJournal;
   final VoidCallback onOcd;
   final VoidCallback onDelay;
+  final VoidCallback onErp;
 
   const _ActionSheet({
     required this.onJournal,
     required this.onOcd,
     required this.onDelay,
+    required this.onErp,
   });
 
   @override
@@ -985,52 +1004,61 @@ class _ActionSheet extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-            Center(
-              child: Container(
-                width: 42,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.dividerColor,
-                  borderRadius: BorderRadius.circular(100),
+                Center(
+                  child: Container(
+                    width: 42,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: theme.dividerColor,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 22),
-            FadeSlideIn(
-              child: Text(
-                'What do you want to add?',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
+                const SizedBox(height: 22),
+                FadeSlideIn(
+                  child: Text(
+                    'What do you want to add?',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            FadeSlideIn(
-              delay: const Duration(milliseconds: 70),
-              child: _SheetAction(
-                icon: LineIcons.penNib,
-                title: 'Journal Entry',
-                onTap: onJournal,
-              ),
-            ),
-            const SizedBox(height: 10),
-            FadeSlideIn(
-              delay: const Duration(milliseconds: 140),
-              child: _SheetAction(
-                icon: LineIcons.bullseye,
-                title: 'OCD Event',
-                onTap: onOcd,
-              ),
-            ),
-            const SizedBox(height: 10),
-            FadeSlideIn(
-              delay: const Duration(milliseconds: 210),
-              child: _SheetAction(
-                icon: LineIcons.hourglassHalf,
-                title: 'Pause an Urge',
-                onTap: onDelay,
-              ),
-            ),
+                const SizedBox(height: 16),
+                FadeSlideIn(
+                  delay: const Duration(milliseconds: 70),
+                  child: _SheetAction(
+                    icon: LineIcons.penNib,
+                    title: 'Journal Entry',
+                    onTap: onJournal,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                FadeSlideIn(
+                  delay: const Duration(milliseconds: 140),
+                  child: _SheetAction(
+                    icon: LineIcons.bullseye,
+                    title: 'OCD Event',
+                    onTap: onOcd,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                FadeSlideIn(
+                  delay: const Duration(milliseconds: 210),
+                  child: _SheetAction(
+                    icon: Icons.self_improvement_rounded,
+                    title: 'Guided ERP',
+                    onTap: onErp,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                FadeSlideIn(
+                  delay: const Duration(milliseconds: 280),
+                  child: _SheetAction(
+                    icon: LineIcons.hourglassHalf,
+                    title: 'Pause an Urge',
+                    onTap: onDelay,
+                  ),
+                ),
               ],
             ),
           ),

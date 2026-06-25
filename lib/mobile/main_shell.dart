@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -673,42 +671,27 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
   }
 }
 
-class _FloatingTabBar extends StatefulWidget {
+class _FloatingTabBar extends StatelessWidget {
   final _Tab selectedTab;
   final ValueChanged<_Tab> onSelected;
 
   const _FloatingTabBar({required this.selectedTab, required this.onSelected});
 
-  @override
-  State<_FloatingTabBar> createState() => _FloatingTabBarState();
-}
-
-class _FloatingTabBarState extends State<_FloatingTabBar>
-    with SingleTickerProviderStateMixin {
-  static const _tabs = _Tab.values;
-
-  late final AnimationController _slide = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 440),
-  )..value = 1;
-  late int _fromIndex = _tabs.indexOf(widget.selectedTab);
-  late int _toIndex = _fromIndex;
-
-  @override
-  void didUpdateWidget(_FloatingTabBar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.selectedTab != widget.selectedTab) {
-      _fromIndex = _toIndex;
-      _toIndex = _tabs.indexOf(widget.selectedTab);
-      _slide.forward(from: 0);
-    }
-  }
-
-  @override
-  void dispose() {
-    _slide.dispose();
-    super.dispose();
-  }
+  static const _items = [
+    _DockTabSpec(tab: _Tab.home, icon: LineIcons.home, label: 'Home'),
+    _DockTabSpec(tab: _Tab.journal, icon: LineIcons.bookOpen, label: 'Journal'),
+    _DockTabSpec(tab: _Tab.track, icon: LineIcons.bullseye, label: 'Track'),
+    _DockTabSpec(
+      tab: _Tab.erp,
+      icon: Icons.self_improvement_rounded,
+      label: 'ERP',
+    ),
+    _DockTabSpec(
+      tab: _Tab.insights,
+      icon: LineIcons.barChart,
+      label: 'Insights',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -716,125 +699,33 @@ class _FloatingTabBarState extends State<_FloatingTabBar>
     final isDark = theme.brightness == Brightness.dark;
 
     return LiquidGlass(
-      borderRadius: 30,
+      borderRadius: 28,
+      tint: isDark ? AppTheme.charcoalCard : AppTheme.deepCharcoal,
+      opacity: isDark ? 0.58 : 0.44,
+      blurSigma: 22,
+      saturation: 1.25,
       shadows: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.10),
-          blurRadius: 26,
-          offset: const Offset(0, 14),
+          color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.12),
+          blurRadius: 30,
+          offset: const Offset(0, 16),
         ),
       ],
       child: SizedBox(
-        height: 68,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            const inset = 6.0;
-            const indicatorH = 52.0;
-            final itemWidth = constraints.maxWidth / _tabs.length;
-            final indicatorW = itemWidth - inset * 2;
-
-            return AnimatedBuilder(
-              animation: _slide,
-              builder: (context, _) {
-                // Springy position with a subtle overshoot.
-                final t = Curves.easeOutBack.transform(_slide.value);
-                final pos = _fromIndex + (_toIndex - _fromIndex) * t;
-                final left = pos * itemWidth + inset;
-                // Squash-and-stretch: widen mid-transit, settle back to 1 — the
-                // "liquid" feel.
-                final pulse = math.sin(math.pi * _slide.value.clamp(0.0, 1.0));
-                final stretchX = 1 + pulse * 0.16;
-                final squashY = 1 - pulse * 0.06;
-
-                return Stack(
-                  children: [
-                    Positioned(
-                      left: left,
-                      top: (68 - indicatorH) / 2,
-                      width: indicatorW,
-                      height: indicatorH,
-                      child: Transform.scale(
-                        scaleX: stretchX,
-                        scaleY: squashY,
-                        child: _GlassIndicator(isDark: isDark),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        _TabItem(
-                          icon: LineIcons.home,
-                          label: 'Home',
-                          active: widget.selectedTab == _Tab.home,
-                          onTap: () => widget.onSelected(_Tab.home),
-                        ),
-                        _TabItem(
-                          icon: LineIcons.bookOpen,
-                          label: 'Journal',
-                          active: widget.selectedTab == _Tab.journal,
-                          onTap: () => widget.onSelected(_Tab.journal),
-                        ),
-                        _TabItem(
-                          icon: LineIcons.bullseye,
-                          label: 'Track',
-                          active: widget.selectedTab == _Tab.track,
-                          onTap: () => widget.onSelected(_Tab.track),
-                        ),
-                        _TabItem(
-                          icon: Icons.self_improvement_rounded,
-                          label: 'ERP',
-                          active: widget.selectedTab == _Tab.erp,
-                          onTap: () => widget.onSelected(_Tab.erp),
-                        ),
-                        _TabItem(
-                          icon: LineIcons.barChart,
-                          label: 'Insights',
-                          active: widget.selectedTab == _Tab.insights,
-                          onTap: () => widget.onSelected(_Tab.insights),
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              },
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-/// The glassy capsule behind the active tab — a brighter glass pane with a top
-/// specular highlight and a soft accent glow.
-class _GlassIndicator extends StatelessWidget {
-  final bool isDark;
-
-  const _GlassIndicator({required this.isDark});
-
-  @override
-  Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            primary.withValues(alpha: isDark ? 0.30 : 0.34),
-            primary.withValues(alpha: isDark ? 0.12 : 0.16),
-          ],
-        ),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: isDark ? 0.22 : 0.40),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: primary.withValues(alpha: 0.18),
-            blurRadius: 12,
-            offset: const Offset(0, 3),
+        height: 74,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: Row(
+            children: [
+              for (final item in _items)
+                _SegmentTabItem(
+                  spec: item,
+                  active: selectedTab == item.tab,
+                  onTap: () => onSelected(item.tab),
+                ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -904,15 +795,25 @@ class _FloatingPenButton extends StatelessWidget {
   }
 }
 
-class _TabItem extends StatelessWidget {
+class _DockTabSpec {
+  final _Tab tab;
   final IconData icon;
   final String label;
+
+  const _DockTabSpec({
+    required this.tab,
+    required this.icon,
+    required this.label,
+  });
+}
+
+class _SegmentTabItem extends StatelessWidget {
+  final _DockTabSpec spec;
   final bool active;
   final VoidCallback onTap;
 
-  const _TabItem({
-    required this.icon,
-    required this.label,
+  const _SegmentTabItem({
+    required this.spec,
     required this.active,
     required this.onTap,
   });
@@ -923,44 +824,99 @@ class _TabItem extends StatelessWidget {
     final inactiveColor = theme.brightness == Brightness.dark
         ? AppTheme.textSecondary
         : AppTheme.lightTextPrimary.withValues(alpha: 0.72);
-    final color = active ? theme.colorScheme.primary : inactiveColor;
+    final primary = theme.colorScheme.primary;
+    final activeBackground = primary.withValues(
+      alpha: theme.brightness == Brightness.dark ? 0.14 : 0.08,
+    );
 
     return Expanded(
-      child: PressScale(
-        scale: 0.94,
-        onTap: onTap,
-        child: Center(
-          child: AnimatedScale(
-            scale: active ? 1.05 : 1.0,
-            duration: const Duration(milliseconds: 260),
-            curve: Curves.easeOutCubic,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0, end: active ? 1 : 0),
-                  duration: const Duration(milliseconds: 320),
-                  curve: Curves.easeOutCubic,
-                  builder: (context, t, _) {
-                    return Icon(
-                      icon,
-                      size: 22 + (t * 1.5),
-                      color: Color.lerp(inactiveColor, color, t),
-                    );
-                  },
-                ),
-                const SizedBox(height: 5),
-                AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 260),
-                  curve: Curves.easeOutCubic,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 11,
-                    fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+      child: Tooltip(
+        message: spec.label,
+        child: Semantics(
+          button: true,
+          selected: active,
+          label: spec.label,
+          child: PressScale(
+            scale: 0.96,
+            onTap: onTap,
+            child: SizedBox.expand(
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 5, 4, 5),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 240),
+                        curve: Curves.easeOutCubic,
+                        decoration: BoxDecoration(
+                          color: active ? activeBackground : Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
                   ),
-                  child: Text(label),
-                ),
-              ],
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 240),
+                    curve: Curves.easeOutCubic,
+                    top: 0,
+                    left: active ? 18 : 28,
+                    right: active ? 18 : 28,
+                    height: 3,
+                    child: AnimatedOpacity(
+                      opacity: active ? 1 : 0,
+                      duration: const Duration(milliseconds: 180),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: primary,
+                          borderRadius: const BorderRadius.vertical(
+                            bottom: Radius.circular(999),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 9, 4, 6),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AnimatedScale(
+                            scale: active ? 1.05 : 1,
+                            duration: const Duration(milliseconds: 220),
+                            curve: Curves.easeOutCubic,
+                            child: Icon(
+                              spec.icon,
+                              size: 23,
+                              color: active ? primary : inactiveColor,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 220),
+                              curve: Curves.easeOutCubic,
+                              style: TextStyle(
+                                color: active ? primary : inactiveColor,
+                                fontSize: 10.5,
+                                fontWeight: active
+                                    ? FontWeight.w900
+                                    : FontWeight.w700,
+                              ),
+                              child: Text(
+                                spec.label,
+                                maxLines: 1,
+                                softWrap: false,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

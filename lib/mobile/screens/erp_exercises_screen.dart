@@ -786,8 +786,9 @@ class _ErpPlanPracticeFlowState extends ConsumerState<ErpPlanPracticeFlow>
                             Text(
                               _formatDuration(remaining),
                               style: TextStyle(
-                                fontSize: 44,
-                                fontWeight: FontWeight.w900,
+                                fontFamily: AppTheme.displayFamily,
+                                fontSize: 52,
+                                fontWeight: FontWeight.w700,
                                 color: theme.colorScheme.onSurface,
                               ),
                             ),
@@ -1343,10 +1344,7 @@ class _RecentPracticeRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final delta = session.anxietyBefore - session.anxietyAfter;
-    final label = delta > 0
-        ? '-$delta'
-        : (delta == 0 ? 'same' : '+${delta.abs()}');
+    final ratingChange = '${session.anxietyBefore} → ${session.anxietyAfter}';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1387,7 +1385,7 @@ class _RecentPracticeRow extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Text(
-            label,
+            ratingChange,
             style: TextStyle(
               color: theme.colorScheme.primary,
               fontWeight: FontWeight.w900,

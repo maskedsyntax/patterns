@@ -709,15 +709,15 @@ class _FloatingTabBar extends StatelessWidget {
 
     return LiquidGlass(
       borderRadius: 28,
-      tint: isDark ? AppTheme.charcoalCard : AppTheme.deepCharcoal,
-      opacity: isDark ? 0.58 : 0.44,
-      blurSigma: 22,
-      saturation: 1.25,
+      tint: isDark ? AppTheme.charcoalCard : AppTheme.mobileLightBg,
+      opacity: isDark ? 0.58 : 0.88,
+      blurSigma: isDark ? 22 : 20,
+      saturation: isDark ? 1.25 : 1.12,
       shadows: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.12),
-          blurRadius: 30,
-          offset: const Offset(0, 16),
+          color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.16),
+          blurRadius: isDark ? 30 : 24,
+          offset: const Offset(0, 14),
         ),
       ],
       child: SizedBox(
@@ -830,12 +830,13 @@ class _SegmentTabItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final inactiveColor = theme.brightness == Brightness.dark
+    final isDark = theme.brightness == Brightness.dark;
+    final inactiveColor = isDark
         ? AppTheme.textSecondary
-        : AppTheme.lightTextPrimary.withValues(alpha: 0.72);
-    final primary = theme.colorScheme.primary;
-    final activeBackground = primary.withValues(
-      alpha: theme.brightness == Brightness.dark ? 0.14 : 0.08,
+        : AppTheme.lightTextPrimary.withValues(alpha: 0.86);
+    final activeColor = theme.colorScheme.primary;
+    final activeBackground = activeColor.withValues(
+      alpha: isDark ? 0.14 : 0.13,
     );
 
     return Expanded(
@@ -860,6 +861,13 @@ class _SegmentTabItem extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: active ? activeBackground : Colors.transparent,
                           borderRadius: BorderRadius.circular(20),
+                          border: active
+                              ? Border.all(
+                                  color: activeColor.withValues(
+                                    alpha: isDark ? 0.10 : 0.16,
+                                  ),
+                                )
+                              : null,
                         ),
                       ),
                     ),
@@ -876,7 +884,7 @@ class _SegmentTabItem extends StatelessWidget {
                       duration: const Duration(milliseconds: 180),
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: primary,
+                          color: activeColor,
                           borderRadius: const BorderRadius.vertical(
                             bottom: Radius.circular(999),
                           ),
@@ -897,7 +905,7 @@ class _SegmentTabItem extends StatelessWidget {
                             child: Icon(
                               spec.icon,
                               size: 23,
-                              color: active ? primary : inactiveColor,
+                              color: active ? activeColor : inactiveColor,
                             ),
                           ),
                           const SizedBox(height: 5),
@@ -907,7 +915,7 @@ class _SegmentTabItem extends StatelessWidget {
                               duration: const Duration(milliseconds: 220),
                               curve: Curves.easeOutCubic,
                               style: TextStyle(
-                                color: active ? primary : inactiveColor,
+                                color: active ? activeColor : inactiveColor,
                                 fontSize: 10.5,
                                 fontWeight: active
                                     ? FontWeight.w900

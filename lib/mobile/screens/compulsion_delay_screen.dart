@@ -1,12 +1,15 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:line_icons/line_icons.dart';
 
 import '../../models/models.dart';
 import '../../providers/providers.dart';
+import '../../services/notification_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 import '../../widgets/app_snack_bar.dart';
@@ -28,7 +31,7 @@ class CompulsionDelayFlow extends ConsumerStatefulWidget {
 }
 
 class _CompulsionDelayFlowState extends ConsumerState<CompulsionDelayFlow>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   _Phase _phase = _Phase.setup;
 
   // Setup
@@ -40,6 +43,9 @@ class _CompulsionDelayFlowState extends ConsumerState<CompulsionDelayFlow>
 
   // Countdown
   late final AnimationController _timer = AnimationController(vsync: this);
+  DateTime? _timerStartedAt;
+  DateTime? _timerEndsAt;
+  bool _completionNotificationScheduled = false;
 
   // Reflection
   double _urgeAfter = 5;
@@ -52,6 +58,7 @@ class _CompulsionDelayFlowState extends ConsumerState<CompulsionDelayFlow>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     if (widget.initialCompulsion != null) {
       _compulsionController.text = widget.initialCompulsion!;
     }
@@ -64,10 +71,31 @@ class _CompulsionDelayFlowState extends ConsumerState<CompulsionDelayFlow>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    if (_phase == _Phase.countdown) {
+      _cancelCompletionNotification();
+    }
     _timer.dispose();
     _compulsionController.dispose();
     _noteController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_phase != _Phase.countdown) return;
+    if (state == AppLifecycleState.resumed) {
+      _syncTimerWithClock();
+      if (_phase == _Phase.countdown) {
+        _cancelCompletionNotification();
+      }
+      return;
+    }
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      _scheduleCompletionNotification();
+    }
   }
 
   // ----- phase transitions -----
@@ -83,23 +111,90 @@ class _CompulsionDelayFlowState extends ConsumerState<CompulsionDelayFlow>
     }
     _plannedSeconds = _custom ? (_customMinutes.round() * 60) : _plannedSeconds;
     _urgeAfter = _urgeBefore;
+    final startedAt = DateTime.now();
+    _timerStartedAt = startedAt;
+    _timerEndsAt = startedAt.add(Duration(seconds: _plannedSeconds));
+    _completionNotificationScheduled = false;
+    unawaited(NotificationService.requestPermission());
     _timer
       ..duration = Duration(seconds: _plannedSeconds)
       ..forward(from: 0);
     setState(() => _phase = _Phase.countdown);
   }
 
-  void _finishTimer({required bool completed}) {
+  void _finishTimer({required bool completed, bool haptic = true}) {
     if (_phase != _Phase.countdown) return;
-    final remaining = (_timer.duration ?? Duration.zero) * (1 - _timer.value);
+    final actualSeconds = _actualElapsedSeconds(completed: completed);
     _timer.stop();
+    _timerStartedAt = null;
+    _timerEndsAt = null;
+    _cancelCompletionNotification();
+    if (completed && haptic) {
+      unawaited(HapticFeedback.mediumImpact());
+    }
     setState(() {
       _completed = completed;
-      _actualSeconds = completed
-          ? _plannedSeconds
-          : (_plannedSeconds - remaining.inSeconds).clamp(0, _plannedSeconds);
+      _actualSeconds = actualSeconds;
       _phase = _Phase.reflection;
     });
+  }
+
+  int _actualElapsedSeconds({required bool completed}) {
+    if (completed) return _plannedSeconds;
+    final startedAt = _timerStartedAt;
+    if (startedAt != null) {
+      return DateTime.now()
+          .difference(startedAt)
+          .inSeconds
+          .clamp(0, _plannedSeconds)
+          .toInt();
+    }
+    final remaining = (_timer.duration ?? Duration.zero) * (1 - _timer.value);
+    return (_plannedSeconds - remaining.inSeconds)
+        .clamp(0, _plannedSeconds)
+        .toInt();
+  }
+
+  void _syncTimerWithClock() {
+    final startedAt = _timerStartedAt;
+    final endsAt = _timerEndsAt;
+    if (startedAt == null || endsAt == null) return;
+    final now = DateTime.now();
+    final wasBackgroundScheduled = _completionNotificationScheduled;
+    if (!now.isBefore(endsAt)) {
+      _finishTimer(completed: true, haptic: !wasBackgroundScheduled);
+      return;
+    }
+    final elapsedMs = now.difference(startedAt).inMilliseconds;
+    final totalMs = Duration(seconds: _plannedSeconds).inMilliseconds;
+    final progress = (elapsedMs / totalMs).clamp(0.0, 0.999);
+    _timer
+      ..duration = Duration(seconds: _plannedSeconds)
+      ..forward(from: progress);
+  }
+
+  void _scheduleCompletionNotification() {
+    final endsAt = _timerEndsAt;
+    if (endsAt == null) return;
+    unawaited(() async {
+      final scheduled =
+          await NotificationService.schedulePracticeTimerCompletion(
+            id: NotificationService.pauseTimerNotificationId,
+            endsAt: endsAt,
+            title: 'Practice window complete',
+            body: 'Take a moment to notice what happened.',
+          );
+      if (mounted) _completionNotificationScheduled = scheduled;
+    }());
+  }
+
+  void _cancelCompletionNotification() {
+    _completionNotificationScheduled = false;
+    unawaited(
+      NotificationService.cancelPracticeTimerCompletion(
+        NotificationService.pauseTimerNotificationId,
+      ),
+    );
   }
 
   void _confirmStop() {

@@ -17,10 +17,17 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   static const int _reminderId = 1001;
+  static const int pauseTimerNotificationId = 2001;
+  static const int erpTimerNotificationId = 2002;
+
   static const String _channelId = 'daily_reminder';
   static const String _channelName = 'Daily reminder';
   static const String _channelDescription =
       'A gentle daily nudge to check in with Patterns.';
+  static const String _practiceTimerChannelId = 'practice_timer';
+  static const String _practiceTimerChannelName = 'Practice timer';
+  static const String _practiceTimerChannelDescription =
+      'A gentle alert when a timed practice window is complete.';
 
   static const int defaultHour = 20; // 8:00 PM
   static const int defaultMinute = 0;
@@ -79,7 +86,11 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<
           IOSFlutterLocalNotificationsPlugin
         >();
-    return await ios?.requestPermissions(alert: true, badge: true, sound: true) ??
+    return await ios?.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        ) ??
         false;
   }
 
@@ -115,6 +126,52 @@ class NotificationService {
     await _plugin.cancel(id: _reminderId);
   }
 
+  /// Schedules a one-shot completion cue for an active ERP/urge timer.
+  ///
+  /// This is intentionally inexact on Android so the app does not need exact
+  /// alarm permissions. The in-app timer still reconciles against wall-clock
+  /// time when the user returns.
+  static Future<bool> schedulePracticeTimerCompletion({
+    required int id,
+    required DateTime endsAt,
+    required String title,
+    required String body,
+  }) async {
+    if (!isSupported) return false;
+    await init();
+    final scheduled = _dateTimeInLocalZone(endsAt);
+    if (!scheduled.isAfter(tz.TZDateTime.now(tz.local))) return false;
+    try {
+      await _plugin.cancel(id: id);
+      await _plugin.zonedSchedule(
+        id: id,
+        title: title,
+        body: body,
+        scheduledDate: scheduled,
+        notificationDetails: const NotificationDetails(
+          android: AndroidNotificationDetails(
+            _practiceTimerChannelId,
+            _practiceTimerChannelName,
+            channelDescription: _practiceTimerChannelDescription,
+            importance: Importance.high,
+            priority: Priority.high,
+          ),
+          iOS: DarwinNotificationDetails(),
+        ),
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      );
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<void> cancelPracticeTimerCompletion(int id) async {
+    if (!isSupported) return;
+    await init();
+    await _plugin.cancel(id: id);
+  }
+
   static tz.TZDateTime _nextInstanceOf(TimeOfDay time) {
     final now = tz.TZDateTime.now(tz.local);
     var scheduled = tz.TZDateTime(
@@ -129,5 +186,20 @@ class NotificationService {
       scheduled = scheduled.add(const Duration(days: 1));
     }
     return scheduled;
+  }
+
+  static tz.TZDateTime _dateTimeInLocalZone(DateTime value) {
+    final local = value.toLocal();
+    return tz.TZDateTime(
+      tz.local,
+      local.year,
+      local.month,
+      local.day,
+      local.hour,
+      local.minute,
+      local.second,
+      local.millisecond,
+      local.microsecond,
+    );
   }
 }

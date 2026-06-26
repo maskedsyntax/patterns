@@ -1,13 +1,16 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
 
 import '../../models/models.dart';
 import '../../providers/providers.dart';
+import '../../services/notification_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 import '../../widgets/app_snack_bar.dart';
@@ -551,7 +554,7 @@ class ErpPlanPracticeFlow extends ConsumerStatefulWidget {
 }
 
 class _ErpPlanPracticeFlowState extends ConsumerState<ErpPlanPracticeFlow>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   _PracticePhase _phase = _PracticePhase.setup;
   double _anxietyBefore = 5;
   double _anxietyAfter = 5;
@@ -559,6 +562,9 @@ class _ErpPlanPracticeFlowState extends ConsumerState<ErpPlanPracticeFlow>
   final TextEditingController _whatHappenedController = TextEditingController();
   final TextEditingController _learningController = TextEditingController();
   late final AnimationController _timer = AnimationController(vsync: this);
+  DateTime? _timerStartedAt;
+  DateTime? _timerEndsAt;
+  bool _completionNotificationScheduled = false;
   bool _completed = false;
   int _actualSeconds = 0;
   bool _saving = false;
@@ -566,6 +572,7 @@ class _ErpPlanPracticeFlowState extends ConsumerState<ErpPlanPracticeFlow>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _timer.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _finishTimer(completed: true);
@@ -575,34 +582,122 @@ class _ErpPlanPracticeFlowState extends ConsumerState<ErpPlanPracticeFlow>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    if (_phase == _PracticePhase.countdown) {
+      _cancelCompletionNotification();
+    }
     _timer.dispose();
     _whatHappenedController.dispose();
     _learningController.dispose();
     super.dispose();
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_phase != _PracticePhase.countdown) return;
+    if (state == AppLifecycleState.resumed) {
+      _syncTimerWithClock();
+      if (_phase == _PracticePhase.countdown) {
+        _cancelCompletionNotification();
+      }
+      return;
+    }
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      _scheduleCompletionNotification();
+    }
+  }
+
   void _begin() {
     _anxietyAfter = _anxietyBefore;
+    final startedAt = DateTime.now();
+    _timerStartedAt = startedAt;
+    _timerEndsAt = startedAt.add(Duration(seconds: widget.plan.defaultSeconds));
+    _completionNotificationScheduled = false;
+    unawaited(NotificationService.requestPermission());
     _timer
       ..duration = Duration(seconds: widget.plan.defaultSeconds)
       ..forward(from: 0);
     setState(() => _phase = _PracticePhase.countdown);
   }
 
-  void _finishTimer({required bool completed}) {
+  void _finishTimer({required bool completed, bool haptic = true}) {
     if (_phase != _PracticePhase.countdown) return;
-    final remaining = (_timer.duration ?? Duration.zero) * (1 - _timer.value);
+    final actualSeconds = _actualElapsedSeconds(completed: completed);
     _timer.stop();
+    _timerStartedAt = null;
+    _timerEndsAt = null;
+    _cancelCompletionNotification();
+    if (completed && haptic) {
+      unawaited(HapticFeedback.mediumImpact());
+    }
     setState(() {
       _completed = completed;
-      _actualSeconds = completed
-          ? widget.plan.defaultSeconds
-          : (widget.plan.defaultSeconds - remaining.inSeconds).clamp(
-              0,
-              widget.plan.defaultSeconds,
-            );
+      _actualSeconds = actualSeconds;
       _phase = _PracticePhase.reflection;
     });
+  }
+
+  int _actualElapsedSeconds({required bool completed}) {
+    final plannedSeconds = widget.plan.defaultSeconds;
+    if (completed) return plannedSeconds;
+    final startedAt = _timerStartedAt;
+    if (startedAt != null) {
+      return DateTime.now()
+          .difference(startedAt)
+          .inSeconds
+          .clamp(0, plannedSeconds)
+          .toInt();
+    }
+    final remaining = (_timer.duration ?? Duration.zero) * (1 - _timer.value);
+    return (plannedSeconds - remaining.inSeconds)
+        .clamp(0, plannedSeconds)
+        .toInt();
+  }
+
+  void _syncTimerWithClock() {
+    final startedAt = _timerStartedAt;
+    final endsAt = _timerEndsAt;
+    if (startedAt == null || endsAt == null) return;
+    final now = DateTime.now();
+    final wasBackgroundScheduled = _completionNotificationScheduled;
+    if (!now.isBefore(endsAt)) {
+      _finishTimer(completed: true, haptic: !wasBackgroundScheduled);
+      return;
+    }
+    final elapsedMs = now.difference(startedAt).inMilliseconds;
+    final totalMs = Duration(
+      seconds: widget.plan.defaultSeconds,
+    ).inMilliseconds;
+    final progress = (elapsedMs / totalMs).clamp(0.0, 0.999);
+    _timer
+      ..duration = Duration(seconds: widget.plan.defaultSeconds)
+      ..forward(from: progress);
+  }
+
+  void _scheduleCompletionNotification() {
+    final endsAt = _timerEndsAt;
+    if (endsAt == null) return;
+    unawaited(() async {
+      final scheduled =
+          await NotificationService.schedulePracticeTimerCompletion(
+            id: NotificationService.erpTimerNotificationId,
+            endsAt: endsAt,
+            title: 'ERP practice window complete',
+            body: 'Take a moment to reflect on what happened.',
+          );
+      if (mounted) _completionNotificationScheduled = scheduled;
+    }());
+  }
+
+  void _cancelCompletionNotification() {
+    _completionNotificationScheduled = false;
+    unawaited(
+      NotificationService.cancelPracticeTimerCompletion(
+        NotificationService.erpTimerNotificationId,
+      ),
+    );
   }
 
   void _confirmStop() {

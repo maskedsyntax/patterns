@@ -93,22 +93,30 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
             journalAsync.when(
               data: (journals) => ocdAsync.when(
                 data: (ocds) {
-                  final filteredJournals =
-                      AnalyticsService.filterJournals(journals, filter);
-                  final filteredOcds =
-                      AnalyticsService.filterOcds(ocds, filter);
-                  final avgDistress =
-                      AnalyticsService.averageDistress(filteredOcds);
-                  final obsessions =
-                      AnalyticsService.obsessionCount(filteredOcds);
-                  final compulsions =
-                      AnalyticsService.compulsionCount(filteredOcds);
+                  final filteredJournals = AnalyticsService.filterJournals(
+                    journals,
+                    filter,
+                  );
+                  final filteredOcds = AnalyticsService.filterOcds(
+                    ocds,
+                    filter,
+                  );
+                  final avgDistress = AnalyticsService.averageDistress(
+                    filteredOcds,
+                  );
+                  final obsessions = AnalyticsService.obsessionCount(
+                    filteredOcds,
+                  );
+                  final compulsions = AnalyticsService.compulsionCount(
+                    filteredOcds,
+                  );
 
                   final goingForward = _range.index >= _previousRange.index;
                   return PageTransitionSwitcher(
-                    duration: const Duration(milliseconds: 360),
+                    duration: AppMotion.medium,
                     reverse: !goingForward,
                     transitionBuilder: (child, primary, secondary) {
+                      if (motionDisabled(context)) return child;
                       return SharedAxisTransition(
                         animation: primary,
                         secondaryAnimation: secondary,

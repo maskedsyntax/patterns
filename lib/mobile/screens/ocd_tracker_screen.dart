@@ -93,18 +93,19 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
                           itemBuilder: (context, index) {
                             return FadeSlideIn(
                               delay: Duration(
-                                milliseconds: 30 * index.clamp(0, 8),
+                                milliseconds: 18 * index.clamp(0, 3),
                               ),
-                              duration: const Duration(milliseconds: 360),
-                              offset: 12,
+                              duration: AppMotion.medium,
+                              offset: AppMotion.smallOffset,
                               child: _OcdEventCard(entry: filtered[index]),
                             );
                           },
                         );
                   return PageTransitionSwitcher(
-                    duration: const Duration(milliseconds: 320),
+                    duration: AppMotion.medium,
                     reverse: !goingForward,
                     transitionBuilder: (child, primary, secondary) {
+                      if (motionDisabled(context)) return child;
                       return SharedAxisTransition(
                         animation: primary,
                         secondaryAnimation: secondary,
@@ -286,7 +287,8 @@ class _OcdEventFlowState extends ConsumerState<OcdEventFlow> {
       await ref.read(ocdProvider.notifier).addEntry(entry);
     }
     await ReviewPromptService.recordOcdSaved(entry.distressLevel);
-    final eligibleHappyMoment = !_isEditing &&
+    final eligibleHappyMoment =
+        !_isEditing &&
         entry.distressLevel <= ReviewPromptService.maxOcdDistressForTrigger;
     if (mounted) {
       showAppSnackBar(

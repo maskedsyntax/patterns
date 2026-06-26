@@ -21,6 +21,7 @@ class ErpExerciseTemplate {
   final String intro;
   final String why;
   final List<String> instructions;
+  final List<String> quickCues;
   final String exposurePrompt;
   final String predictionPrompt;
   final String commitmentPrompt;
@@ -34,6 +35,7 @@ class ErpExerciseTemplate {
     required this.intro,
     required this.why,
     required this.instructions,
+    required this.quickCues,
     required this.exposurePrompt,
     required this.predictionPrompt,
     required this.commitmentPrompt,
@@ -57,6 +59,7 @@ const erpExerciseTemplates = <ErpExerciseTemplate>[
       'Resist rechecking while the timer runs.',
       'Notice the urge without negotiating with it.',
     ],
+    quickCues: ['Check once', 'No rechecking', 'Notice the urge'],
     exposurePrompt: 'What will you leave unchecked or checked only once?',
     predictionPrompt: 'What does OCD predict if you do not recheck?',
     commitmentPrompt: 'What checking ritual will you practice resisting?',
@@ -77,6 +80,7 @@ const erpExerciseTemplates = <ErpExerciseTemplate>[
       'Let the discomfort rise and fall on its own.',
       'Return to what you were doing as gently as you can.',
     ],
+    quickCues: ['Hold the ask', 'Let uncertainty stay', 'Return gently'],
     exposurePrompt: 'What reassurance do you want to ask for?',
     predictionPrompt: 'What does OCD say will happen if you do not ask?',
     commitmentPrompt: 'What message, confession, or question will you resist?',
@@ -97,6 +101,7 @@ const erpExerciseTemplates = <ErpExerciseTemplate>[
       'Start the timer before reading anything else.',
       'Let the question stay unanswered for now.',
     ],
+    quickCues: ['Close search', 'Start timer', 'Leave it unanswered'],
     exposurePrompt: 'What search or question will you leave unanswered?',
     predictionPrompt: 'What does OCD say you need to know right now?',
     commitmentPrompt: 'What search, article, or forum will you avoid?',
@@ -117,6 +122,7 @@ const erpExerciseTemplates = <ErpExerciseTemplate>[
       'Bring attention back to one ordinary task or sensation.',
       'Restart gently each time the loop pulls you back.',
     ],
+    quickCues: ['Name the loop', 'Leave unfinished', 'Return to task'],
     exposurePrompt: 'What thought loop will you leave unfinished?',
     predictionPrompt: 'What does OCD say you must solve or prove?',
     commitmentPrompt: 'What mental review or argument will you resist?',
@@ -137,6 +143,7 @@ const erpExerciseTemplates = <ErpExerciseTemplate>[
       'Keep your hands away from the sink or sanitizer during the timer.',
       'Let the discomfort be there without trying to make it perfect.',
     ],
+    quickCues: ['Set boundary', 'Delay washing', 'Allow discomfort'],
     exposurePrompt: 'What normal hygiene boundary will you practice?',
     predictionPrompt: 'What does OCD predict if you do not wash again?',
     commitmentPrompt:
@@ -450,27 +457,14 @@ class _ErpPlanEditorScreenState extends ConsumerState<ErpPlanEditorScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  for (final template in erpExerciseTemplates) ...[
-                    _TemplateChoiceCard(
-                      template: template,
-                      selected: template.id == _template.id,
-                      onTap: () {
-                        setState(() {
-                          _template = template;
-                          if (!_custom)
-                            _defaultSeconds = template.defaultSeconds;
-                          _customMinutes = (_defaultSeconds / 60)
-                              .clamp(1, 60)
-                              .toDouble();
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                  const SizedBox(height: 8),
-                  _InfoPanel(title: 'Why this helps', body: _template.why),
-                  const SizedBox(height: 16),
-                  _InstructionPanel(instructions: _template.instructions),
+                  _TemplateSelector(
+                    selectedId: _template.id,
+                    onSelected: _selectTemplate,
+                  ),
+                  const SizedBox(height: 14),
+                  _SelectedTemplatePanel(template: _template),
+                  const SizedBox(height: 18),
+                  _PracticeGuidePanel(template: _template),
                   const SizedBox(height: 18),
                   _LabeledTextField(
                     controller: _exposureController,
@@ -535,6 +529,14 @@ class _ErpPlanEditorScreenState extends ConsumerState<ErpPlanEditorScreen> {
         ),
       ),
     );
+  }
+
+  void _selectTemplate(ErpExerciseTemplate template) {
+    setState(() {
+      _template = template;
+      if (!_custom) _defaultSeconds = template.defaultSeconds;
+      _customMinutes = (_defaultSeconds / 60).clamp(1, 60).toDouble();
+    });
   }
 }
 
@@ -689,8 +691,9 @@ class _ErpPlanPracticeFlowState extends ConsumerState<ErpPlanPracticeFlow>
     return Scaffold(
       body: SafeArea(
         child: PageTransitionSwitcher(
-          duration: const Duration(milliseconds: 320),
+          duration: AppMotion.medium,
           transitionBuilder: (child, primary, secondary) {
+            if (motionDisabled(context)) return child;
             return SharedAxisTransition(
               animation: primary,
               secondaryAnimation: secondary,
@@ -1099,12 +1102,40 @@ class _PlanCard extends StatelessWidget {
 
 enum _PlanMenuAction { edit, archive }
 
-class _TemplateChoiceCard extends StatelessWidget {
+class _TemplateSelector extends StatelessWidget {
+  final String selectedId;
+  final ValueChanged<ErpExerciseTemplate> onSelected;
+
+  const _TemplateSelector({required this.selectedId, required this.onSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 44,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: erpExerciseTemplates.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final template = erpExerciseTemplates[index];
+          final selected = template.id == selectedId;
+          return _TemplatePill(
+            template: template,
+            selected: selected,
+            onTap: () => onSelected(template),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _TemplatePill extends StatelessWidget {
   final ErpExerciseTemplate template;
   final bool selected;
   final VoidCallback onTap;
 
-  const _TemplateChoiceCard({
+  const _TemplatePill({
     required this.template,
     required this.selected,
     required this.onTap,
@@ -1113,48 +1144,191 @@ class _TemplateChoiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
+    final isDark = theme.brightness == Brightness.dark;
+
     return PressScale(
       onTap: onTap,
+      scale: 0.96,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.all(16),
+        duration: AppMotion.medium,
+        curve: AppMotion.stateCurve,
+        padding: const EdgeInsets.symmetric(horizontal: 13),
         decoration: BoxDecoration(
           color: selected
-              ? theme.colorScheme.primary.withValues(alpha: 0.13)
-              : (theme.brightness == Brightness.dark
-                    ? AppTheme.charcoalInput
-                    : theme.colorScheme.surface),
-          borderRadius: BorderRadius.circular(20),
+              ? primary.withValues(alpha: isDark ? 0.18 : 0.12)
+              : (isDark ? AppTheme.charcoalInput : theme.colorScheme.surface),
+          borderRadius: BorderRadius.circular(999),
           border: Border.all(
             color: selected
-                ? theme.colorScheme.primary.withValues(alpha: 0.8)
-                : theme.dividerColor,
-            width: selected ? 1.4 : 1,
+                ? primary.withValues(alpha: 0.72)
+                : theme.dividerColor.withValues(alpha: 0.75),
           ),
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            _IconBadge(icon: template.icon, compact: true),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    template.title,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    template.subtitle,
-                    style: _muted(theme, 12).copyWith(height: 1.35),
-                  ),
-                ],
+            Icon(
+              template.icon,
+              size: 17,
+              color: selected ? primary : AppTheme.textSecondary,
+            ),
+            const SizedBox(width: 7),
+            Text(
+              _shortTemplateTitle(template.title),
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: selected ? primary : theme.colorScheme.onSurface,
+                fontWeight: selected ? FontWeight.w900 : FontWeight.w700,
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SelectedTemplatePanel extends StatelessWidget {
+  final ErpExerciseTemplate template;
+
+  const _SelectedTemplatePanel({required this.template});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: _softDecoration(theme, radius: 22),
+      child: Row(
+        children: [
+          _IconBadge(icon: template.icon, compact: true),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  template.title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  template.subtitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: _muted(theme, 13).copyWith(height: 1.3),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          _DurationBadge(seconds: template.defaultSeconds),
+        ],
+      ),
+    );
+  }
+}
+
+class _PracticeGuidePanel extends StatelessWidget {
+  final ErpExerciseTemplate template;
+
+  const _PracticeGuidePanel({required this.template});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: _softDecoration(theme, radius: 22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.tips_and_updates_outlined,
+                size: 18,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Practice guide',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 9),
+          Text(
+            template.why,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: _muted(theme, 13).copyWith(height: 1.35),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final cue in template.quickCues) _CueChip(label: cue),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DurationBadge extends StatelessWidget {
+  final int seconds;
+
+  const _DurationBadge({required this.seconds});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        _formatDuration(Duration(seconds: seconds)),
+        style: theme.textTheme.labelMedium?.copyWith(
+          color: theme.colorScheme.primary,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    );
+  }
+}
+
+class _CueChip extends StatelessWidget {
+  final String label;
+
+  const _CueChip({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: theme.colorScheme.primary.withValues(alpha: 0.16),
+        ),
+      ),
+      child: Text(
+        label,
+        style: theme.textTheme.labelMedium?.copyWith(
+          color: theme.colorScheme.onSurface,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );
@@ -1376,79 +1550,6 @@ class _ReviewLine extends StatelessWidget {
         const SizedBox(height: 3),
         Text(value, style: _bodyText(theme)),
       ],
-    );
-  }
-}
-
-class _InfoPanel extends StatelessWidget {
-  final String title;
-  final String body;
-
-  const _InfoPanel({required this.title, required this.body});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: _softDecoration(theme, radius: 22),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(body, style: _bodyText(theme)),
-        ],
-      ),
-    );
-  }
-}
-
-class _InstructionPanel extends StatelessWidget {
-  final List<String> instructions;
-
-  const _InstructionPanel({required this.instructions});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: _softDecoration(theme, radius: 22),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Instructions',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 10),
-          for (var i = 0; i < instructions.length; i++) ...[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${i + 1}.',
-                  style: TextStyle(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(width: 9),
-                Expanded(child: Text(instructions[i], style: _bodyText(theme))),
-              ],
-            ),
-            if (i != instructions.length - 1) const SizedBox(height: 8),
-          ],
-        ],
-      ),
     );
   }
 }
@@ -1863,4 +1964,8 @@ String _formatDuration(Duration duration) {
   final minutes = total ~/ 60;
   final seconds = total % 60;
   return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+}
+
+String _shortTemplateTitle(String title) {
+  return title.replaceFirst('Delay ', '').replaceFirst(' Seeking', '');
 }

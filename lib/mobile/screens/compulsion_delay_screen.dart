@@ -113,9 +113,9 @@ class _CompulsionDelayFlowState extends ConsumerState<CompulsionDelayFlow>
           children: [
             Text(
               'Stop early?',
-              style: Theme.of(sheetContext).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
+              style: Theme.of(
+                sheetContext,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 10),
             Text(
@@ -189,8 +189,9 @@ class _CompulsionDelayFlowState extends ConsumerState<CompulsionDelayFlow>
     return Scaffold(
       body: SafeArea(
         child: PageTransitionSwitcher(
-          duration: const Duration(milliseconds: 320),
+          duration: AppMotion.medium,
           transitionBuilder: (child, primary, secondary) {
+            if (motionDisabled(context)) return child;
             return SharedAxisTransition(
               animation: primary,
               secondaryAnimation: secondary,
@@ -474,10 +475,7 @@ class _Header extends StatelessWidget {
       child: Row(
         children: [
           if (onBack != null)
-            IconButton(
-              onPressed: onBack,
-              icon: const Icon(LineIcons.angleLeft),
-            )
+            IconButton(onPressed: onBack, icon: const Icon(LineIcons.angleLeft))
           else
             const SizedBox(width: 12),
           Expanded(
@@ -546,7 +544,13 @@ class _UrgeCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          Slider(value: value, min: 0, max: 10, divisions: 10, onChanged: onChanged),
+          Slider(
+            value: value,
+            min: 0,
+            max: 10,
+            divisions: 10,
+            onChanged: onChanged,
+          ),
         ],
       ),
     );
@@ -566,7 +570,11 @@ class _DurationPicker extends StatelessWidget {
     required this.onCustom,
   });
 
-  static const _presets = <int, String>{60: '1 min', 300: '5 min', 900: '15 min'};
+  static const _presets = <int, String>{
+    60: '1 min',
+    300: '5 min',
+    900: '15 min',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -581,11 +589,7 @@ class _DurationPicker extends StatelessWidget {
               selected: !custom && seconds == entry.key,
               onTap: () => onPreset(entry.key),
             ),
-          _SegmentChip(
-            label: 'Custom',
-            selected: custom,
-            onTap: onCustom,
-          ),
+          _SegmentChip(label: 'Custom', selected: custom, onTap: onCustom),
         ],
       ),
     );

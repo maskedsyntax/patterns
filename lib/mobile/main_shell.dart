@@ -369,6 +369,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final reduceMotion = motionDisabled(context);
 
     return Scaffold(
       body: SafeArea(
@@ -378,8 +379,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             children: [
               const Spacer(),
               FadeSlideIn(
-                duration: const Duration(milliseconds: 600),
-                offset: 22,
+                duration: AppMotion.slow,
+                offset: AppMotion.mediumOffset,
                 child: Container(
                   width: 164,
                   height: 164,
@@ -391,7 +392,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   child: AnimatedBuilder(
                     animation: _pulse,
                     builder: (context, _) {
-                      final t = Curves.easeInOut.transform(_pulse.value);
+                      final t = reduceMotion
+                          ? 0.0
+                          : Curves.easeInOut.transform(_pulse.value);
                       return Stack(
                         alignment: Alignment.center,
                         children: [
@@ -431,7 +434,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               ),
               const SizedBox(height: 48),
               FadeSlideIn(
-                delay: const Duration(milliseconds: 180),
+                delay: const Duration(milliseconds: 100),
+                offset: AppMotion.smallOffset,
                 child: Text(
                   'Understand your patterns.\nOne entry at a time.',
                   textAlign: TextAlign.center,
@@ -447,7 +451,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               ),
               const SizedBox(height: 18),
               FadeSlideIn(
-                delay: const Duration(milliseconds: 280),
+                delay: const Duration(milliseconds: 140),
+                offset: AppMotion.smallOffset,
                 child: Text(
                   'Track intrusive thoughts, compulsions, distress, and daily reflections in a calm private space.',
                   textAlign: TextAlign.center,
@@ -459,7 +464,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               ),
               const SizedBox(height: 14),
               FadeSlideIn(
-                delay: const Duration(milliseconds: 340),
+                delay: const Duration(milliseconds: 180),
+                offset: AppMotion.smallOffset,
                 child: Text(
                   'Patterns is for personal reflection and self-tracking. It does not diagnose, treat, or replace care from a qualified clinician.',
                   textAlign: TextAlign.center,
@@ -471,7 +477,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               ),
               const Spacer(),
               FadeSlideIn(
-                delay: const Duration(milliseconds: 420),
+                delay: const Duration(milliseconds: 220),
+                offset: AppMotion.smallOffset,
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -482,7 +489,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               ),
               const SizedBox(height: 12),
               FadeSlideIn(
-                delay: const Duration(milliseconds: 520),
+                delay: const Duration(milliseconds: 260),
+                offset: AppMotion.smallOffset,
                 child: SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
@@ -543,9 +551,10 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
         children: [
           Positioned.fill(
             child: PageTransitionSwitcher(
-              duration: const Duration(milliseconds: 320),
+              duration: AppMotion.medium,
               reverse: false,
               transitionBuilder: (child, primary, secondary) {
+                if (motionDisabled(context)) return child;
                 return FadeThroughTransition(
                   animation: primary,
                   secondaryAnimation: secondary,
@@ -581,7 +590,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
               minimum: EdgeInsets.zero,
               child: AnimatedSlide(
                 offset: showFab ? Offset.zero : const Offset(0, 1.6),
-                duration: const Duration(milliseconds: 320),
+                duration: AppMotion.medium,
                 curve: Curves.easeOutCubic,
                 child: AnimatedOpacity(
                   opacity: showFab ? 1 : 0,
@@ -972,6 +981,8 @@ class _ActionSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 22),
                 FadeSlideIn(
+                  duration: AppMotion.medium,
+                  offset: AppMotion.smallOffset,
                   child: Text(
                     'What do you want to add?',
                     style: theme.textTheme.titleLarge?.copyWith(
@@ -981,7 +992,9 @@ class _ActionSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 FadeSlideIn(
-                  delay: const Duration(milliseconds: 70),
+                  delay: const Duration(milliseconds: 40),
+                  duration: AppMotion.medium,
+                  offset: AppMotion.smallOffset,
                   child: _SheetAction(
                     icon: LineIcons.penNib,
                     title: 'Journal Entry',
@@ -990,7 +1003,9 @@ class _ActionSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 FadeSlideIn(
-                  delay: const Duration(milliseconds: 140),
+                  delay: const Duration(milliseconds: 80),
+                  duration: AppMotion.medium,
+                  offset: AppMotion.smallOffset,
                   child: _SheetAction(
                     icon: LineIcons.bullseye,
                     title: 'OCD Event',
@@ -999,7 +1014,9 @@ class _ActionSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 FadeSlideIn(
-                  delay: const Duration(milliseconds: 210),
+                  delay: const Duration(milliseconds: 120),
+                  duration: AppMotion.medium,
+                  offset: AppMotion.smallOffset,
                   child: _SheetAction(
                     icon: Icons.self_improvement_rounded,
                     title: 'Guided ERP',
@@ -1008,7 +1025,9 @@ class _ActionSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 FadeSlideIn(
-                  delay: const Duration(milliseconds: 280),
+                  delay: const Duration(milliseconds: 160),
+                  duration: AppMotion.medium,
+                  offset: AppMotion.smallOffset,
                   child: _SheetAction(
                     icon: LineIcons.hourglassHalf,
                     title: 'Pause an Urge',

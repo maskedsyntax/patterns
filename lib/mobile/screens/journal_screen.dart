@@ -367,12 +367,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                   ];
                   return ListView(
                     padding: const EdgeInsets.fromLTRB(20, 12, 20, 116),
-                    children: staggered(
-                      children,
-                      stagger: const Duration(milliseconds: 40),
-                      duration: const Duration(milliseconds: 380),
-                      offset: 12,
-                    ),
+                    children: staggered(children),
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),

@@ -171,12 +171,6 @@ class ReviewPromptService {
     required bool manual,
   }) async {
     final prefs = mobilePreferences;
-    if (!manual) {
-      await prefs?.setInt(
-        _kLastPromptTs,
-        DateTime.now().millisecondsSinceEpoch,
-      );
-    }
     if (!context.mounted) return;
 
     final choice = await showDialog<_PromptChoice>(
@@ -200,7 +194,14 @@ class ReviewPromptService {
         // looks broken when the user explicitly asked to rate. The automatic
         // "happy moment" path still prefers the in-app sheet.
         await _launchReview(preferStoreListing: manual);
-        if (manual) await prefs?.setBool(_kCompleted, true);
+        if (manual) {
+          await prefs?.setBool(_kCompleted, true);
+        } else {
+          await prefs?.setInt(
+            _kLastPromptTs,
+            DateTime.now().millisecondsSinceEpoch,
+          );
+        }
       case _PromptChoice.feedback:
         if (!manual) await prefs?.setBool(_kOptedOut, true);
         await _sendFeedbackEmail();

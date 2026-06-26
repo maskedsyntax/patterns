@@ -9,19 +9,25 @@ import 'package:url_launcher/url_launcher.dart';
 import '../mobile/preferences.dart';
 import '../theme/app_theme.dart';
 
-enum ReviewTrigger { journalSaved, ocdLowDistress, analyticsLinger, manual }
+enum ReviewTrigger {
+  journalSaved,
+  ocdLowDistress,
+  urgeCompleted,
+  erpCompleted,
+  analyticsLinger,
+  manual,
+}
 
 /// Lightweight in-app rating prompts.
 ///
-/// Trigger sites call `recordSessionStart` / `recordJournalSaved` /
-/// `recordOcdSaved` to feed engagement counters, then call
-/// `maybeRequestReview` at a designated "happy moment." The soft pre-prompt
-/// filters out unhappy users (routing them to email feedback) before the
-/// native store sheet is invoked, protecting the public rating.
+/// Trigger sites record meaningful actions, then call `maybeRequestReview` at a
+/// designated "happy moment." The soft pre-prompt filters out unhappy users
+/// (routing them to email feedback) before the native store sheet is invoked.
 class ReviewPromptService {
   static const _kFirstSeen = 'rating_first_seen_ts';
   static const _kJournalCount = 'rating_journal_count';
   static const _kOcdCount = 'rating_ocd_count';
+  static const _kMeaningfulActionCount = 'rating_meaningful_action_count';
   static const _kDistinctDays = 'rating_distinct_days';
   static const _kLastDayKey = 'rating_last_day_key';
   static const _kLastPromptTs = 'rating_last_prompt_ts';
@@ -29,12 +35,12 @@ class ReviewPromptService {
   static const _kOptedOut = 'rating_opted_out';
   static const _kCompleted = 'rating_completed';
 
-  static const _minDaysInstalled = 7;
-  static const _minJournalEntries = 5;
-  static const _minDistinctDays = 3;
+  static const _minDaysInstalled = 2;
+  static const _minMeaningfulActions = 2;
+  static const _minDistinctDays = 2;
   static const maxOcdDistressForTrigger = 4;
   static const _reprompAfterShowDays = 90;
-  static const _reprompAfterDeclineDays = 30;
+  static const _reprompAfterDeclineDays = 14;
 
   static const _iosAppStoreId = '6762611172';
   static const _androidPackage = 'com.maskedsyntax.patterns';
@@ -66,12 +72,31 @@ class ReviewPromptService {
     final prefs = mobilePreferences;
     if (prefs == null) return;
     await prefs.setInt(_kJournalCount, (prefs.getInt(_kJournalCount) ?? 0) + 1);
+    await _recordMeaningfulAction();
   }
 
   static Future<void> recordOcdSaved(int distress) async {
     final prefs = mobilePreferences;
     if (prefs == null) return;
     await prefs.setInt(_kOcdCount, (prefs.getInt(_kOcdCount) ?? 0) + 1);
+    await _recordMeaningfulAction();
+  }
+
+  static Future<void> recordUrgePracticeCompleted() async {
+    await _recordMeaningfulAction();
+  }
+
+  static Future<void> recordErpPracticeCompleted() async {
+    await _recordMeaningfulAction();
+  }
+
+  static Future<void> _recordMeaningfulAction() async {
+    final prefs = mobilePreferences;
+    if (prefs == null) return;
+    await prefs.setInt(
+      _kMeaningfulActionCount,
+      (prefs.getInt(_kMeaningfulActionCount) ?? 0) + 1,
+    );
   }
 
   static bool _isEligible() {
@@ -88,7 +113,10 @@ class ReviewPromptService {
         .inDays;
     if (daysInstalled < _minDaysInstalled) return false;
 
-    if ((prefs.getInt(_kJournalCount) ?? 0) < _minJournalEntries) return false;
+    final meaningfulActions =
+        prefs.getInt(_kMeaningfulActionCount) ??
+        ((prefs.getInt(_kJournalCount) ?? 0) + (prefs.getInt(_kOcdCount) ?? 0));
+    if (meaningfulActions < _minMeaningfulActions) return false;
     if ((prefs.getInt(_kDistinctDays) ?? 0) < _minDistinctDays) return false;
 
     final lastPrompt = prefs.getInt(_kLastPromptTs);
@@ -172,7 +200,7 @@ class ReviewPromptService {
         // looks broken when the user explicitly asked to rate. The automatic
         // "happy moment" path still prefers the in-app sheet.
         await _launchReview(preferStoreListing: manual);
-        await prefs?.setBool(_kCompleted, true);
+        if (manual) await prefs?.setBool(_kCompleted, true);
       case _PromptChoice.feedback:
         if (!manual) await prefs?.setBool(_kOptedOut, true);
         await _sendFeedbackEmail();
@@ -195,12 +223,16 @@ class ReviewPromptService {
           await review.requestReview();
           return;
         }
-      } catch (_) {/* fall through to store listing */}
+      } catch (_) {
+        /* fall through to store listing */
+      }
     }
     try {
       await review.openStoreListing(appStoreId: _iosAppStoreId);
       return;
-    } catch (_) {/* fall through to direct URL */}
+    } catch (_) {
+      /* fall through to direct URL */
+    }
     await _openStoreUrl();
   }
 
@@ -214,7 +246,9 @@ class ReviewPromptService {
           );
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {/* nothing we can do */}
+    } catch (_) {
+      /* nothing we can do */
+    }
   }
 
   static Future<void> _sendFeedbackEmail() async {
@@ -228,7 +262,9 @@ class ReviewPromptService {
     );
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {/* user can copy the address from the privacy page */}
+    } catch (_) {
+      /* user can copy the address from the privacy page */
+    }
   }
 
   static String _dayKey(DateTime d) =>
@@ -298,8 +334,7 @@ class _SoftPromptDialog extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () =>
-                    Navigator.of(context).pop(_PromptChoice.yes),
+                onPressed: () => Navigator.of(context).pop(_PromptChoice.yes),
                 child: const Text('Yes, it helps'),
               ),
             ),
@@ -316,8 +351,7 @@ class _SoftPromptDialog extends StatelessWidget {
             Align(
               alignment: Alignment.center,
               child: TextButton(
-                onPressed: () =>
-                    Navigator.of(context).pop(_PromptChoice.later),
+                onPressed: () => Navigator.of(context).pop(_PromptChoice.later),
                 child: Text(
                   'Maybe later',
                   style: TextStyle(color: AppTheme.textSecondary),

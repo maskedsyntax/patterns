@@ -10,9 +10,11 @@ import 'package:line_icons/line_icons.dart';
 import '../../models/models.dart';
 import '../../providers/providers.dart';
 import '../../services/notification_service.dart';
+import '../../services/review_prompt.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 import '../../widgets/app_snack_bar.dart';
+import '../main_shell.dart' show mobileRootNavigatorKey;
 
 enum _Phase { setup, countdown, reflection }
 
@@ -268,6 +270,7 @@ class _CompulsionDelayFlowState extends ConsumerState<CompulsionDelayFlow>
       createdAt: DateTime.now(),
     );
     await ref.read(delaySessionProvider.notifier).addSession(session);
+    await ReviewPromptService.recordUrgePracticeCompleted();
     if (!mounted) return;
     Navigator.pop(context);
     showAppSnackBar(
@@ -275,6 +278,15 @@ class _CompulsionDelayFlowState extends ConsumerState<CompulsionDelayFlow>
       'Practice logged. That took real courage.',
       type: ToastType.success,
     );
+    if (_completed) _requestReviewFromRoot(ReviewTrigger.urgeCompleted);
+  }
+
+  void _requestReviewFromRoot(ReviewTrigger trigger) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final rootContext = mobileRootNavigatorKey.currentContext;
+      if (rootContext == null) return;
+      ReviewPromptService.maybeRequestReview(rootContext, trigger: trigger);
+    });
   }
 
   // ----- build -----

@@ -11,9 +11,11 @@ import 'package:line_icons/line_icons.dart';
 import '../../models/models.dart';
 import '../../providers/providers.dart';
 import '../../services/notification_service.dart';
+import '../../services/review_prompt.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 import '../../widgets/app_snack_bar.dart';
+import '../main_shell.dart' show mobileRootNavigatorKey;
 
 enum _PracticePhase { setup, countdown, reflection }
 
@@ -776,9 +778,19 @@ class _ErpPlanPracticeFlowState extends ConsumerState<ErpPlanPracticeFlow>
       createdAt: DateTime.now(),
     );
     await ref.read(erpExerciseSessionProvider.notifier).addSession(session);
+    await ReviewPromptService.recordErpPracticeCompleted();
     if (!mounted) return;
     Navigator.pop(context);
     showAppSnackBar(context, 'ERP practice logged.', type: ToastType.success);
+    if (_completed) _requestReviewFromRoot(ReviewTrigger.erpCompleted);
+  }
+
+  void _requestReviewFromRoot(ReviewTrigger trigger) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final rootContext = mobileRootNavigatorKey.currentContext;
+      if (rootContext == null) return;
+      ReviewPromptService.maybeRequestReview(rootContext, trigger: trigger);
+    });
   }
 
   @override

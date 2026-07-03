@@ -15,6 +15,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 import '../../widgets/app_snack_bar.dart';
 import '../main_shell.dart' show mobileRootNavigatorKey;
+import '../widgets/section_intro.dart';
 
 enum _Phase { setup, countdown, reflection }
 
@@ -346,6 +347,7 @@ class _CompulsionDelayFlowState extends ConsumerState<CompulsionDelayFlow>
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 6, 20, 28),
             children: staggered([
+              const SectionIntro(id: 'compulsionDelay'),
               Text(
                 'Which urge are you sitting with?',
                 style: theme.textTheme.titleSmall?.copyWith(

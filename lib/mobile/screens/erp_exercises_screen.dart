@@ -16,6 +16,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 import '../../widgets/app_snack_bar.dart';
 import '../main_shell.dart' show mobileRootNavigatorKey;
+import '../widgets/section_intro.dart';
 
 enum _PracticePhase { setup, countdown, reflection }
 
@@ -166,7 +167,11 @@ ErpExerciseTemplate _templateForId(String id) {
 }
 
 class ErpExercisesScreen extends ConsumerWidget {
-  const ErpExercisesScreen({super.key});
+  /// When true the screen shows a back button (it's pushed from the Recovery
+  /// hub rather than hosted directly as a tab).
+  final bool showBack;
+
+  const ErpExercisesScreen({super.key, this.showBack = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -179,11 +184,23 @@ class ErpExercisesScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 14, 20, 116),
           children: staggered([
+            if (showBack) ...[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: _RoundIconButton(
+                  icon: LineIcons.angleLeft,
+                  onTap: () => Navigator.of(context).pop(),
+                  semanticLabel: 'Back',
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             _Header(
               title: 'Guided ERP',
               subtitle: 'Reuse a plan, practice, and learn from the result.',
             ),
             const SizedBox(height: 20),
+            const SectionIntro(id: 'guidedErp'),
             Row(
               children: [
                 Expanded(

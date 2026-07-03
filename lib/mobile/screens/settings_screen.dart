@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -11,13 +12,16 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../database/db_helper.dart';
 import '../../main.dart';
 import '../../providers/providers.dart';
+import '../../services/material_file_store.dart';
 import '../../services/notification_service.dart';
+import '../../services/pro_service.dart';
 import '../../services/review_prompt.dart';
 import '../../services/tip_jar.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 import '../../widgets/app_snack_bar.dart';
 import '../../widgets/export_report_sheet.dart';
+import '../../widgets/paywall_sheet.dart';
 import '../../widgets/platform.dart';
 import '../../widgets/tip_jar_sheet.dart';
 import '../biometric_auth.dart';
@@ -176,6 +180,48 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: 'Delete local entries and reset app preferences',
               onTap: () => _confirmWipeData(context, ref),
             ),
+            if (ProService.isPlatformSupported) ...[
+              const SizedBox(height: 28),
+              Text(
+                'Patterns Pro',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (ref.watch(proProvider))
+                _SettingsItem(
+                  icon: LineIcons.checkCircle,
+                  title: 'Patterns Pro is active',
+                  subtitle: 'Every recovery tool is unlocked — thank you',
+                  onTap: () => showAppSnackBar(
+                    context,
+                    'Patterns Pro is active on this device.',
+                    type: ToastType.success,
+                  ),
+                )
+              else
+                _SettingsItem(
+                  icon: LineIcons.unlock,
+                  title: 'Unlock Patterns Pro',
+                  subtitle: 'One-time unlock for all recovery tools',
+                  onTap: () => PaywallSheet.show(context),
+                ),
+              const SizedBox(height: 10),
+              _SettingsItem(
+                icon: LineIcons.syncIcon,
+                title: 'Restore purchases',
+                subtitle: 'Re-apply a previous Patterns Pro unlock',
+                onTap: () {
+                  ProService.restore();
+                  showAppSnackBar(
+                    context,
+                    'Restoring your purchases…',
+                    type: ToastType.info,
+                  );
+                },
+              ),
+            ],
             const SizedBox(height: 28),
             Text(
               'Feedback',
@@ -244,13 +290,13 @@ class SettingsScreen extends ConsumerWidget {
 
   Future<void> _exportData(BuildContext context) async {
     try {
-      final jsonStr = await DbHelper.instance.exportAll();
+      final bytes = await DbHelper.instance.exportBundle();
       final path = await FilePicker.platform.saveFile(
         dialogTitle: 'Export Patterns Data',
-        fileName: 'patterns_backup.json',
+        fileName: 'patterns_backup.zip',
         type: FileType.custom,
-        allowedExtensions: ['json'],
-        bytes: utf8.encode(jsonStr),
+        allowedExtensions: ['zip'],
+        bytes: bytes,
       );
       if (path == null) return;
       if (context.mounted) _showMessage(context, 'Data exported');
@@ -303,7 +349,7 @@ class SettingsScreen extends ConsumerWidget {
       final result = await FilePicker.platform.pickFiles(
         dialogTitle: 'Select Patterns Backup',
         type: FileType.custom,
-        allowedExtensions: ['json'],
+        allowedExtensions: ['zip', 'json'],
         withData: true,
       );
       if (result == null) return;
@@ -318,9 +364,13 @@ class SettingsScreen extends ConsumerWidget {
         }
         return;
       }
-      final jsonStr = utf8.decode(bytes);
-      final summary = DbHelper.previewBackup(jsonStr);
-      if (context.mounted) _showImportPreview(context, ref, jsonStr, summary);
+      final isZip = (result.files.single.extension ?? '').toLowerCase() == 'zip';
+      final summary = isZip
+          ? DbHelper.previewBundle(bytes)
+          : DbHelper.previewBackup(utf8.decode(bytes));
+      if (context.mounted) {
+        _showImportPreview(context, ref, bytes, isZip, summary);
+      }
     } on FormatException {
       if (context.mounted) {
         _showMessage(
@@ -339,7 +389,8 @@ class SettingsScreen extends ConsumerWidget {
   void _showImportPreview(
     BuildContext context,
     WidgetRef ref,
-    String jsonStr,
+    Uint8List bytes,
+    bool isZip,
     BackupSummary summary,
   ) {
     showModalBottomSheet<void>(
@@ -375,7 +426,7 @@ class SettingsScreen extends ConsumerWidget {
                   child: ElevatedButton(
                     onPressed: () async {
                       Navigator.pop(context);
-                      await _finishImport(context, ref, jsonStr);
+                      await _finishImport(context, ref, bytes, isZip);
                     },
                     child: const Text('Replace'),
                   ),
@@ -391,15 +442,32 @@ class SettingsScreen extends ConsumerWidget {
   Future<void> _finishImport(
     BuildContext context,
     WidgetRef ref,
-    String jsonStr,
+    Uint8List bytes,
+    bool isZip,
   ) async {
     try {
-      await DbHelper.instance.importAll(jsonStr);
+      if (isZip) {
+        await DbHelper.instance.importBundle(bytes);
+      } else {
+        await DbHelper.instance.importAll(utf8.decode(bytes));
+      }
       ref.invalidate(journalProvider);
       ref.invalidate(ocdProvider);
       ref.invalidate(delaySessionProvider);
       ref.invalidate(erpExercisePlanProvider);
       ref.invalidate(erpExerciseSessionProvider);
+      ref.invalidate(exposureHierarchyProvider);
+      ref.invalidate(exposureStepProvider);
+      ref.invalidate(responsePreventionProvider);
+      ref.invalidate(urgeSurfProvider);
+      ref.invalidate(programEnrollmentProvider);
+      ref.invalidate(programTaskProgressProvider);
+      ref.invalidate(behavioralExperimentProvider);
+      ref.invalidate(exposureReflectionProvider);
+      ref.invalidate(actionPlanProvider);
+      ref.invalidate(implementationIntentionProvider);
+      ref.invalidate(uncertaintyLogProvider);
+      ref.invalidate(exposureMaterialProvider);
       if (context.mounted) _showMessage(context, 'Data imported');
     } on FormatException {
       if (context.mounted) {
@@ -451,12 +519,14 @@ class SettingsScreen extends ConsumerWidget {
                     onPressed: () async {
                       Navigator.pop(context);
                       await DbHelper.instance.clearAll();
+                      await MaterialFileStore.deleteAll();
                       await clearLocalPreferences();
                       ref.invalidate(journalProvider);
                       ref.invalidate(ocdProvider);
                       ref.invalidate(delaySessionProvider);
                       ref.invalidate(erpExercisePlanProvider);
                       ref.invalidate(erpExerciseSessionProvider);
+                      ref.invalidate(exposureMaterialProvider);
                       if (context.mounted) {
                         _showMessage(context, 'Local data wiped');
                       }

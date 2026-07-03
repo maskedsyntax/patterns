@@ -204,4 +204,99 @@ class AnalyticsService {
         '${date.month.toString().padLeft(2, '0')}-'
         '${date.day.toString().padLeft(2, '0')}';
   }
+
+  /// Effort-focused recovery metrics aggregated across every ERP tool. Pure and
+  /// testable — pass `now` to pin "today" in tests.
+  static RecoveryMetrics buildRecoveryMetrics({
+    required List<DelaySession> delaySessions,
+    required List<ErpExerciseSession> erpSessions,
+    required List<ExposureStep> exposureSteps,
+    List<ResponsePreventionLog> responsePreventionLogs = const [],
+    List<UrgeSurfSession> urgeSurfSessions = const [],
+    DateTime? now,
+  }) {
+    final today = now ?? DateTime.now();
+
+    // Every day on which the user practised something (a delay, an ERP session,
+    // completing an exposure step, a response-prevention log, or an urge surf).
+    final activeDays = <String>{};
+    for (final d in delaySessions) {
+      activeDays.add(_dateKey(d.createdAt));
+    }
+    for (final e in erpSessions) {
+      activeDays.add(_dateKey(e.createdAt));
+    }
+    for (final s in exposureSteps) {
+      if (s.status == ExposureStepStatus.completed && s.completedAt != null) {
+        activeDays.add(_dateKey(s.completedAt!));
+      }
+    }
+    for (final r in responsePreventionLogs) {
+      activeDays.add(_dateKey(r.createdAt));
+    }
+    for (final u in urgeSurfSessions) {
+      activeDays.add(_dateKey(u.createdAt));
+    }
+
+    // Streak: consecutive active days. Anchored to today, but if today has no
+    // practice yet we anchor to yesterday so a streak isn't lost mid-day.
+    var streak = 0;
+    var cursor = activeDays.contains(_dateKey(today))
+        ? today
+        : today.subtract(const Duration(days: 1));
+    while (activeDays.contains(_dateKey(cursor))) {
+      streak++;
+      cursor = cursor.subtract(const Duration(days: 1));
+    }
+
+    final exposuresCompleted = exposureSteps
+        .where((s) => s.status == ExposureStepStatus.completed)
+        .length;
+    final sessionsPracticed =
+        delaySessions.length +
+        erpSessions.length +
+        urgeSurfSessions.length;
+
+    // Average urge drop across delay sessions (before→after) and urge surfs
+    // (initial→final).
+    final drops = <int>[
+      for (final d in delaySessions) d.urgeBefore - d.urgeAfter,
+      for (final u in urgeSurfSessions) u.initialUrge - u.finalUrge,
+    ];
+    final avgUrgeReduction = drops.isEmpty
+        ? 0.0
+        : drops.reduce((a, b) => a + b) / drops.length;
+
+    final weekly = <bool>[
+      for (var i = 6; i >= 0; i--)
+        activeDays.contains(_dateKey(today.subtract(Duration(days: i)))),
+    ];
+
+    return RecoveryMetrics(
+      practiceStreakDays: streak,
+      exposuresCompleted: exposuresCompleted,
+      sessionsPracticed: sessionsPracticed,
+      avgUrgeReduction: avgUrgeReduction,
+      weeklyActivity: weekly,
+      hasAnyData: activeDays.isNotEmpty,
+    );
+  }
+}
+
+class RecoveryMetrics {
+  final int practiceStreakDays;
+  final int exposuresCompleted;
+  final int sessionsPracticed;
+  final double avgUrgeReduction;
+  final List<bool> weeklyActivity; // length 7, oldest → today
+  final bool hasAnyData;
+
+  const RecoveryMetrics({
+    required this.practiceStreakDays,
+    required this.exposuresCompleted,
+    required this.sessionsPracticed,
+    required this.avgUrgeReduction,
+    required this.weeklyActivity,
+    required this.hasAnyData,
+  });
 }

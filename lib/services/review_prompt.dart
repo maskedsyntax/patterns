@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart'
+    show debugPrint, kDebugMode, kIsWeb, visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:line_icons/line_icons.dart';
@@ -16,6 +17,48 @@ enum ReviewTrigger {
   erpCompleted,
   analyticsLinger,
   manual,
+}
+
+enum RatingPromptIneligibility {
+  preferencesUnavailable,
+  optedOut,
+  completed,
+  missingFirstSeen,
+  tooRecentlyInstalled,
+  notEnoughMeaningfulActions,
+  notEnoughDistinctDays,
+  promptCooldown,
+  declineCooldown,
+}
+
+class RatingPromptDiagnostics {
+  final DateTime? firstSeen;
+  final int daysInstalled;
+  final int journalCount;
+  final int ocdCount;
+  final int meaningfulActionCount;
+  final int distinctDays;
+  final DateTime? lastPrompt;
+  final DateTime? lastDecline;
+  final bool optedOut;
+  final bool completed;
+  final bool eligible;
+  final RatingPromptIneligibility? reason;
+
+  const RatingPromptDiagnostics({
+    required this.firstSeen,
+    required this.daysInstalled,
+    required this.journalCount,
+    required this.ocdCount,
+    required this.meaningfulActionCount,
+    required this.distinctDays,
+    required this.lastPrompt,
+    required this.lastDecline,
+    required this.optedOut,
+    required this.completed,
+    required this.eligible,
+    required this.reason,
+  });
 }
 
 /// Lightweight in-app rating prompts.
@@ -47,6 +90,15 @@ class ReviewPromptService {
   static const _supportEmail = 'aftaab@aftaab.dev';
 
   static bool _inFlight = false;
+
+  @visibleForTesting
+  static const minDaysInstalled = _minDaysInstalled;
+
+  @visibleForTesting
+  static const minMeaningfulActions = _minMeaningfulActions;
+
+  @visibleForTesting
+  static const minDistinctDays = _minDistinctDays;
 
   static bool get _isMobile {
     if (kIsWeb) return false;
@@ -99,41 +151,168 @@ class ReviewPromptService {
     );
   }
 
-  static bool _isEligible() {
+  static RatingPromptDiagnostics diagnostics() {
     final prefs = mobilePreferences;
-    if (prefs == null) return false;
-    if (prefs.getBool(_kOptedOut) ?? false) return false;
-    if (prefs.getBool(_kCompleted) ?? false) return false;
-
-    final firstSeen = prefs.getInt(_kFirstSeen);
-    if (firstSeen == null) return false;
     final now = DateTime.now();
-    final daysInstalled = now
-        .difference(DateTime.fromMillisecondsSinceEpoch(firstSeen))
-        .inDays;
-    if (daysInstalled < _minDaysInstalled) return false;
-
-    final meaningfulActions =
-        prefs.getInt(_kMeaningfulActionCount) ??
-        ((prefs.getInt(_kJournalCount) ?? 0) + (prefs.getInt(_kOcdCount) ?? 0));
-    if (meaningfulActions < _minMeaningfulActions) return false;
-    if ((prefs.getInt(_kDistinctDays) ?? 0) < _minDistinctDays) return false;
-
-    final lastPrompt = prefs.getInt(_kLastPromptTs);
-    if (lastPrompt != null) {
-      final since = now
-          .difference(DateTime.fromMillisecondsSinceEpoch(lastPrompt))
-          .inDays;
-      if (since < _reprompAfterShowDays) return false;
+    if (prefs == null) {
+      return RatingPromptDiagnostics(
+        firstSeen: null,
+        daysInstalled: 0,
+        journalCount: 0,
+        ocdCount: 0,
+        meaningfulActionCount: 0,
+        distinctDays: 0,
+        lastPrompt: null,
+        lastDecline: null,
+        optedOut: false,
+        completed: false,
+        eligible: false,
+        reason: RatingPromptIneligibility.preferencesUnavailable,
+      );
     }
-    final lastDecline = prefs.getInt(_kLastDeclineTs);
+    return _diagnosticsForPrefs(prefs, now);
+  }
+
+  @visibleForTesting
+  static bool isEligibleForTesting() => diagnostics().eligible;
+
+  @visibleForTesting
+  static Future<void> setTestingState({
+    DateTime? firstSeen,
+    int journalCount = 0,
+    int ocdCount = 0,
+    int? meaningfulActionCount,
+    int distinctDays = 0,
+    DateTime? lastPrompt,
+    DateTime? lastDecline,
+    bool optedOut = false,
+    bool completed = false,
+  }) async {
+    final prefs = mobilePreferences;
+    if (prefs == null) return;
+    for (final key in [
+      _kFirstSeen,
+      _kJournalCount,
+      _kOcdCount,
+      _kMeaningfulActionCount,
+      _kDistinctDays,
+      _kLastDayKey,
+      _kLastPromptTs,
+      _kLastDeclineTs,
+      _kOptedOut,
+      _kCompleted,
+    ]) {
+      await prefs.remove(key);
+    }
+    if (firstSeen != null) {
+      await prefs.setInt(_kFirstSeen, firstSeen.millisecondsSinceEpoch);
+    }
+    await prefs.setInt(_kJournalCount, journalCount);
+    await prefs.setInt(_kOcdCount, ocdCount);
+    if (meaningfulActionCount != null) {
+      await prefs.setInt(_kMeaningfulActionCount, meaningfulActionCount);
+    }
+    await prefs.setInt(_kDistinctDays, distinctDays);
+    if (lastPrompt != null) {
+      await prefs.setInt(_kLastPromptTs, lastPrompt.millisecondsSinceEpoch);
+    }
     if (lastDecline != null) {
-      final since = now
-          .difference(DateTime.fromMillisecondsSinceEpoch(lastDecline))
-          .inDays;
-      if (since < _reprompAfterDeclineDays) return false;
+      await prefs.setInt(_kLastDeclineTs, lastDecline.millisecondsSinceEpoch);
+    }
+    await prefs.setBool(_kOptedOut, optedOut);
+    await prefs.setBool(_kCompleted, completed);
+  }
+
+  static RatingPromptDiagnostics _diagnosticsForPrefs(
+    dynamic prefs,
+    DateTime now,
+  ) {
+    final firstSeenMs = prefs.getInt(_kFirstSeen) as int?;
+    final firstSeen = firstSeenMs == null
+        ? null
+        : DateTime.fromMillisecondsSinceEpoch(firstSeenMs);
+    final daysInstalled = firstSeen == null
+        ? 0
+        : now.difference(firstSeen).inDays;
+    final journalCount = prefs.getInt(_kJournalCount) as int? ?? 0;
+    final ocdCount = prefs.getInt(_kOcdCount) as int? ?? 0;
+    final meaningfulActionCount =
+        prefs.getInt(_kMeaningfulActionCount) as int? ??
+        journalCount + ocdCount;
+    final distinctDays = prefs.getInt(_kDistinctDays) as int? ?? 0;
+    final lastPromptMs = prefs.getInt(_kLastPromptTs) as int?;
+    final lastDeclineMs = prefs.getInt(_kLastDeclineTs) as int?;
+    final lastPrompt = lastPromptMs == null
+        ? null
+        : DateTime.fromMillisecondsSinceEpoch(lastPromptMs);
+    final lastDecline = lastDeclineMs == null
+        ? null
+        : DateTime.fromMillisecondsSinceEpoch(lastDeclineMs);
+    final optedOut = prefs.getBool(_kOptedOut) as bool? ?? false;
+    final completed = prefs.getBool(_kCompleted) as bool? ?? false;
+
+    RatingPromptIneligibility? reason;
+    if (optedOut) {
+      reason = RatingPromptIneligibility.optedOut;
+    } else if (completed) {
+      reason = RatingPromptIneligibility.completed;
+    } else if (firstSeen == null) {
+      reason = RatingPromptIneligibility.missingFirstSeen;
+    } else if (daysInstalled < _minDaysInstalled) {
+      reason = RatingPromptIneligibility.tooRecentlyInstalled;
+    } else if (meaningfulActionCount < _minMeaningfulActions) {
+      reason = RatingPromptIneligibility.notEnoughMeaningfulActions;
+    } else if (distinctDays < _minDistinctDays) {
+      reason = RatingPromptIneligibility.notEnoughDistinctDays;
+    } else if (lastPrompt != null &&
+        now.difference(lastPrompt).inDays < _reprompAfterShowDays) {
+      reason = RatingPromptIneligibility.promptCooldown;
+    } else if (lastDecline != null &&
+        now.difference(lastDecline).inDays < _reprompAfterDeclineDays) {
+      reason = RatingPromptIneligibility.declineCooldown;
+    }
+
+    return RatingPromptDiagnostics(
+      firstSeen: firstSeen,
+      daysInstalled: daysInstalled,
+      journalCount: journalCount,
+      ocdCount: ocdCount,
+      meaningfulActionCount: meaningfulActionCount,
+      distinctDays: distinctDays,
+      lastPrompt: lastPrompt,
+      lastDecline: lastDecline,
+      optedOut: optedOut,
+      completed: completed,
+      eligible: reason == null,
+      reason: reason,
+    );
+  }
+
+  static bool _isEligible(ReviewTrigger trigger) {
+    final diagnostics = ReviewPromptService.diagnostics();
+    if (!diagnostics.eligible) {
+      _debugLog(trigger, diagnostics);
+      return false;
     }
     return true;
+  }
+
+  static void _debugLog(
+    ReviewTrigger trigger,
+    RatingPromptDiagnostics diagnostics,
+  ) {
+    if (!kDebugMode) return;
+    debugPrint(
+      'Review prompt skipped for ${trigger.name}: '
+      '${diagnostics.reason?.name ?? 'eligible'} '
+      '(daysInstalled=${diagnostics.daysInstalled}, '
+      'meaningfulActions=${diagnostics.meaningfulActionCount}, '
+      'distinctDays=${diagnostics.distinctDays}, '
+      'lastPrompt=${diagnostics.lastPrompt}, '
+      'lastDecline=${diagnostics.lastDecline}, '
+      'optedOut=${diagnostics.optedOut}, '
+      'completed=${diagnostics.completed})',
+    );
   }
 
   /// Eligibility-gated prompt for "happy moment" triggers.
@@ -143,7 +322,7 @@ class ReviewPromptService {
   }) async {
     if (!_isMobile) return;
     if (_inFlight) return;
-    if (!_isEligible()) return;
+    if (!_isEligible(trigger)) return;
     _inFlight = true;
     try {
       // Brief delay so the closing screen / save toast settles first.

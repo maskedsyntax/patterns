@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../services/pro_service.dart';
 
 SharedPreferences? mobilePreferences;
 
@@ -7,6 +11,7 @@ const appLockPreferenceKey = 'appLockEnabled';
 const reminderEnabledKey = 'reminderEnabled';
 const reminderHourKey = 'reminderHour';
 const reminderMinuteKey = 'reminderMinute';
+const proUnlockedKey = 'proUnlocked';
 
 Future<void> initMobilePreferences() async {
   mobilePreferences = await SharedPreferences.getInstance();
@@ -29,6 +34,27 @@ class AppLockNotifier extends Notifier<bool> {
 final appLockEnabledProvider = NotifierProvider<AppLockNotifier, bool>(
   AppLockNotifier.new,
 );
+
+/// Whether "Patterns Pro" is unlocked. Backed by the persisted flag that
+/// [ProService] writes on a successful purchase or restore. Subscribes to the
+/// purchase event stream so any unlock flips Pro gating app-wide immediately.
+class ProNotifier extends Notifier<bool> {
+  StreamSubscription<ProEvent>? _sub;
+
+  @override
+  bool build() {
+    _sub = ProService.events.listen((event) {
+      if (event is ProSuccess) state = true;
+    });
+    ref.onDispose(() => _sub?.cancel());
+    return ProService.isUnlocked;
+  }
+
+  /// Re-reads the persisted flag (e.g. after launch-time restore completes).
+  void refresh() => state = ProService.isUnlocked;
+}
+
+final proProvider = NotifierProvider<ProNotifier, bool>(ProNotifier.new);
 
 /// Daily reminder preference (on/off + time of day). Persistence only — the
 /// Settings screen owns the OS permission + scheduling side effects, mirroring

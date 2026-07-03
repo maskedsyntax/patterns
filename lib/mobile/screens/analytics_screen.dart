@@ -16,6 +16,8 @@ import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 import '../../widgets/export_report_sheet.dart';
 import '../../widgets/platform.dart';
+import '../widgets/section_intro.dart';
+import 'recovery_metrics_screen.dart';
 
 class AnalyticsScreen extends ConsumerStatefulWidget {
   const AnalyticsScreen({super.key});
@@ -76,6 +78,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               ),
             ),
             const SizedBox(height: 18),
+            const SectionIntro(id: 'insights'),
             FadeSlideIn(
               delay: const Duration(milliseconds: 60),
               child: _RangeSelector(
@@ -187,6 +190,11 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text('Error: $error')),
+            ),
+            const SizedBox(height: 24),
+            const FadeSlideIn(
+              delay: Duration(milliseconds: 120),
+              child: RecoveryMetricsSection(),
             ),
           ],
         ),

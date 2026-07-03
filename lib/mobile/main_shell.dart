@@ -13,9 +13,9 @@ import 'biometric_auth.dart';
 import 'preferences.dart';
 import 'screens/analytics_screen.dart';
 import 'screens/compulsion_delay_screen.dart';
-import 'screens/erp_exercises_screen.dart';
 import 'screens/journal_screen.dart';
 import 'screens/ocd_tracker_screen.dart';
+import 'screens/recovery_hub_screen.dart';
 import 'screens/settings_screen.dart';
 
 /// MaterialApp.navigatorKey for the mobile build, so Welcome→Settings can
@@ -537,7 +537,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
         onAdd: () => _openOcdFlow(context),
         onDelay: () => _openDelayFlow(context),
       ),
-      _Tab.erp: const ErpExercisesScreen(),
+      _Tab.erp: const RecoveryHubScreen(),
       _Tab.insights: const AnalyticsScreen(),
     };
 
@@ -693,7 +693,7 @@ class _FloatingTabBar extends StatelessWidget {
     _DockTabSpec(
       tab: _Tab.erp,
       icon: Icons.self_improvement_rounded,
-      label: 'ERP',
+      label: 'Recovery',
     ),
     _DockTabSpec(
       tab: _Tab.insights,

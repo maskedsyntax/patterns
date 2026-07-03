@@ -12,6 +12,7 @@ import 'screens/ocd_tracker_screen.dart';
 import 'screens/analytics_screen.dart';
 import 'screens/settings_screen.dart';
 import 'services/notification_service.dart';
+import 'services/pro_service.dart';
 import 'services/review_prompt.dart';
 import 'services/tip_jar.dart';
 import 'widgets/app_snack_bar.dart';
@@ -67,6 +68,7 @@ void main() async {
   }
 
   TipJarService.init();
+  ProService.init();
 
   runApp(const ProviderScope(child: PatternsApp()));
 }

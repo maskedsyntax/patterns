@@ -11,6 +11,8 @@ import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 import '../../widgets/app_snack_bar.dart';
 import '../../widgets/rich_journal.dart';
+import '../widgets/section_intro.dart';
+import 'emergency_toolkit_screen.dart';
 
 class TodayScreen extends ConsumerStatefulWidget {
   final VoidCallback onJournal;
@@ -70,6 +72,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
               ],
             ),
             const SizedBox(height: 28),
+            const SectionIntro(id: 'today'),
             _Card(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,6 +129,14 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
             _ErpCard(onTap: widget.onErp),
             const SizedBox(height: 14),
             _DelayCard(onTap: widget.onDelay),
+            const SizedBox(height: 14),
+            _EmergencyCard(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const EmergencyToolkitScreen(),
+                ),
+              ),
+            ),
             const SizedBox(height: 28),
             Text(
               'Recent Activity',
@@ -323,6 +334,10 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                         itemCount: 10,
                       ),
                     ),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: SectionIntro(id: 'journal'),
             ),
             Expanded(
               child: entriesAsync.when(
@@ -933,6 +948,59 @@ class _DelayCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Sit with it for a while before acting.',
+                  style: _muted(theme, 14).copyWith(height: 1.35),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Icon(LineIcons.angleRight, color: AppTheme.textSecondary, size: 18),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmergencyCard extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _EmergencyCard({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return _Card(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: AppTheme.mutedRed.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(
+              Icons.health_and_safety_rounded,
+              color: AppTheme.mutedRed,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Right now',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Quick help for a hard moment.',
                   style: _muted(theme, 14).copyWith(height: 1.35),
                 ),
               ],

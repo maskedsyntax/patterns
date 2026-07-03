@@ -32,6 +32,8 @@
 	<false/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Patterns uses Face ID to unlock your private journal and OCD tracking data when app lock is enabled.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Patterns uses the microphone only when you record an audio loop tape for your exposure exercises. Recordings stay on your device.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Patterns may request photo library access only when the system file picker offers photo library sources while you import or export a backup file.</string>
 	<key>LSApplicationQueriesSchemes</key>

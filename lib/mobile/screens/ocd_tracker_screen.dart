@@ -11,6 +11,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 import '../../widgets/app_snack_bar.dart';
 import '../main_shell.dart' show mobileRootNavigatorKey;
+import '../widgets/section_intro.dart';
 
 class OcdTrackerScreen extends ConsumerStatefulWidget {
   final VoidCallback onAdd;
@@ -68,6 +69,10 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
               ),
             ),
             const SizedBox(height: 12),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: SectionIntro(id: 'track'),
+            ),
             Expanded(
               child: entriesAsync.when(
                 data: (entries) {

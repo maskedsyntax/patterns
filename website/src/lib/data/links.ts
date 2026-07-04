@@ -5,6 +5,7 @@ export const links = {
   playStore:
     'https://play.google.com/store/apps/details?id=com.maskedsyntax.patterns',
   github: 'https://github.com/maskedsyntax/patterns',
+  githubApi: 'https://api.github.com/repos/maskedsyntax/patterns',
   kofi: 'https://ko-fi.com/aftaabsiddiqui',
   sponsors: 'https://github.com/sponsors/maskedsyntax',
   releases: 'https://github.com/maskedsyntax/patterns/releases',
@@ -13,4 +14,8 @@ export const links = {
   license: 'https://github.com/maskedsyntax/patterns/blob/master/LICENSE',
   maskedsyntax: 'https://maskedsyntax.com/',
   site: 'https://patterns.maskedsyntax.com/'
+} as const;
+
+export const githubStats = {
+  stars: 6
 } as const;

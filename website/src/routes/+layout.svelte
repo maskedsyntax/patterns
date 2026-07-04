@@ -32,6 +32,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="author" content="MaskedSyntax" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+  <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1" />
+  <meta name="application-name" content="Patterns" />
   <meta name="theme-color" content="#0A0A0A" />
   <meta name="color-scheme" content="dark light" />
   <meta property="og:site_name" content="Patterns" />

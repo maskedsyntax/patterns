@@ -10,10 +10,11 @@
       <div class="header">
         <span class="eyebrow">FEATURES</span>
         <h2 id="features-title" class="title serif">
-          Everything you need.<br />Nothing you don't.
+          OCD tracking, ERP support,<br />and private journaling.
         </h2>
         <p class="subtitle">
-          Designed to be simple, focused, and respectful of your privacy.
+          Patterns helps you record intrusive thoughts, compulsions, triggers,
+          responses, and distress levels without accounts, ads, or cloud uploads.
         </p>
       </div>
     </AnimatedOnScroll>

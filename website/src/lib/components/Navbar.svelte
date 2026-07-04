@@ -2,9 +2,9 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { theme } from '$lib/stores/theme';
-  import { links } from '$lib/data/links';
+  import { githubStats, links } from '$lib/data/links';
   import ContentContainer from './ContentContainer.svelte';
-  import { Menu, X, Sun, Moon, Star, ChevronDown } from 'lucide-svelte';
+  import { Download, Menu, X, Sun, Moon, Star, ChevronDown } from 'lucide-svelte';
 
   let {
     onNavigate
@@ -14,6 +14,9 @@
 
   let mobileMenuOpen = $state(false);
   let scrolled = $state(false);
+  let starCount: number = $state(githubStats.stars);
+  const starFormatter = new Intl.NumberFormat('en-US');
+  const starCountLabel = $derived(starFormatter.format(starCount));
 
   const learnLinks = [
     { label: 'Understanding OCD', href: '/ocd' },
@@ -32,6 +35,25 @@
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
+  });
+
+  $effect(() => {
+    let cancelled = false;
+
+    fetch(links.githubApi, { headers: { Accept: 'application/vnd.github+json' } })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((repo: { stargazers_count?: number } | null) => {
+        if (!cancelled && typeof repo?.stargazers_count === 'number') {
+          starCount = repo.stargazers_count;
+        }
+      })
+      .catch(() => {
+        starCount = githubStats.stars;
+      });
+
+    return () => {
+      cancelled = true;
+    };
   });
 
   function scrollToSection(section: string) {
@@ -83,7 +105,6 @@
           </div>
         </div>
         <button type="button" onclick={goPrivacy}>Privacy</button>
-        <button type="button" onclick={() => scrollToSection('download')}>Download</button>
         <button
           type="button"
           class="icon-btn"
@@ -97,9 +118,16 @@
           {/if}
         </button>
         <a class="github-btn" href={links.github} target="_blank" rel="noopener noreferrer">
-          <Star size={16} color="#000" />
+          <Star size={16} />
           <span>Star on GitHub</span>
+          <span class="star-count" aria-label={`${starCountLabel} GitHub stars`}>
+            {starCountLabel}
+          </span>
         </a>
+        <button type="button" class="download-btn" onclick={() => scrollToSection('download')}>
+          <Download size={16} color="#000" />
+          <span>Download</span>
+        </button>
       </div>
 
       <div class="mobile-controls">
@@ -140,10 +168,16 @@
         <a class="mobile-sublink" href={link.href} onclick={closeMobile}>{link.label}</a>
       {/each}
       <button type="button" onclick={goPrivacy}>Privacy</button>
-      <button type="button" onclick={() => scrollToSection('download')}>Download</button>
+      <button type="button" class="download-btn mobile-download" onclick={() => scrollToSection('download')}>
+        <Download size={16} color="#000" />
+        <span>Download</span>
+      </button>
       <a class="github-btn mobile-github" href={links.github} target="_blank" rel="noopener noreferrer">
-        <Star size={16} color="#000" />
+        <Star size={16} />
         <span>Star on GitHub</span>
+        <span class="star-count" aria-label={`${starCountLabel} GitHub stars`}>
+          {starCountLabel}
+        </span>
       </a>
     </div>
   {/if}
@@ -203,6 +237,29 @@
 
   .desktop-links button:hover {
     color: var(--text);
+  }
+
+  .desktop-links .download-btn,
+  .mobile-menu .download-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    background: color-mix(in srgb, var(--accent) 92%, transparent);
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+
+  .desktop-links .download-btn:hover,
+  .mobile-menu .download-btn:hover {
+    color: #000;
+    background: var(--accent);
+    box-shadow: 0 4px 20px color-mix(in srgb, var(--accent) 26%, transparent);
   }
 
   .dropdown {
@@ -267,18 +324,36 @@
   .github-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 10px 20px;
+    gap: 8px;
+    padding: 9px 14px;
     border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
-    color: #000;
-    background: color-mix(in srgb, var(--accent) 90%, transparent);
-    transition: background 0.2s;
+    line-height: 1;
+    color: color-mix(in srgb, var(--text) 82%, transparent);
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
   }
 
   .github-btn:hover {
-    background: var(--accent);
+    color: var(--text);
+    background: color-mix(in srgb, var(--surface-alt) 90%, var(--accent) 10%);
+    border-color: color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
+  }
+
+  .star-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
   }
 
   .mobile-controls {
@@ -320,6 +395,11 @@
   }
 
   .mobile-github {
+    margin-top: 12px;
+    align-self: flex-start;
+  }
+
+  .mobile-download {
     margin-top: 12px;
     align-self: flex-start;
   }

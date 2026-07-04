@@ -3,7 +3,7 @@
   import PrimaryButton from '$lib/components/PrimaryButton.svelte';
   import SecondaryButton from '$lib/components/SecondaryButton.svelte';
   import { links } from '$lib/data/links';
-  import { logEvent, logGitHubClick } from '$lib/utils/analytics';
+  import { logDownload, logEvent, logGitHubClick } from '$lib/utils/analytics';
   import { Download, Github } from 'lucide-svelte';
 
   let { onDownload }: { onDownload: () => void } = $props();
@@ -18,6 +18,11 @@
     return () => mq.removeEventListener('change', update);
   });
 
+  function handleStoreDownload(url: string, platform: string) {
+    logDownload(platform, 'hero');
+    window.open(url, '_blank', 'noopener');
+  }
+
   function handleDownload() {
     logEvent('hero_download_click');
     onDownload();
@@ -30,36 +35,37 @@
 </script>
 
 <section id="hero" class="hero section-scroll-margin" aria-labelledby="hero-title">
-  <ContentContainer padding={isMobile ? '64px 0 64px' : '140px 0 120px'}>
+  <ContentContainer padding={isMobile ? '56px 0 56px' : '92px 0 96px'}>
     <div class="hero-content">
-      <div class="badge">
-        <span class="dot"></span>
-        <span>Open Source & Privacy-First</span>
-      </div>
+      <div class="hook">
+        <div class="badge">
+          <span class="dot"></span>
+          <span>Private OCD journaling & ERP practice</span>
+        </div>
 
-      <h1 id="hero-title" class="headline serif">
-        Patterns OCD<br />tracker.
-      </h1>
+        <h1 id="hero-title" class="headline serif">
+          See the loop.<br />Choose your next response.
+        </h1>
 
-      <p class="subhead">
-        A private iPhone-first app for OCD journaling, tracking obsessions and compulsions,
-        rating distress, and supporting ERP practice — calm, local-first, and built to help
-        you see the pattern clearly.
-      </p>
+        <p class="subhead">
+          Patterns helps you journal, track OCD events, practice ERP, and spot trends
+          without accounts, cloud sync, or anyone else reading your notes.
+        </p>
 
-      <div class="cta-row">
-        <PrimaryButton
-          label="Download for Free"
-          icon={Download}
-          onclick={handleDownload}
-          fullWidth={isMobile}
-        />
-        <SecondaryButton
-          label="View on GitHub"
-          icon={Github}
-          onclick={handleGitHub}
-          fullWidth={isMobile}
-        />
+        <div class="cta-row">
+          <PrimaryButton
+            label="Download for Free"
+            icon={Download}
+            onclick={handleDownload}
+            fullWidth={isMobile}
+          />
+          <SecondaryButton
+            label="View on GitHub"
+            icon={Github}
+            onclick={handleGitHub}
+            fullWidth={isMobile}
+          />
+        </div>
       </div>
 
       <figure class="app-preview">
@@ -71,6 +77,22 @@
           height="1024"
           fetchpriority="high"
         />
+        <a
+          class="store-link app-store-link"
+          href={links.ios}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Download Patterns on the App Store"
+          onclick={() => handleStoreDownload(links.ios, 'iOS')}
+        ></a>
+        <a
+          class="store-link play-store-link"
+          href={links.playStore}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Get Patterns on Google Play"
+          onclick={() => handleStoreDownload(links.playStore, 'Android')}
+        ></a>
         <figcaption class="sr-only">
           Patterns mobile app CTA with App Store and Google Play download badges
         </figcaption>
@@ -94,6 +116,13 @@
     text-align: center;
   }
 
+  .hook {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 760px;
+  }
+
   .badge {
     display: inline-flex;
     align-items: center;
@@ -103,9 +132,9 @@
     border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
     background: color-mix(in srgb, var(--accent) 10%, transparent);
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--accent);
-    letter-spacing: 0.5px;
+    letter-spacing: 0.03em;
   }
 
   .dot {
@@ -116,18 +145,17 @@
   }
 
   .headline {
-    margin: 40px 0 0;
-    font-size: 80px;
-    line-height: 1.08;
-    letter-spacing: -0.03em;
+    margin: 36px 0 0;
+    font-size: 72px;
+    line-height: 1.06;
     font-weight: 400;
   }
 
   .subhead {
-    margin: 24px 0 0;
-    max-width: 560px;
+    margin: 22px 0 0;
+    max-width: 620px;
     font-size: 19px;
-    line-height: 1.6;
+    line-height: 1.58;
     color: var(--text-secondary);
   }
 
@@ -136,22 +164,48 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 16px;
-    margin-top: 48px;
+    margin-top: 40px;
   }
 
   .app-preview {
+    position: relative;
     width: 100%;
-    max-width: 1120px;
-    margin: 80px 0 0;
+    max-width: 1160px;
+    margin: 72px 0 0;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 34px 100px -42px rgba(0, 0, 0, 0.9);
   }
 
   .mobile-preview {
     width: 100%;
     height: auto;
-    border-radius: 24px;
-    box-shadow:
-      0 24px 64px -16px rgba(0, 0, 0, 0.55),
-      0 8px 24px color-mix(in srgb, var(--accent) 10%, transparent);
+    display: block;
+  }
+
+  .store-link {
+    position: absolute;
+    display: block;
+    border-radius: 12px;
+  }
+
+  .store-link:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .app-store-link {
+    left: 5.9%;
+    top: 82.15%;
+    width: 15.4%;
+    height: 6.35%;
+  }
+
+  .play-store-link {
+    left: 22.7%;
+    top: 82.15%;
+    width: 14.35%;
+    height: 6.35%;
   }
 
   .sr-only {
@@ -168,16 +222,24 @@
 
   @media (max-width: 1023px) {
     .headline {
-      font-size: 64px;
+      font-size: 60px;
     }
 
-    .app-preview { max-width: 960px; }
+    .app-preview {
+      max-width: 980px;
+      border-radius: 24px;
+    }
   }
 
   @media (max-width: 599px) {
+    .badge {
+      font-size: 12px;
+      padding: 7px 12px;
+    }
+
     .headline {
-      font-size: 48px;
       margin-top: 28px;
+      font-size: 44px;
     }
 
     .subhead {
@@ -186,14 +248,12 @@
     }
 
     .cta-row {
-      margin-top: 36px;
+      margin-top: 32px;
     }
 
     .app-preview {
+      width: calc(100% + 12px);
       margin-top: 48px;
-    }
-
-    .mobile-preview {
       border-radius: 18px;
     }
   }

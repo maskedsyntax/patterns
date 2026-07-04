@@ -65,14 +65,14 @@
       <figure class="app-preview">
         <img
           class="mobile-preview"
-          src="/assets/mockups/feature-graphic.jpg"
-          alt="Patterns mobile app screens showing journaling, OCD event tracking, and pattern visualization"
-          width="1024"
-          height="500"
+          src="/assets/website-cta.png"
+          alt="Patterns mobile app for private journaling, OCD event tracking, ERP practice, insights, and reminders"
+          width="1536"
+          height="1024"
           fetchpriority="high"
         />
         <figcaption class="sr-only">
-          Patterns mobile app preview with journal and OCD tracker screens
+          Patterns mobile app CTA with App Store and Google Play download badges
         </figcaption>
       </figure>
     </div>
@@ -141,7 +141,7 @@
 
   .app-preview {
     width: 100%;
-    max-width: 960px;
+    max-width: 1120px;
     margin: 80px 0 0;
   }
 
@@ -171,7 +171,7 @@
       font-size: 64px;
     }
 
-    .app-preview { max-width: 860px; }
+    .app-preview { max-width: 960px; }
   }
 
   @media (max-width: 599px) {

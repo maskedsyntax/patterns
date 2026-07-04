@@ -29,6 +29,7 @@
       url: links.site,
       image: site.ogImage,
       screenshot: [
+        `${links.site}assets/website-cta.png`,
         `${links.site}assets/mockups/feature-graphic.jpg`,
         `${links.site}assets/mockups/frame-1.jpg`,
         `${links.site}assets/mockups/desktop-1.jpg`
@@ -81,9 +82,9 @@
         'Download Patterns, a private OCD tracker and journaling app for iPhone, Android, Mac, Windows, and Linux.',
       primaryImageOfPage: {
         '@type': 'ImageObject',
-        url: `${links.site}assets/mockups/feature-graphic.jpg`,
-        width: 1024,
-        height: 500
+        url: `${links.site}assets/website-cta.png`,
+        width: 1536,
+        height: 1024
       },
       about: [
         { '@type': 'MedicalCondition', name: 'Obsessive-Compulsive Disorder' },

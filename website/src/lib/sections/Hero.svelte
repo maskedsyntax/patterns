@@ -32,6 +32,11 @@
     logGitHubClick();
     window.open(links.github, '_blank', 'noopener');
   }
+
+  const heroImageSrc = '/assets/website-cta-1200.jpg';
+  const heroImageSrcSet =
+    '/assets/website-cta-480.jpg 480w, /assets/website-cta-800.jpg 800w, /assets/website-cta-1200.jpg 1200w';
+  const heroImageSizes = '(max-width: 599px) 100vw, (max-width: 1023px) 980px, 1160px';
 </script>
 
 <section id="hero" class="hero section-scroll-margin" aria-labelledby="hero-title">
@@ -71,11 +76,14 @@
       <figure class="app-preview">
         <img
           class="mobile-preview"
-          src="/assets/website-cta.png"
+          src={heroImageSrc}
+          srcset={heroImageSrcSet}
+          sizes={heroImageSizes}
           alt="Patterns mobile app for private journaling, OCD event tracking, ERP practice, insights, and reminders"
           width="1536"
           height="1024"
           fetchpriority="high"
+          decoding="async"
         />
         <a
           class="store-link app-store-link"

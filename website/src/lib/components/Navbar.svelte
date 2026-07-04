@@ -80,6 +80,12 @@
       goto('/');
     }
   }
+  $effect(() => {
+    document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  });
 </script>
 
 <header class="navbar" class:scrolled>
@@ -160,25 +166,41 @@
   </ContentContainer>
 
   {#if mobileMenuOpen}
-    <div class="mobile-menu">
-      <button type="button" onclick={() => scrollToSection('features')}>Features</button>
-      <button type="button" onclick={() => scrollToSection('preview')}>Preview</button>
-      <span class="mobile-group-label">Learn</span>
-      {#each learnLinks as link}
-        <a class="mobile-sublink" href={link.href} onclick={closeMobile}>{link.label}</a>
-      {/each}
-      <button type="button" onclick={goPrivacy}>Privacy</button>
-      <button type="button" class="download-btn mobile-download" onclick={() => scrollToSection('download')}>
-        <Download size={16} color="#000" />
-        <span>Download</span>
-      </button>
-      <a class="github-btn mobile-github" href={links.github} target="_blank" rel="noopener noreferrer">
-        <Star size={16} />
-        <span>Star on GitHub</span>
-        <span class="star-count" aria-label={`${starCountLabel} GitHub stars`}>
-          {starCountLabel}
-        </span>
-      </a>
+    <button type="button" class="mobile-backdrop" aria-label="Close menu" onclick={closeMobile}></button>
+    <div class="mobile-menu" role="dialog" aria-modal="true" aria-label="Site menu">
+      <nav class="mobile-nav" aria-label="Mobile">
+        <div class="mobile-nav-section">
+          <button type="button" onclick={() => scrollToSection('features')}>Features</button>
+          <button type="button" onclick={() => scrollToSection('preview')}>Preview</button>
+        </div>
+
+        <div class="mobile-nav-section">
+          <span class="mobile-group-label">Learn</span>
+          <div class="mobile-subnav">
+            {#each learnLinks as link}
+              <a href={link.href} onclick={closeMobile}>{link.label}</a>
+            {/each}
+          </div>
+        </div>
+
+        <div class="mobile-nav-section">
+          <button type="button" onclick={goPrivacy}>Privacy</button>
+        </div>
+      </nav>
+
+      <div class="mobile-actions">
+        <button type="button" class="download-btn mobile-download" onclick={() => scrollToSection('download')}>
+          <Download size={16} color="#000" />
+          <span>Download</span>
+        </button>
+        <a class="github-btn mobile-github" href={links.github} target="_blank" rel="noopener noreferrer">
+          <Star size={16} />
+          <span>Star on GitHub</span>
+          <span class="star-count" aria-label={`${starCountLabel} GitHub stars`}>
+            {starCountLabel}
+          </span>
+        </a>
+      </div>
     </div>
   {/if}
 </header>
@@ -362,46 +384,120 @@
     gap: 4px;
   }
 
-  .mobile-menu {
-    display: flex;
-    flex-direction: column;
-    padding: 16px 20px 24px;
-    background: color-mix(in srgb, var(--bg) 98%, transparent);
+  .mobile-backdrop {
+    position: fixed;
+    inset: 68px 0 0;
+    z-index: 90;
+    border: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
   }
 
-  .mobile-menu button {
-    padding: 12px 0;
+  .mobile-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 95;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 68px - env(safe-area-inset-top, 0px));
+    padding: 8px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--border);
+    background: color-mix(in srgb, var(--bg) 97%, transparent);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+  }
+
+  .mobile-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .mobile-nav-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 0;
+  }
+
+  .mobile-nav-section + .mobile-nav-section {
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  }
+
+  .mobile-nav button,
+  .mobile-nav a {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 10px;
     text-align: left;
     font-size: 16px;
     font-weight: 500;
-    color: color-mix(in srgb, var(--text) 80%, transparent);
+    color: color-mix(in srgb, var(--text) 88%, transparent);
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .mobile-nav button:hover,
+  .mobile-nav a:hover {
+    background: color-mix(in srgb, var(--surface-alt) 80%, transparent);
+    color: var(--text);
   }
 
   .mobile-group-label {
-    margin-top: 8px;
-    padding: 8px 0 2px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
+    padding: 0 12px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--accent);
   }
 
-  .mobile-sublink {
-    padding: 10px 0 10px 14px;
+  .mobile-subnav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px;
+    border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+    background: color-mix(in srgb, var(--surface-alt) 88%, transparent);
+  }
+
+  .mobile-subnav a {
+    min-height: 42px;
     font-size: 15px;
-    font-weight: 500;
-    color: color-mix(in srgb, var(--text) 70%, transparent);
+    color: color-mix(in srgb, var(--text) 78%, transparent);
+  }
+
+  .mobile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  }
+
+  .mobile-download,
+  .mobile-github {
+    width: 100%;
+    justify-content: center;
   }
 
   .mobile-github {
-    margin-top: 12px;
-    align-self: flex-start;
+    margin-top: 0;
   }
 
   .mobile-download {
-    margin-top: 12px;
-    align-self: flex-start;
+    margin-top: 0;
   }
 
   @media (min-width: 600px) {
@@ -410,7 +506,8 @@
     }
 
     .mobile-controls,
-    .mobile-menu {
+    .mobile-menu,
+    .mobile-backdrop {
       display: none;
     }
   }

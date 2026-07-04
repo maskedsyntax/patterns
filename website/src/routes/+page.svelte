@@ -29,7 +29,7 @@
       url: links.site,
       image: site.ogImage,
       screenshot: [
-        `${links.site}assets/website-cta.png`,
+        `${links.site}assets/website-cta-1200.jpg`,
         `${links.site}assets/mockups/feature-graphic.jpg`,
         `${links.site}assets/mockups/frame-1.jpg`,
         `${links.site}assets/mockups/desktop-1.jpg`
@@ -82,7 +82,7 @@
         'Download Patterns, a private OCD tracker and journaling app for iPhone, Android, Mac, Windows, and Linux.',
       primaryImageOfPage: {
         '@type': 'ImageObject',
-        url: `${links.site}assets/website-cta.png`,
+        url: `${links.site}assets/website-cta-1200.jpg`,
         width: 1536,
         height: 1024
       },
@@ -107,6 +107,17 @@
   keywords="OCD tracker app, OCD journal app, ERP journal app, exposure response prevention app, intrusive thoughts tracker, compulsion tracker, distress tracking app, private journaling app, mental health journal, obsessive compulsive self-tracking, local-first journal, OCD app for iPhone, OCD tracking app for Android"
   {jsonLd}
 />
+
+<svelte:head>
+  <link
+    rel="preload"
+    as="image"
+    href="/assets/website-cta-800.jpg"
+    imagesrcset="/assets/website-cta-480.jpg 480w, /assets/website-cta-800.jpg 800w, /assets/website-cta-1200.jpg 1200w"
+    imagesizes="(max-width: 599px) 100vw, (max-width: 1023px) 980px, 1160px"
+    fetchpriority="high"
+  />
+</svelte:head>
 
 <Hero onDownload={scrollToDownload} />
 <Understanding />

@@ -258,6 +258,7 @@ class _UncertaintyPracticeScreenState
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: AppTheme.textSecondary,
                       fontWeight: FontWeight.w800,
+                      height: 1.35,
                       letterSpacing: 0.5,
                     ),
                   ),

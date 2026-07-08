@@ -36,14 +36,9 @@ class RecoveryHubScreen extends ConsumerWidget {
       subtitle: 'Build a fear ladder and climb it step by step',
     ),
     _ProTool(
-      icon: Icons.local_fire_department_rounded,
-      title: 'Recovery Metrics',
-      subtitle: 'Streaks and progress across all your ERP work',
-    ),
-    _ProTool(
-      icon: Icons.waves_rounded,
-      title: 'Urge Surfing',
-      subtitle: 'Ride an urge and watch it rise and fall',
+      icon: Icons.folder_special_rounded,
+      title: 'Exposure Materials',
+      subtitle: 'Scripts, loop tapes, images & links for exposures',
     ),
     _ProTool(
       icon: Icons.shield_rounded,
@@ -56,24 +51,9 @@ class RecoveryHubScreen extends ConsumerWidget {
       subtitle: 'Multi-week guided ERP progressions',
     ),
     _ProTool(
-      icon: Icons.science_rounded,
-      title: 'Behavioral Experiments',
-      subtitle: 'Test what OCD predicts against reality',
-    ),
-    _ProTool(
-      icon: Icons.menu_book_rounded,
-      title: 'Reflection Journal',
-      subtitle: 'Capture insights after each exposure',
-    ),
-    _ProTool(
-      icon: Icons.checklist_rounded,
-      title: 'Action Planner',
-      subtitle: 'Plan your response before a trigger hits',
-    ),
-    _ProTool(
-      icon: Icons.lightbulb_outline_rounded,
-      title: 'Implementation Intentions',
-      subtitle: '"If this happens, then I will…" plans',
+      icon: Icons.waves_rounded,
+      title: 'Urge Surfing',
+      subtitle: 'Ride an urge and watch it rise and fall',
     ),
     _ProTool(
       icon: Icons.help_outline_rounded,
@@ -81,9 +61,29 @@ class RecoveryHubScreen extends ConsumerWidget {
       subtitle: 'Practice living with not knowing',
     ),
     _ProTool(
-      icon: Icons.folder_special_rounded,
-      title: 'Exposure Materials',
-      subtitle: 'Scripts, loop tapes, images & links for exposures',
+      icon: Icons.checklist_rounded,
+      title: 'Action Planner',
+      subtitle: 'Plan your response before a trigger hits',
+    ),
+    _ProTool(
+      icon: Icons.science_rounded,
+      title: 'Behavioral Experiments',
+      subtitle: 'Test what OCD predicts against reality',
+    ),
+    _ProTool(
+      icon: Icons.local_fire_department_rounded,
+      title: 'Recovery Metrics',
+      subtitle: 'Streaks and progress across all your ERP work',
+    ),
+    _ProTool(
+      icon: Icons.menu_book_rounded,
+      title: 'Reflection Journal',
+      subtitle: 'Capture insights after each exposure',
+    ),
+    _ProTool(
+      icon: Icons.lightbulb_outline_rounded,
+      title: 'Implementation Intentions',
+      subtitle: '"If this happens, then I will…" plans',
     ),
   ];
 
@@ -106,14 +106,16 @@ class RecoveryHubScreen extends ConsumerWidget {
               icon: Icons.self_improvement_rounded,
               title: 'Guided ERP',
               subtitle: 'Reuse a plan, practice, and learn from the result',
-              onTap: () => _push(context, const ErpExercisesScreen(showBack: true)),
+              onTap: () =>
+                  _push(context, const ErpExercisesScreen(showBack: true)),
             ),
             const SizedBox(height: 10),
             _ToolCard(
               icon: Icons.hourglass_bottom_rounded,
               title: 'Compulsion Delay',
               subtitle: 'Sit with the urge before acting on it',
-              onTap: () => _pushFullscreen(context, const CompulsionDelayFlow()),
+              onTap: () =>
+                  _pushFullscreen(context, const CompulsionDelayFlow()),
             ),
             const SizedBox(height: 10),
             _ToolCard(

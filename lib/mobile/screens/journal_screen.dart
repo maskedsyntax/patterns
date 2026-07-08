@@ -336,7 +336,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                     ),
             ),
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
               child: SectionIntro(id: 'journal'),
             ),
             Expanded(

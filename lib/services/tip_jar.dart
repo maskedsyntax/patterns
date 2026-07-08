@@ -7,10 +7,9 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 /// Optional one-shot tips from the user to support development.
 ///
 /// Wraps `InAppPurchase` for the three consumable products configured in
-/// App Store Connect. Consumables grant no entitlement — repeat tips are
-/// expected. The plugin's `purchaseStream` is subscribed at app start so any
-/// interrupted purchases from a prior session are completed before the user
-/// can tip again.
+/// the app stores. Consumables grant no entitlement — repeat tips are expected.
+/// The plugin's `purchaseStream` is subscribed at app start so any interrupted
+/// purchases from a prior session are completed before the user can tip again.
 class TipJarService {
   static const String productIdSmall = 'com.maskedsyntax.patterns.tip.small';
   static const String productIdMedium = 'com.maskedsyntax.patterns.tip.medium';
@@ -32,7 +31,7 @@ class TipJarService {
 
   static bool get isPlatformSupported {
     if (kIsWeb) return false;
-    return Platform.isIOS || Platform.isMacOS;
+    return Platform.isIOS || Platform.isAndroid || Platform.isMacOS;
   }
 
   /// Call once at app start. Subscribes to the purchase stream so any
@@ -46,7 +45,8 @@ class TipJarService {
   }
 
   /// Whether the store is reachable from this device. False on unsupported
-  /// platforms, in restricted environments, or when StoreKit is unavailable.
+  /// platforms, in restricted environments, or when StoreKit/Billing is
+  /// unavailable.
   static Future<bool> isAvailable() async {
     if (!isPlatformSupported) return false;
     try {

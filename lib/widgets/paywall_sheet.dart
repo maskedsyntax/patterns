@@ -30,10 +30,11 @@ class PaywallSheet extends StatefulWidget {
 class _PaywallSheetState extends State<PaywallSheet> {
   static const _proPoints = <String>[
     'Exposure Hierarchy Builder — climb fear ladders step by step',
-    'Structured ERP programs & recovery metrics',
+    'Exposure materials — scripts, loop tapes, images & links',
     'Urge surfing & response-prevention trackers',
-    'Behavioral experiments & reflection worksheets',
-    'Action planner & implementation intentions',
+    'Structured ERP programs & uncertainty training',
+    'Action planner & behavioral experiments',
+    'Recovery metrics & reflection worksheets',
   ];
 
   ProductDetails? _product;
@@ -76,7 +77,8 @@ class _PaywallSheetState extends State<PaywallSheet> {
         _product = product;
         _loading = false;
         if (product == null) {
-          _loadError = 'Patterns Pro is not available right now. Please try again later.';
+          _loadError =
+              'Patterns Pro is not available right now. Please try again later.';
         }
       });
     } catch (_) {
@@ -93,8 +95,9 @@ class _PaywallSheetState extends State<PaywallSheet> {
     switch (event) {
       case ProSuccess(:final restored):
         setState(() => _purchaseInFlight = false);
+        final rootNavigator = Navigator.of(context, rootNavigator: true);
         Navigator.of(context).pop();
-        _showUnlockedDialog(context, restored: restored);
+        _showUnlockedDialog(rootNavigator.context, restored: restored);
       case ProError(:final message):
         setState(() => _purchaseInFlight = false);
         showAppSnackBar(context, message, type: ToastType.error);
@@ -302,10 +305,12 @@ void _showUnlockedDialog(BuildContext context, {required bool restored}) {
   showDialog<void>(
     context: context,
     barrierDismissible: true,
-    builder: (_) {
-      final theme = Theme.of(context);
+    builder: (dialogContext) {
+      final theme = Theme.of(dialogContext);
       final isDark = theme.brightness == Brightness.dark;
-      final surface = isDark ? AppTheme.charcoalCard : theme.colorScheme.surface;
+      final surface = isDark
+          ? AppTheme.charcoalCard
+          : theme.colorScheme.surface;
       return Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
@@ -357,7 +362,7 @@ void _showUnlockedDialog(BuildContext context, {required bool restored}) {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => Navigator.of(dialogContext).pop(),
                   child: const Text('Start practicing'),
                 ),
               ),

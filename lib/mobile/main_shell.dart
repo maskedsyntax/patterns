@@ -6,6 +6,8 @@ import 'package:local_auth/local_auth.dart'
     show LocalAuthException, LocalAuthExceptionCode;
 
 import '../models/models.dart';
+import '../providers/providers.dart';
+import '../services/demo_seed_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/animations.dart';
 import '../widgets/liquid_glass.dart';
@@ -518,6 +520,27 @@ class MobileHome extends ConsumerStatefulWidget {
 
 class _MobileHomeState extends ConsumerState<MobileHome> {
   _Tab _selectedTab = _Tab.home;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _seedDemoData());
+  }
+
+  Future<void> _seedDemoData() async {
+    final seeded = await DemoSeedService.seedIfNeeded();
+    if (!mounted || !seeded) return;
+    ref
+      ..invalidate(journalProvider)
+      ..invalidate(ocdProvider)
+      ..invalidate(delaySessionProvider)
+      ..invalidate(erpExercisePlanProvider)
+      ..invalidate(erpExerciseSessionProvider)
+      ..invalidate(exposureHierarchyProvider)
+      ..invalidate(exposureStepProvider)
+      ..invalidate(responsePreventionProvider)
+      ..invalidate(urgeSurfProvider);
+  }
 
   @override
   Widget build(BuildContext context) {

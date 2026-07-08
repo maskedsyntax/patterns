@@ -114,9 +114,9 @@ class ActionPlannerScreen extends ConsumerWidget {
             children: [
               Text(
                 'Delete this plan?',
-                style: Theme.of(sheetContext).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                style: Theme.of(
+                  sheetContext,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 10),
               Text(
@@ -137,9 +137,7 @@ class ActionPlannerScreen extends ConsumerWidget {
                     child: ElevatedButton(
                       onPressed: () async {
                         Navigator.pop(sheetContext);
-                        await ref
-                            .read(actionPlanProvider.notifier)
-                            .delete(id);
+                        await ref.read(actionPlanProvider.notifier).delete(id);
                       },
                       child: const Text('Delete'),
                     ),
@@ -183,7 +181,9 @@ class _PlanCard extends StatelessWidget {
                 done
                     ? Icons.check_circle_rounded
                     : Icons.radio_button_unchecked_rounded,
-                color: done ? theme.colorScheme.primary : AppTheme.textSecondary,
+                color: done
+                    ? theme.colorScheme.primary
+                    : AppTheme.textSecondary,
               ),
             ),
           ),

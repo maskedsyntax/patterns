@@ -7,7 +7,7 @@
     {
       '@context': 'https://schema.org',
       '@type': 'WebPage',
-      name: 'Privacy Policy — Patterns',
+      name: 'Privacy Policy - Patterns',
       description:
         'Privacy policy for Patterns, a local-first OCD tracker and journaling app.',
       url: `${links.site}privacy`,
@@ -17,7 +17,7 @@
 </script>
 
 <Seo
-  title="Privacy Policy — Patterns"
+  title="Privacy Policy - Patterns"
   description="Patterns privacy policy: local-first OCD tracker and journal. No cloud sync, no accounts, no telemetry. Your data stays on your device."
   path="privacy"
   {jsonLd}

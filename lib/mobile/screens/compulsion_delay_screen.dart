@@ -19,7 +19,7 @@ import '../widgets/section_intro.dart';
 
 enum _Phase { setup, countdown, reflection }
 
-/// Compulsion Delay Tool — an active ERP practice. The user picks a compulsion,
+/// Compulsion Delay Tool - an active ERP practice. The user picks a compulsion,
 /// chooses how long to sit with the urge, rides out a calm countdown, then
 /// reflects on what happened. The whole flow stays gentle and non-punishing:
 /// stopping early is always allowed and never scolded.

@@ -134,7 +134,7 @@ class _PrivacyScreenState extends ConsumerState<_PrivacyScreen>
       // `_didBackground` is only set by a real `paused` (the prompt-induced
       // paused is filtered above), so it's our marker for "the user actually
       // backgrounded the app." If it's false, we're returning from the
-      // biometric prompt or an app-switcher peek — don't auto-re-prompt;
+      // biometric prompt or an app-switcher peek - don't auto-re-prompt;
       // let the user tap the Unlock button.
       final shouldReauth = _didBackground;
       setState(() {
@@ -166,7 +166,7 @@ class _PrivacyScreenState extends ConsumerState<_PrivacyScreen>
   Widget build(BuildContext context) {
     ref.listen<bool>(appLockEnabledProvider, (_, enabled) {
       // The Settings toggle authenticates before flipping this provider, so
-      // don't re-prompt here — that re-prompt was the trigger for the
+      // don't re-prompt here - that re-prompt was the trigger for the
       // historical loop. We just clear the cover when the user disables.
       if (!enabled) setState(() => _locked = false);
     });
@@ -240,7 +240,7 @@ class _PrivacyScreenState extends ConsumerState<_PrivacyScreen>
         case LocalAuthExceptionCode.noCredentialsSet:
         case LocalAuthExceptionCode.noBiometricHardware:
         case LocalAuthExceptionCode.biometricHardwareTemporarilyUnavailable:
-          // App lock isn't usable on this device anymore — turn it off so the
+          // App lock isn't usable on this device anymore - turn it off so the
           // user isn't trapped behind a cover they can never satisfy.
           await ref.read(appLockEnabledProvider.notifier).setEnabled(false);
           if (mounted) {

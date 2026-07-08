@@ -26,7 +26,7 @@
 </script>
 
 <Seo
-  title="FAQ — OCD, ERP & Privacy | Patterns"
+  title="FAQ - OCD, ERP & Privacy | Patterns"
   description="Common questions about Patterns: is it a replacement for therapy, what is OCD and ERP, how the Compulsion Delay Tool and distress scale work, privacy, platforms, and pricing."
   path="faq"
   {jsonLd}

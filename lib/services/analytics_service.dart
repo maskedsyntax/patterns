@@ -21,7 +21,9 @@ class DateRangeFilter {
       throw ArgumentError('Use DateRangeFilter.custom for custom ranges');
     }
     return DateRangeFilter._(
-      cutoffExclusive: DateTime.now().subtract(Duration(days: _presetDays(range))),
+      cutoffExclusive: DateTime.now().subtract(
+        Duration(days: _presetDays(range)),
+      ),
     );
   }
 
@@ -31,10 +33,7 @@ class DateRangeFilter {
   }) {
     final startDay = DateTime(start.year, start.month, start.day);
     final endDay = DateTime(end.year, end.month, end.day, 23, 59, 59, 999);
-    return DateRangeFilter._(
-      startInclusive: startDay,
-      endInclusive: endDay,
-    );
+    return DateRangeFilter._(startInclusive: startDay, endInclusive: endDay);
   }
 
   factory DateRangeFilter.resolve(
@@ -53,7 +52,10 @@ class DateRangeFilter {
     return DateRangeFilter.fromPreset(range);
   }
 
-  (DateTime start, DateTime end) displayBounds({DateTime? customStart, DateTime? customEnd}) {
+  (DateTime start, DateTime end) displayBounds({
+    DateTime? customStart,
+    DateTime? customEnd,
+  }) {
     final now = DateTime.now();
     if (cutoffExclusive != null) {
       return (cutoffExclusive!, now);
@@ -81,7 +83,8 @@ class DateRangeFilter {
   bool includesOcdDateTime(DateTime datetime) {
     if (cutoffExclusive != null) return datetime.isAfter(cutoffExclusive!);
     if (startInclusive == null || endInclusive == null) return true;
-    return !datetime.isBefore(startInclusive!) && !datetime.isAfter(endInclusive!);
+    return !datetime.isBefore(startInclusive!) &&
+        !datetime.isAfter(endInclusive!);
   }
 
   static int presetDaysFor(AnalyticsDateRange range) {
@@ -141,13 +144,19 @@ class AnalyticsService {
     return entries.where((e) => filter.includesJournalDate(e.date)).toList();
   }
 
-  static List<OcdEntry> filterOcds(List<OcdEntry> entries, DateRangeFilter filter) {
-    return entries.where((e) => filter.includesOcdDateTime(e.datetime)).toList();
+  static List<OcdEntry> filterOcds(
+    List<OcdEntry> entries,
+    DateRangeFilter filter,
+  ) {
+    return entries
+        .where((e) => filter.includesOcdDateTime(e.datetime))
+        .toList();
   }
 
   static double averageDistress(List<OcdEntry> entries) {
     if (entries.isEmpty) return 0;
-    return entries.map((e) => e.distressLevel).reduce((a, b) => a + b) / entries.length;
+    return entries.map((e) => e.distressLevel).reduce((a, b) => a + b) /
+        entries.length;
   }
 
   static int obsessionCount(List<OcdEntry> entries) =>
@@ -179,7 +188,8 @@ class AnalyticsService {
     required DateRangeFilter filter,
     AnalyticsDateRange range = AnalyticsDateRange.thirty,
   }) {
-    final rangeDays = range == AnalyticsDateRange.custom && filter.startInclusive != null
+    final rangeDays =
+        range == AnalyticsDateRange.custom && filter.startInclusive != null
         ? filter.endInclusive!
               .difference(filter.startInclusive!)
               .inDays
@@ -206,7 +216,7 @@ class AnalyticsService {
   }
 
   /// Effort-focused recovery metrics aggregated across every ERP tool. Pure and
-  /// testable — pass `now` to pin "today" in tests.
+  /// testable - pass `now` to pin "today" in tests.
   static RecoveryMetrics buildRecoveryMetrics({
     required List<DelaySession> delaySessions,
     required List<ErpExerciseSession> erpSessions,
@@ -253,9 +263,7 @@ class AnalyticsService {
         .where((s) => s.status == ExposureStepStatus.completed)
         .length;
     final sessionsPracticed =
-        delaySessions.length +
-        erpSessions.length +
-        urgeSurfSessions.length;
+        delaySessions.length + erpSessions.length + urgeSurfSessions.length;
 
     // Average urge drop across delay sessions (before→after) and urge surfs
     // (initial→final).

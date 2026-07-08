@@ -59,8 +59,7 @@ class ImplementationIntentionsScreen extends ConsumerWidget {
                     for (final intention in items) ...[
                       _IntentionCard(
                         intention: intention,
-                        onDelete: () =>
-                            _confirmDelete(context, ref, intention),
+                        onDelete: () => _confirmDelete(context, ref, intention),
                       ),
                       const SizedBox(height: 10),
                     ],
@@ -116,9 +115,9 @@ class ImplementationIntentionsScreen extends ConsumerWidget {
             children: [
               Text(
                 'Delete this intention?',
-                style: Theme.of(sheetContext).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                style: Theme.of(
+                  sheetContext,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 10),
               Text(
@@ -325,14 +324,14 @@ class _ImplementationIntentionEditScreenState
             const SizedBox(height: 18),
             LabeledField(
               label: 'If…',
-              hint: 'the trigger — e.g. I feel the urge to seek reassurance',
+              hint: 'the trigger, e.g. I feel the urge to seek reassurance',
               controller: _trigger,
               minLines: 2,
             ),
             const SizedBox(height: 16),
             LabeledField(
               label: 'then I will…',
-              hint: 'your response — e.g. write my thoughts down instead',
+              hint: 'your response, e.g. write my thoughts down instead',
               controller: _response,
               minLines: 2,
             ),

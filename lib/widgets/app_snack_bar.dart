@@ -3,7 +3,7 @@ import 'package:line_icons/line_icons.dart';
 
 import '../theme/app_theme.dart';
 
-/// Semantic flavour of a toast. Controls only the leading icon and its tint —
+/// Semantic flavour of a toast. Controls only the leading icon and its tint -
 /// the card itself stays calm and neutral to match the app's aesthetic.
 enum ToastType { neutral, success, error, info }
 

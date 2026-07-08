@@ -193,7 +193,7 @@ class SettingsScreen extends ConsumerWidget {
                 _SettingsItem(
                   icon: LineIcons.checkCircle,
                   title: 'Patterns Pro is active',
-                  subtitle: 'Every recovery tool is unlocked — thank you',
+                  subtitle: 'Every recovery tool is unlocked. Thank you',
                   onTap: () => showAppSnackBar(
                     context,
                     'Patterns Pro is active on this device.',
@@ -364,7 +364,8 @@ class SettingsScreen extends ConsumerWidget {
         }
         return;
       }
-      final isZip = (result.files.single.extension ?? '').toLowerCase() == 'zip';
+      final isZip =
+          (result.files.single.extension ?? '').toLowerCase() == 'zip';
       final summary = isZip
           ? DbHelper.previewBundle(bytes)
           : DbHelper.previewBackup(utf8.decode(bytes));
@@ -586,7 +587,7 @@ class SettingsScreen extends ConsumerWidget {
         case LocalAuthExceptionCode.systemCanceled:
         case LocalAuthExceptionCode.timeout:
         case LocalAuthExceptionCode.userRequestedFallback:
-          // User-initiated abort — no message, the toggle simply stays off.
+          // User-initiated abort - no message, the toggle simply stays off.
           break;
         case LocalAuthExceptionCode.temporaryLockout:
           _showMessage(

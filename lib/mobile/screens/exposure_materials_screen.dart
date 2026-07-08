@@ -197,9 +197,9 @@ class ExposureMaterialsScreen extends ConsumerWidget {
             children: [
               Text(
                 'Delete this material?',
-                style: Theme.of(sheetContext).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                style: Theme.of(
+                  sheetContext,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 10),
               Text(
@@ -250,8 +250,11 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.folder_special_rounded,
-              color: theme.colorScheme.primary, size: 28),
+          Icon(
+            Icons.folder_special_rounded,
+            color: theme.colorScheme.primary,
+            size: 28,
+          ),
           const SizedBox(height: 12),
           Text(
             'Gather your materials',
@@ -262,7 +265,7 @@ class _EmptyState extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'Save a script to read, record a loop tape, add an image, or keep a '
-            'link — ready for your next exposure.',
+            'link, ready for your next exposure.',
             style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
           ),
           const SizedBox(height: 16),
@@ -300,8 +303,11 @@ class MaterialCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(_typeIcon(material.type),
-                  color: theme.colorScheme.primary, size: 20),
+              Icon(
+                _typeIcon(material.type),
+                color: theme.colorScheme.primary,
+                size: 20,
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -313,8 +319,11 @@ class MaterialCard extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: onDelete,
-                child: Icon(Icons.close_rounded,
-                    size: 16, color: AppTheme.textSecondary),
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 16,
+                  color: AppTheme.textSecondary,
+                ),
               ),
             ],
           ),
@@ -371,16 +380,16 @@ class MaterialCard extends StatelessWidget {
               children: [
                 Text(
                   material.title,
-                  style: Theme.of(sheetContext).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: Theme.of(
+                    sheetContext,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   material.text ?? '',
-                  style: Theme.of(sheetContext).textTheme.bodyLarge?.copyWith(
-                    height: 1.5,
-                  ),
+                  style: Theme.of(
+                    sheetContext,
+                  ).textTheme.bodyLarge?.copyWith(height: 1.5),
                 ),
               ],
             ),
@@ -394,10 +403,14 @@ class MaterialCard extends StatelessWidget {
     final url = material.url;
     if (url == null) return;
     final uri = Uri.tryParse(url);
-    if (uri == null || !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+    if (uri == null ||
+        !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (context.mounted) {
-        showAppSnackBar(context, 'Could not open that link.',
-            type: ToastType.error);
+        showAppSnackBar(
+          context,
+          'Could not open that link.',
+          type: ToastType.error,
+        );
       }
     }
   }
@@ -408,8 +421,11 @@ class MaterialCard extends StatelessWidget {
     final file = await MaterialFileStore.resolve(fileName);
     if (!context.mounted) return;
     if (!file.existsSync()) {
-      showAppSnackBar(context, 'This image is no longer available.',
-          type: ToastType.info);
+      showAppSnackBar(
+        context,
+        'This image is no longer available.',
+        type: ToastType.info,
+      );
       return;
     }
     Navigator.of(context).push(
@@ -518,8 +534,11 @@ class _LoopTapePlayerState extends State<LoopTapePlayer> {
   Future<void> _toggle() async {
     final path = _path;
     if (path == null) {
-      showAppSnackBar(context, 'This recording is no longer available.',
-          type: ToastType.info);
+      showAppSnackBar(
+        context,
+        'This recording is no longer available.',
+        type: ToastType.info,
+      );
       return;
     }
     if (_playing) {
@@ -542,8 +561,11 @@ class _LoopTapePlayerState extends State<LoopTapePlayer> {
         ),
         child: Row(
           children: [
-            Icon(_playing ? Icons.stop_rounded : Icons.play_arrow_rounded,
-                size: 20, color: theme.colorScheme.primary),
+            Icon(
+              _playing ? Icons.stop_rounded : Icons.play_arrow_rounded,
+              size: 20,
+              color: theme.colorScheme.primary,
+            ),
             const SizedBox(width: 10),
             Text(
               _playing ? 'Stop' : 'Play loop',
@@ -623,7 +645,10 @@ class _ExposureMaterialEditScreenState
       return;
     }
     final tmp = await getTemporaryDirectory();
-    final path = p.join(tmp.path, 'rec_${DateTime.now().microsecondsSinceEpoch}.m4a');
+    final path = p.join(
+      tmp.path,
+      'rec_${DateTime.now().microsecondsSinceEpoch}.m4a',
+    );
     await _recorder.start(const RecordConfig(), path: path);
     setState(() {
       _isRecording = true;
@@ -647,8 +672,11 @@ class _ExposureMaterialEditScreenState
   Future<void> _save() async {
     final title = _titleController.text.trim();
     if (title.isEmpty) {
-      showAppSnackBar(context, 'Give this material a name to save.',
-          type: ToastType.info);
+      showAppSnackBar(
+        context,
+        'Give this material a name to save.',
+        type: ToastType.info,
+      );
       return;
     }
 
@@ -660,27 +688,39 @@ class _ExposureMaterialEditScreenState
       case MaterialType.script:
         text = _textController.text.trim();
         if (text.isEmpty) {
-          showAppSnackBar(context, 'Add the script text to save.',
-              type: ToastType.info);
+          showAppSnackBar(
+            context,
+            'Add the script text to save.',
+            type: ToastType.info,
+          );
           return;
         }
       case MaterialType.link:
         url = _urlController.text.trim();
         if (url.isEmpty) {
-          showAppSnackBar(context, 'Paste a link to save.',
-              type: ToastType.info);
+          showAppSnackBar(
+            context,
+            'Paste a link to save.',
+            type: ToastType.info,
+          );
           return;
         }
       case MaterialType.image:
         if (_pickedImagePath == null) {
-          showAppSnackBar(context, 'Pick an image to save.',
-              type: ToastType.info);
+          showAppSnackBar(
+            context,
+            'Pick an image to save.',
+            type: ToastType.info,
+          );
           return;
         }
       case MaterialType.loopTape:
         if (_recordedPath == null) {
-          showAppSnackBar(context, 'Record a loop tape to save.',
-              type: ToastType.info);
+          showAppSnackBar(
+            context,
+            'Record a loop tape to save.',
+            type: ToastType.info,
+          );
           return;
         }
     }
@@ -688,13 +728,17 @@ class _ExposureMaterialEditScreenState
     setState(() => _saving = true);
     if (widget.type == MaterialType.image) {
       final ext = p.extension(_pickedImagePath!).replaceFirst('.', '');
-      fileName =
-          await MaterialFileStore.save(_pickedImagePath!, ext.isEmpty ? 'jpg' : ext);
+      fileName = await MaterialFileStore.save(
+        _pickedImagePath!,
+        ext.isEmpty ? 'jpg' : ext,
+      );
     } else if (widget.type == MaterialType.loopTape) {
       fileName = await MaterialFileStore.save(_recordedPath!, 'm4a');
     }
 
-    await ref.read(exposureMaterialProvider.notifier).add(
+    await ref
+        .read(exposureMaterialProvider.notifier)
+        .add(
           ExposureMaterial(
             type: widget.type,
             title: title,
@@ -800,7 +844,9 @@ class _ExposureMaterialEditScreenState
             child: OutlinedButton.icon(
               onPressed: _pickImage,
               icon: const Icon(Icons.image_rounded, size: 18),
-              label: Text(_pickedImagePath == null ? 'Pick image' : 'Change image'),
+              label: Text(
+                _pickedImagePath == null ? 'Pick image' : 'Change image',
+              ),
             ),
           ),
         ];

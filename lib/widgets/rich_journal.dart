@@ -10,7 +10,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 
-/// A single styled run of text — used for read-only rendering (list previews,
+/// A single styled run of text - used for read-only rendering (list previews,
 /// PDF export) without depending on Quill's widget layer.
 class RichRun {
   final String text;
@@ -26,7 +26,9 @@ List<dynamic>? _tryDecodeDelta(String content) {
   try {
     final decoded = jsonDecode(content);
     if (decoded is List) return decoded;
-  } catch (_) {/* legacy plain text */}
+  } catch (_) {
+    /* legacy plain text */
+  }
   return null;
 }
 
@@ -36,7 +38,9 @@ Document documentFromStored(String content) {
   if (delta != null) {
     try {
       return Document.fromJson(delta);
-    } catch (_) {/* malformed — fall back to plain */}
+    } catch (_) {
+      /* malformed - fall back to plain */
+    }
   }
   final doc = Document();
   if (content.isNotEmpty) doc.insert(0, content);
@@ -47,13 +51,15 @@ Document documentFromStored(String content) {
 String storedFromDocument(Document document) =>
     jsonEncode(document.toDelta().toJson());
 
-/// Plain text of an entry — for search, previews fallback, and empty checks.
+/// Plain text of an entry - for search, previews fallback, and empty checks.
 String plainTextFromStored(String content) {
   final delta = _tryDecodeDelta(content);
   if (delta != null) {
     try {
       return Document.fromJson(delta).toPlainText().trim();
-    } catch (_) {/* fall through */}
+    } catch (_) {
+      /* fall through */
+    }
   }
   return content.trim();
 }
@@ -181,7 +187,9 @@ class _JournalFormatToolbarState extends State<JournalFormatToolbar> {
 
   // Lists are block-level: "active" means the line's list value is 'bullet'.
   bool _isBulletActive() =>
-      widget.controller.getSelectionStyle().attributes[Attribute.list.key]
+      widget.controller
+          .getSelectionStyle()
+          .attributes[Attribute.list.key]
           ?.value ==
       Attribute.ul.value;
 

@@ -31,74 +31,73 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(48),
         child: Container(
-            decoration: BoxDecoration(
-              color: isDark ? Colors.black : Colors.white,
-              border: Border(
-                bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
-              ),
-            ),
-            child: AppBar(
-              toolbarHeight: 48,
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              title: Text(
-                'OCD Tracker',
-                style: TextStyle(
-                  color: theme.colorScheme.onSurface,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-              actions: [
-                _HighDistressToggle(
-                  isSelected: isHighDistressOnly,
-                  onTap: () =>
-                      ref.read(ocdHighDistressOnlyProvider.notifier).toggle(),
-                  theme: theme,
-                ),
-                const SizedBox(width: 12),
-                Padding(
-                  padding: const EdgeInsets.only(right: 12.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.onSurface.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: theme.dividerColor),
-                    ),
-                    padding: const EdgeInsets.all(3),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _TypeOption(
-                          label: 'All',
-                          isSelected: _selectedType == null,
-                          onTap: () => setState(() => _selectedType = null),
-                          theme: theme,
-                        ),
-                        _TypeOption(
-                          label: 'Obsessions',
-                          isSelected: _selectedType == OcdType.obsession,
-                          onTap: () =>
-                              setState(() => _selectedType = OcdType.obsession),
-                          theme: theme,
-                        ),
-                        _TypeOption(
-                          label: 'Compulsions',
-                          isSelected: _selectedType == OcdType.compulsion,
-                          onTap: () => setState(
-                            () => _selectedType = OcdType.compulsion,
-                          ),
-                          theme: theme,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const WindowControls(),
-              ],
+          decoration: BoxDecoration(
+            color: isDark ? Colors.black : Colors.white,
+            border: Border(
+              bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
             ),
           ),
+          child: AppBar(
+            toolbarHeight: 48,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: Text(
+              'OCD Tracker',
+              style: TextStyle(
+                color: theme.colorScheme.onSurface,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+            actions: [
+              _HighDistressToggle(
+                isSelected: isHighDistressOnly,
+                onTap: () =>
+                    ref.read(ocdHighDistressOnlyProvider.notifier).toggle(),
+                theme: theme,
+              ),
+              const SizedBox(width: 12),
+              Padding(
+                padding: const EdgeInsets.only(right: 12.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.onSurface.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: theme.dividerColor),
+                  ),
+                  padding: const EdgeInsets.all(3),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _TypeOption(
+                        label: 'All',
+                        isSelected: _selectedType == null,
+                        onTap: () => setState(() => _selectedType = null),
+                        theme: theme,
+                      ),
+                      _TypeOption(
+                        label: 'Obsessions',
+                        isSelected: _selectedType == OcdType.obsession,
+                        onTap: () =>
+                            setState(() => _selectedType = OcdType.obsession),
+                        theme: theme,
+                      ),
+                      _TypeOption(
+                        label: 'Compulsions',
+                        isSelected: _selectedType == OcdType.compulsion,
+                        onTap: () =>
+                            setState(() => _selectedType = OcdType.compulsion),
+                        theme: theme,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const WindowControls(),
+            ],
+          ),
         ),
+      ),
       body: _OcdListView(type: _selectedType, entries: filteredOcdAsync),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: theme.colorScheme.primary,

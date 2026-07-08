@@ -55,7 +55,7 @@ class RecoveryMetricsScreen extends StatelessWidget {
   }
 }
 
-/// The Pro section dropped into the Insights tab — handles the lock state.
+/// The Pro section dropped into the Insights tab - handles the lock state.
 class RecoveryMetricsSection extends ConsumerWidget {
   const RecoveryMetricsSection({super.key});
 
@@ -105,11 +105,7 @@ class _LockedTeaser extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
-              LineIcons.fire,
-              color: theme.colorScheme.primary,
-              size: 26,
-            ),
+            Icon(LineIcons.fire, color: theme.colorScheme.primary, size: 26),
             const SizedBox(height: 12),
             Text(
               'See your recovery come together',
@@ -119,7 +115,7 @@ class _LockedTeaser extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Streaks, exposures completed, and how your urges drop over time — '
+              'Streaks, exposures completed, and how your urges drop over time, '
               'across every ERP tool. Unlock with Patterns Pro.',
               style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
             ),

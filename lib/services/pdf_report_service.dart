@@ -22,10 +22,7 @@ class PdfReportService {
       await rootBundle.load('assets/fonts/Manrope-Bold.ttf'),
     );
 
-    return pw.ThemeData.withFont(
-      base: _regularFont!,
-      bold: _boldFont!,
-    );
+    return pw.ThemeData.withFont(base: _regularFont!, bold: _boldFont!);
   }
 
   static Future<Uint8List> generate({
@@ -73,10 +70,7 @@ class PdfReportService {
             pw.SizedBox(height: 6),
             pw.Text(
               'Personal Report',
-              style: pw.TextStyle(
-                fontSize: 22,
-                fontWeight: pw.FontWeight.bold,
-              ),
+              style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
             ),
             pw.SizedBox(height: 8),
             pw.Text(
@@ -159,10 +153,7 @@ class PdfReportService {
         widgets.addAll([
           pw.Text(
             dateFmt.format(date),
-            style: pw.TextStyle(
-              fontSize: 12,
-              fontWeight: pw.FontWeight.bold,
-            ),
+            style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
           ),
           pw.SizedBox(height: 4),
           _markdownText(entry.content, fontSize: 11),
@@ -193,15 +184,13 @@ class PdfReportService {
       );
     } else {
       for (final entry in entries) {
-        final typeLabel =
-            entry.type == OcdType.obsession ? 'Obsession' : 'Compulsion';
+        final typeLabel = entry.type == OcdType.obsession
+            ? 'Obsession'
+            : 'Compulsion';
         widgets.addAll([
           pw.Text(
             '${timeFmt.format(entry.datetime)} · $typeLabel · Distress ${entry.distressLevel}/10',
-            style: pw.TextStyle(
-              fontSize: 11,
-              fontWeight: pw.FontWeight.bold,
-            ),
+            style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold),
           ),
           pw.SizedBox(height: 4),
           pw.Text(
@@ -244,10 +233,12 @@ class PdfReportService {
             pw.TextSpan(
               text: run.text,
               style: pw.TextStyle(
-                fontWeight:
-                    run.bold ? pw.FontWeight.bold : pw.FontWeight.normal,
-                fontStyle:
-                    run.italic ? pw.FontStyle.italic : pw.FontStyle.normal,
+                fontWeight: run.bold
+                    ? pw.FontWeight.bold
+                    : pw.FontWeight.normal,
+                fontStyle: run.italic
+                    ? pw.FontStyle.italic
+                    : pw.FontStyle.normal,
               ),
             ),
         ],
@@ -276,10 +267,7 @@ class PdfReportService {
             flex: 3,
             child: pw.Text(
               value,
-              style: pw.TextStyle(
-                fontSize: 11,
-                fontWeight: pw.FontWeight.bold,
-              ),
+              style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold),
             ),
           ),
         ],

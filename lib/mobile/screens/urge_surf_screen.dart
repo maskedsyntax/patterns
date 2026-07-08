@@ -66,7 +66,7 @@ class UrgeSurfScreen extends ConsumerWidget {
               data: (items) {
                 if (items.isEmpty) {
                   return Text(
-                    'No surfs yet — your first one will appear here.',
+                    'No surfs yet. Your first one will appear here.',
                     style: TextStyle(color: AppTheme.textSecondary),
                   );
                 }
@@ -155,7 +155,7 @@ enum _Phase { setup, surfing, reflection }
 
 class UrgeSurfFlow extends ConsumerStatefulWidget {
   /// When false (e.g. launched from the free Emergency Toolkit), the session is
-  /// not persisted — surfing stays free, while tracking/history is Pro.
+  /// not persisted - surfing stays free, while tracking/history is Pro.
   final bool record;
 
   const UrgeSurfFlow({super.key, this.record = true});
@@ -316,10 +316,7 @@ class _UrgeSurfFlowState extends ConsumerState<UrgeSurfFlow>
         const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
-          child: ElevatedButton(
-            onPressed: _begin,
-            child: const Text('Begin'),
-          ),
+          child: ElevatedButton(onPressed: _begin, child: const Text('Begin')),
         ),
       ]),
     );
@@ -349,8 +346,7 @@ class _UrgeSurfFlowState extends ConsumerState<UrgeSurfFlow>
           AnimatedBuilder(
             animation: _timer,
             builder: (context, _) {
-              final remaining =
-                  (_plannedSeconds * (1 - _timer.value)).ceil();
+              final remaining = (_plannedSeconds * (1 - _timer.value)).ceil();
               final mins = (remaining / 60).floor();
               final secs = remaining % 60;
               return SizedBox(

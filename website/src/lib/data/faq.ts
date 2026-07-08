@@ -13,7 +13,7 @@ export const faqs: FaqItem[] = [
   {
     question: 'What is OCD?',
     answer:
-      'OCD (obsessive-compulsive disorder) is a loop between obsessions — unwanted, intrusive thoughts, images, or urges that cause distress — and compulsions, the repeated actions or mental rituals people do to relieve that distress. The relief is brief, which reinforces the cycle and makes the urge return stronger.'
+      'OCD (obsessive-compulsive disorder) is a loop between obsessions - unwanted, intrusive thoughts, images, or urges that cause distress - and compulsions, the repeated actions or mental rituals people do to relieve that distress. The relief is brief, which reinforces the cycle and makes the urge return stronger.'
   },
   {
     question: 'What is ERP?',
@@ -23,7 +23,7 @@ export const faqs: FaqItem[] = [
   {
     question: 'How does the Compulsion Delay Tool work?',
     answer:
-      'When you feel an urge, you start a delay instead of acting on it immediately. Patterns helps you wait out the wave for a set period and record how it went. Delaying a compulsion is a form of response prevention — it gives the urge time to peak and fall and shows you that the discomfort is tolerable.'
+      'When you feel an urge, you start a delay instead of acting on it immediately. Patterns helps you wait out the wave for a set period and record how it went. Delaying a compulsion is a form of response prevention - it gives the urge time to peak and fall and shows you that the discomfort is tolerable.'
   },
   {
     question: 'What is the 0–10 distress scale?',

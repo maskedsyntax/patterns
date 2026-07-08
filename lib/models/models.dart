@@ -298,7 +298,7 @@ class ErpExerciseSession {
 
 enum ExposureStepStatus { notStarted, inProgress, completed }
 
-/// A Pro "Exposure Hierarchy" — a fear ladder the user builds once and climbs
+/// A Pro "Exposure Hierarchy" - a fear ladder the user builds once and climbs
 /// over time. Steps live in [ExposureStep] and point back at the hierarchy id.
 class ExposureHierarchy {
   final int? id;
@@ -527,7 +527,7 @@ class UrgeSurfSession {
   }
 }
 
-/// A Pro "Structured Program" enrollment — the user has started a multi-week
+/// A Pro "Structured Program" enrollment - the user has started a multi-week
 /// guided program (identified by a code-defined template id).
 class ProgramEnrollment {
   final int? id;
@@ -841,10 +841,10 @@ class UncertaintyLog {
 
 enum MaterialType { script, loopTape, image, link }
 
-/// A Pro "Exposure Material" — a stimulus the user saves for use during an
+/// A Pro "Exposure Material" - a stimulus the user saves for use during an
 /// exposure: a script (text), a recorded loop tape or image (stored file), or a
 /// link. Files are referenced by [fileName] only (relative to the app's
-/// `materials/` dir) and resolved at runtime — never an absolute path, since the
+/// `materials/` dir) and resolved at runtime - never an absolute path, since the
 /// iOS app-container path changes between installs.
 class ExposureMaterial {
   final int? id;

@@ -29,7 +29,7 @@ class JournalNotifier extends AsyncNotifier<List<JournalEntry>> {
   }
 
   /// Removes the entry for [date] entirely, freeing the date to be written
-  /// again. Used by the "Reset entry" action — clearing the text and saving is
+  /// again. Used by the "Reset entry" action - clearing the text and saving is
   /// intentionally not allowed (empty entries can't be saved).
   Future<void> deleteEntry(String date) async {
     state = const AsyncLoading();
@@ -208,8 +208,7 @@ final erpExerciseSessionProvider =
     );
 
 // Exposure Hierarchy (Pro)
-class ExposureHierarchyNotifier
-    extends AsyncNotifier<List<ExposureHierarchy>> {
+class ExposureHierarchyNotifier extends AsyncNotifier<List<ExposureHierarchy>> {
   @override
   Future<List<ExposureHierarchy>> build() async {
     return await DbHelper.instance.getActiveExposureHierarchies();
@@ -321,8 +320,7 @@ final urgeSurfProvider =
     });
 
 // Structured Programs (Pro)
-class ProgramEnrollmentNotifier
-    extends AsyncNotifier<List<ProgramEnrollment>> {
+class ProgramEnrollmentNotifier extends AsyncNotifier<List<ProgramEnrollment>> {
   @override
   Future<List<ProgramEnrollment>> build() async {
     return await DbHelper.instance.getProgramEnrollments();
@@ -332,10 +330,7 @@ class ProgramEnrollmentNotifier
   Future<int> enroll(String programId) async {
     final existing = state.asData?.value.firstWhere(
       (e) => e.programId == programId,
-      orElse: () => ProgramEnrollment(
-        programId: '',
-        createdAt: DateTime.now(),
-      ),
+      orElse: () => ProgramEnrollment(programId: '', createdAt: DateTime.now()),
     );
     if (existing != null && existing.programId == programId) {
       return existing.id!;
@@ -468,12 +463,11 @@ class ExposureReflectionNotifier
 }
 
 final exposureReflectionProvider =
-    AsyncNotifierProvider<
-      ExposureReflectionNotifier,
-      List<ExposureReflection>
-    >(() {
-      return ExposureReflectionNotifier();
-    });
+    AsyncNotifierProvider<ExposureReflectionNotifier, List<ExposureReflection>>(
+      () {
+        return ExposureReflectionNotifier();
+      },
+    );
 
 // Action Planner (Pro)
 class ActionPlanNotifier extends AsyncNotifier<List<ActionPlan>> {
@@ -569,8 +563,7 @@ final uncertaintyLogProvider =
     });
 
 // Exposure Materials (Pro)
-class ExposureMaterialNotifier
-    extends AsyncNotifier<List<ExposureMaterial>> {
+class ExposureMaterialNotifier extends AsyncNotifier<List<ExposureMaterial>> {
   @override
   Future<List<ExposureMaterial>> build() async {
     return await DbHelper.instance.getExposureMaterials();

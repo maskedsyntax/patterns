@@ -4,12 +4,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 
 class ReportExportSaver {
-  static const MethodChannel _macChannel = MethodChannel('patterns/file_export');
+  static const MethodChannel _macChannel = MethodChannel(
+    'patterns/file_export',
+  );
 
-  static Future<bool> save(
-    Uint8List bytes,
-    String filename,
-  ) async {
+  static Future<bool> save(Uint8List bytes, String filename) async {
     if (Platform.isMacOS) {
       final result = await _macChannel.invokeMethod<Object?>('saveFile', {
         'dialogTitle': 'Save Patterns Report',

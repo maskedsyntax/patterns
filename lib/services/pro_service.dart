@@ -108,7 +108,9 @@ class ProService {
           if (purchase.pendingCompletePurchase) {
             await _iap.completePurchase(purchase);
           }
-          _events.add(ProSuccess(restored: purchase.status == PurchaseStatus.restored));
+          _events.add(
+            ProSuccess(restored: purchase.status == PurchaseStatus.restored),
+          );
         case PurchaseStatus.error:
           if (purchase.pendingCompletePurchase) {
             await _iap.completePurchase(purchase);

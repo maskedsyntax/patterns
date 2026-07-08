@@ -115,7 +115,7 @@ class SoftReveal extends StatelessWidget {
 
 /// Helper: wraps a list of children with a subtle, capped reveal.
 ///
-/// For long lists, pass [maxSteps] to cap how far the delay accumulates —
+/// For long lists, pass [maxSteps] to cap how far the delay accumulates -
 /// children past that index share the same (capped) delay and animate in
 /// together, so the screen settles as grouped content instead of a sequence.
 List<Widget> staggered(

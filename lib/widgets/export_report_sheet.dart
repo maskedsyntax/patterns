@@ -31,7 +31,10 @@ class ExportReportSheet extends ConsumerStatefulWidget {
         context: context,
         useRootNavigator: true,
         builder: (_) => Dialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 48,
+            vertical: 24,
+          ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 520),
             child: child,
@@ -63,17 +66,19 @@ class _ExportReportSheetState extends ConsumerState<ExportReportSheet> {
     super.initState();
     final initial = widget.initialOptions;
     _range = initial.range;
-    _customStart = initial.customStart ?? DateTime.now().subtract(const Duration(days: 30));
+    _customStart =
+        initial.customStart ??
+        DateTime.now().subtract(const Duration(days: 30));
     _customEnd = initial.customEnd ?? DateTime.now();
     _sections = initial.sections;
   }
 
   ExportReportOptions get _options => ExportReportOptions(
-        range: _range,
-        customStart: _customStart,
-        customEnd: _customEnd,
-        sections: _sections,
-      );
+    range: _range,
+    customStart: _customStart,
+    customEnd: _customEnd,
+    sections: _sections,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -92,10 +97,7 @@ class _ExportReportSheetState extends ConsumerState<ExportReportSheet> {
     );
 
     if (kIsDesktop) {
-      return Padding(
-        padding: const EdgeInsets.all(24),
-        child: content,
-      );
+      return Padding(padding: const EdgeInsets.all(24), child: content);
     }
 
     return SafeArea(
@@ -143,7 +145,8 @@ class _ExportReportSheetState extends ConsumerState<ExportReportSheet> {
             IconButton(
               onPressed: _saving
                   ? null
-                  : () => Navigator.of(context, rootNavigator: kIsDesktop).pop(),
+                  : () =>
+                        Navigator.of(context, rootNavigator: kIsDesktop).pop(),
               icon: const Icon(LineIcons.times),
             ),
           ],
@@ -157,7 +160,9 @@ class _ExportReportSheetState extends ConsumerState<ExportReportSheet> {
         const SizedBox(height: 20),
         Text(
           'Time window',
-          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
         ),
         const SizedBox(height: 10),
         _RangeSelector(
@@ -181,9 +186,7 @@ class _ExportReportSheetState extends ConsumerState<ExportReportSheet> {
             label: 'End',
             date: _customEnd,
             onPick: (date) => setState(() {
-              _customEnd = date.isAfter(DateTime.now())
-                  ? DateTime.now()
-                  : date;
+              _customEnd = date.isAfter(DateTime.now()) ? DateTime.now() : date;
               if (_customEnd.isBefore(_customStart)) {
                 _customStart = _customEnd;
               }
@@ -193,29 +196,28 @@ class _ExportReportSheetState extends ConsumerState<ExportReportSheet> {
         const SizedBox(height: 20),
         Text(
           'Include sections',
-          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
         ),
         const SizedBox(height: 8),
         _SectionToggle(
           label: 'Analytics summary',
           value: _sections.analytics,
-          onChanged: (value) => setState(
-            () => _sections = _sections.copyWith(analytics: value),
-          ),
+          onChanged: (value) =>
+              setState(() => _sections = _sections.copyWith(analytics: value)),
         ),
         _SectionToggle(
           label: 'Journal entries',
           value: _sections.journal,
-          onChanged: (value) => setState(
-            () => _sections = _sections.copyWith(journal: value),
-          ),
+          onChanged: (value) =>
+              setState(() => _sections = _sections.copyWith(journal: value)),
         ),
         _SectionToggle(
           label: 'OCD events',
           value: _sections.ocd,
-          onChanged: (value) => setState(
-            () => _sections = _sections.copyWith(ocd: value),
-          ),
+          onChanged: (value) =>
+              setState(() => _sections = _sections.copyWith(ocd: value)),
         ),
         const SizedBox(height: 16),
         Text(
@@ -227,22 +229,25 @@ class _ExportReportSheetState extends ConsumerState<ExportReportSheet> {
           const SizedBox(height: 8),
           Text(
             'This report is large and may take a moment to generate.',
-            style: TextStyle(
-              color: theme.colorScheme.primary,
-              fontSize: 13,
-            ),
+            style: TextStyle(color: theme.colorScheme.primary, fontSize: 13),
           ),
         ],
         const SizedBox(height: 16),
         Text(
           'This creates an unencrypted PDF. Save it somewhere private.',
-          style: TextStyle(color: AppTheme.textSecondary, height: 1.45, fontSize: 13),
+          style: TextStyle(
+            color: AppTheme.textSecondary,
+            height: 1.45,
+            fontSize: 13,
+          ),
         ),
         const SizedBox(height: 20),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: _saving || !canExport ? null : () => _saveReport(journals, ocds),
+            onPressed: _saving || !canExport
+                ? null
+                : () => _saveReport(journals, ocds),
             child: _saving
                 ? const SizedBox(
                     width: 20,
@@ -375,7 +380,9 @@ class _RangeChip extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? theme.colorScheme.primary : theme.colorScheme.surface,
+          color: selected
+              ? theme.colorScheme.primary
+              : theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: theme.dividerColor),
         ),

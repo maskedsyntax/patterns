@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
+import 'package:flutter_quill/flutter_quill.dart'
+    show FlutterQuillLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_icons/line_icons.dart';
@@ -58,9 +59,11 @@ void main() async {
     if (mobilePreferences?.getBool(reminderEnabledKey) ?? false) {
       await NotificationService.scheduleDailyReminder(
         TimeOfDay(
-          hour: mobilePreferences?.getInt(reminderHourKey) ??
+          hour:
+              mobilePreferences?.getInt(reminderHourKey) ??
               NotificationService.defaultHour,
-          minute: mobilePreferences?.getInt(reminderMinuteKey) ??
+          minute:
+              mobilePreferences?.getInt(reminderMinuteKey) ??
               NotificationService.defaultMinute,
         ),
       );

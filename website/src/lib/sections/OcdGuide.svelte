@@ -14,7 +14,7 @@
   ]}
 >
   <p class="lead">
-    Almost everyone has strange, unwanted thoughts — a sudden image, a "what if," an
+    Almost everyone has strange, unwanted thoughts - a sudden image, a "what if," an
     urge that comes out of nowhere. For most people they pass like clouds. With OCD,
     the brain treats one of those thoughts as a genuine threat, and demands you do
     something about it.
@@ -30,13 +30,13 @@
   <p>
     <strong>Obsessions</strong> are unwanted, intrusive thoughts, images, or urges that
     show up again and again and cause real distress. They often feel repugnant or
-    frightening — which is exactly why they stick. The content tends to target what you
+    frightening - which is exactly why they stick. The content tends to target what you
     care about most.
   </p>
   <p>
     <strong>Compulsions</strong> are the things you do to make that distress go away:
     repeated checking, washing, counting, reassurance-seeking, or quiet mental rituals
-    nobody can see. They work — for a moment. And that brief relief is what keeps the
+    nobody can see. They work - for a moment. And that brief relief is what keeps the
     whole thing running.
   </p>
 
@@ -44,7 +44,7 @@
   <p>
     The reason OCD is so hard to think your way out of is that it's a self-reinforcing
     loop. Every time a compulsion brings relief, your brain learns the threat was real
-    and the ritual "saved" you — so next time the urge is even stronger.
+    and the ritual "saved" you - so next time the urge is even stronger.
   </p>
 
   <div class="cycle">
@@ -66,13 +66,13 @@
     </div>
     <div class="cycle-step">
       <h4>5 · Relief</h4>
-      <p>Distress drops — briefly. The loop is reinforced.</p>
+      <p>Distress drops - briefly. The loop is reinforced.</p>
     </div>
   </div>
 
   <h2>OCD can attach to anything</h2>
   <p>
-    OCD comes in many themes — contamination and washing, checking, symmetry and
+    OCD comes in many themes - contamination and washing, checking, symmetry and
     "just right" feelings, intrusive thoughts about harm, relationships, or religion and
     morality (sometimes called scrupulosity), and purely mental rituals with no visible
     sign at all. The theme isn't the point, and it doesn't say anything about you. What
@@ -84,7 +84,7 @@
     When you're inside the loop, an obsession feels like the truth and a compulsion feels
     like the only option. Writing things down breaks that spell. Naming a thought as an
     <em>obsession</em>, naming an action as a <em>compulsion</em>, and noticing how your
-    distress actually rises and falls over time helps you see the cycle for what it is —
+    distress actually rises and falls over time helps you see the cycle for what it is -
     a pattern, not a verdict.
   </p>
   <p>
@@ -98,7 +98,7 @@
     <p>
       Patterns gives you a calm, private space to log obsessions and compulsions as they
       happen, rate your distress on a 0–10 scale, and review the trend over days and
-      weeks. Everything stays on your device — no accounts, no cloud — so it's a safe
+      weeks. Everything stays on your device - no accounts, no cloud - so it's a safe
       place to be honest. <a href="/#download">Download Patterns</a> or read about
       <a href="/erp">how it supports ERP</a>.
     </p>

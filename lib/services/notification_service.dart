@@ -10,7 +10,7 @@ import 'package:timezone/timezone.dart' as tz;
 /// Local daily reminder ("gentle check-in") notifications.
 ///
 /// Scheduling is intentionally inexact ([AndroidScheduleMode.inexactAllowWhileIdle])
-/// so we don't need the Android exact-alarm permission — a daily nudge doesn't
+/// so we don't need the Android exact-alarm permission - a daily nudge doesn't
 /// need to-the-minute precision, and the OS can batch it to save battery.
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _plugin =
@@ -45,7 +45,7 @@ class NotificationService {
     if (!isSupported || _initialized) return;
     await _ensureTimeZone();
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
-    // Don't request permission at init — we ask only when the user turns the
+    // Don't request permission at init - we ask only when the user turns the
     // reminder on, so the system prompt has clear context.
     const darwin = DarwinInitializationSettings(
       requestAlertPermission: false,

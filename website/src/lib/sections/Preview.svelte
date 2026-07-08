@@ -113,7 +113,7 @@
         <span class="eyebrow">PREVIEW</span>
         <h2 id="preview-title" class="title serif">See it in action</h2>
         <p class="subtitle">
-          Real screens from Patterns — at home on mobile and on desktop. The journal, the OCD
+          Real screens from Patterns - at home on mobile and on desktop. The journal, the OCD
           tracker, the analytics, and the settings.
         </p>
       </div>
@@ -124,7 +124,7 @@
         {@render showcase(
           'MOBILE',
           'Pocket-sized reflection',
-          'Capture obsessions, log distress, and write a quick journal entry — all from your phone. Your entries stay on your device, no accounts and no uploads.',
+          'Capture obsessions, log distress, and write a quick journal entry - all from your phone. Your entries stay on your device, no accounts and no uploads.',
           true,
           false,
           mobileGraphic
@@ -135,7 +135,7 @@
         {@render showcase(
           'DESKTOP',
           'Room to think',
-          'See your patterns at a glance — analytics, history, and a calm writing space with the room a bigger screen gives you. Native on macOS, Windows, and Linux.',
+          'See your patterns at a glance - analytics, history, and a calm writing space with the room a bigger screen gives you. Native on macOS, Windows, and Linux.',
           false,
           true,
           desktopCarousel

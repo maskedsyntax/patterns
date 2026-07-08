@@ -136,9 +136,9 @@ class ResponsePreventionScreen extends ConsumerWidget {
             children: [
               Text(
                 'Delete this log?',
-                style: Theme.of(sheetContext).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                style: Theme.of(
+                  sheetContext,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 10),
               Text(
@@ -267,7 +267,11 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.shield_rounded, color: theme.colorScheme.primary, size: 28),
+          Icon(
+            Icons.shield_rounded,
+            color: theme.colorScheme.primary,
+            size: 28,
+          ),
           const SizedBox(height: 12),
           Text(
             'Track how you respond',
@@ -447,10 +451,7 @@ class _OutcomePicker extends StatelessWidget {
             onTap: () => onChanged(entry.key),
             child: AnimatedContainer(
               duration: AppMotion.fast,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 10,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: outcome == entry.key
                     ? theme.colorScheme.primary

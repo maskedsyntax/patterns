@@ -138,13 +138,13 @@ class ExposureHierarchyScreen extends ConsumerWidget {
             children: [
               Text(
                 'Archive this hierarchy?',
-                style: Theme.of(sheetContext).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                style: Theme.of(
+                  sheetContext,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 10),
               Text(
-                'It will leave your list. This is just to keep things tidy — '
+                'It will leave your list. This is just to keep things tidy. '
                 'progress you made still counts.',
                 style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
               ),
@@ -269,7 +269,11 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.stairs_rounded, color: theme.colorScheme.primary, size: 28),
+          Icon(
+            Icons.stairs_rounded,
+            color: theme.colorScheme.primary,
+            size: 28,
+          ),
           const SizedBox(height: 12),
           Text(
             'Start your first ladder',
@@ -452,7 +456,7 @@ class _ExposureHierarchyBuilderScreenState
               children: [
                 Expanded(
                   child: Text(
-                    'Steps — easiest first',
+                    'Steps, easiest first',
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
@@ -666,9 +670,8 @@ class ExposureHierarchyDetailScreen extends ConsumerWidget {
                   padding: const EdgeInsets.only(left: 12),
                   child: MaterialCard(
                     material: m,
-                    onDelete: () => ref
-                        .read(exposureMaterialProvider.notifier)
-                        .delete(m),
+                    onDelete: () =>
+                        ref.read(exposureMaterialProvider.notifier).delete(m),
                   ),
                 ),
               ],
@@ -732,7 +735,11 @@ class _ClimbStepCard extends StatelessWidget {
                       : theme.colorScheme.primary.withValues(alpha: 0.14),
                 ),
                 child: done
-                    ? const Icon(Icons.check_rounded, size: 16, color: Colors.white)
+                    ? const Icon(
+                        Icons.check_rounded,
+                        size: 16,
+                        color: Colors.white,
+                      )
                     : Text(
                         '$number',
                         style: theme.textTheme.labelMedium?.copyWith(
@@ -881,10 +888,7 @@ class _RatingSlider extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: TextStyle(
-                  color: AppTheme.textSecondary,
-                  fontSize: 13,
-                ),
+                style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
               ),
             ),
             Text(

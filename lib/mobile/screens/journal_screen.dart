@@ -353,7 +353,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                   );
                   final children = <Widget>[
                     // The shortcut card is only useful before today's entry
-                    // exists — once saved, it sits at the top of the list.
+                    // exists - once saved, it sits at the top of the list.
                     if (!_isSearching && !hasTodayEntry) ...[
                       _TodayEntryCard(
                         onTap: () => Navigator.of(context).push(
@@ -538,7 +538,7 @@ class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
 
   void _onDocumentChanged() {
     // Compare against the last-saved snapshot so cursor/selection moves don't
-    // flip the indicator to "Unsaved" — only real content edits do.
+    // flip the indicator to "Unsaved" - only real content edits do.
     if (!_loaded) return;
     final saved = storedFromDocument(_controller.document) == _savedSnapshot;
     if (saved != _saved) setState(() => _saved = saved);

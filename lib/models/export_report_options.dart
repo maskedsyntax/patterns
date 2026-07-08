@@ -52,10 +52,10 @@ class ExportReportOptions {
   }
 
   DateRangeFilter get filter => DateRangeFilter.resolve(
-        range,
-        customStart: customStart,
-        customEnd: customEnd,
-      );
+    range,
+    customStart: customStart,
+    customEnd: customEnd,
+  );
 
   String get rangeLabel {
     switch (range) {
@@ -88,10 +88,7 @@ class ExportReportOptions {
     return 'patterns_report_${start}_to_$end.pdf';
   }
 
-  int countMatchingEntries({
-    required int journalCount,
-    required int ocdCount,
-  }) {
+  int countMatchingEntries({required int journalCount, required int ocdCount}) {
     var total = 0;
     if (sections.journal) total += journalCount;
     if (sections.ocd) total += ocdCount;

@@ -334,7 +334,7 @@ class ReviewPromptService {
     }
   }
 
-  /// Manual entry from Settings — skips eligibility and cooldowns.
+  /// Manual entry from Settings - skips eligibility and cooldowns.
   static Future<void> requestReviewManually(BuildContext context) async {
     if (_inFlight) return;
     _inFlight = true;
@@ -368,7 +368,7 @@ class ReviewPromptService {
           );
         }
       case _PromptChoice.yes:
-        // Manual taps go straight to the store listing — the native in-app
+        // Manual taps go straight to the store listing - the native in-app
         // review sheet is rate-limited and frequently no-ops silently, which
         // looks broken when the user explicitly asked to rate. The automatic
         // "happy moment" path still prefers the in-app sheet.
@@ -390,8 +390,8 @@ class ReviewPromptService {
   /// Routes the user to a place they can rate the app.
   ///
   /// When [preferStoreListing] is false we first try the native in-app review
-  /// sheet (the right UX for an automatic "happy moment"). When true — or when
-  /// the in-app sheet is unavailable — we open the store listing directly, with
+  /// sheet (the right UX for an automatic "happy moment"). When true - or when
+  /// the in-app sheet is unavailable - we open the store listing directly, with
   /// a plain URL launch as the final fallback so the user always lands
   /// somewhere.
   static Future<void> _launchReview({required bool preferStoreListing}) async {
@@ -504,7 +504,7 @@ class _SoftPromptDialog extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'Your honest read shapes what we build next. '
-              'No pressure — pick whatever fits.',
+              'No pressure. Pick whatever fits.',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: AppTheme.textSecondary,
                 height: 1.5,
@@ -524,7 +524,7 @@ class _SoftPromptDialog extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: () =>
                     Navigator.of(context).pop(_PromptChoice.feedback),
-                child: const Text('Not really — feedback'),
+                child: const Text('Not really, feedback'),
               ),
             ),
             const SizedBox(height: 4),

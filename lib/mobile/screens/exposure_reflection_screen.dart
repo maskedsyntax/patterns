@@ -115,9 +115,9 @@ class ExposureReflectionScreen extends ConsumerWidget {
             children: [
               Text(
                 'Delete this reflection?',
-                style: Theme.of(sheetContext).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                style: Theme.of(
+                  sheetContext,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 10),
               Text(
@@ -294,7 +294,7 @@ class _ExposureReflectionEditScreenState
     if (_whatHappened.text.trim().isEmpty) {
       showAppSnackBar(
         context,
-        'Start with what happened — the rest is optional.',
+        'Start with what happened. The rest is optional.',
         type: ToastType.info,
       );
       return;
@@ -316,11 +316,7 @@ class _ExposureReflectionEditScreenState
         );
     if (!mounted) return;
     Navigator.of(context).pop();
-    showAppSnackBar(
-      context,
-      'Reflection saved.',
-      type: ToastType.success,
-    );
+    showAppSnackBar(context, 'Reflection saved.', type: ToastType.success);
   }
 
   @override

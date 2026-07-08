@@ -125,9 +125,9 @@ class BehavioralExperimentsScreen extends ConsumerWidget {
             children: [
               Text(
                 'Delete this experiment?',
-                style: Theme.of(sheetContext).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                style: Theme.of(
+                  sheetContext,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 10),
               Text(
@@ -281,10 +281,7 @@ class _LabeledBlock extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 2),
-        Text(
-          value,
-          style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
-        ),
+        Text(value, style: theme.textTheme.bodyMedium?.copyWith(height: 1.4)),
       ],
     );
   }
@@ -303,7 +300,11 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.science_rounded, color: theme.colorScheme.primary, size: 28),
+          Icon(
+            Icons.science_rounded,
+            color: theme.colorScheme.primary,
+            size: 28,
+          ),
           const SizedBox(height: 12),
           Text(
             'Put a fear to the test',

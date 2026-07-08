@@ -18,7 +18,7 @@
 
   const activeContent = `I noticed a pattern today that I hadn't connected before. When my morning routine gets disrupted, the intrusive thoughts feel louder for the first hour.
 
-Writing it down helped me see the distress peaked around a 6, then eased once I stepped outside. I'm learning that naming the trigger doesn't make it go away — but it gives me something concrete to return to.`;
+Writing it down helped me see the distress peaked around a 6, then eased once I stepped outside. I'm learning that naming the trigger doesn't make it go away - but it gives me something concrete to return to.`;
 
   const entries = [
     {
@@ -33,7 +33,7 @@ Writing it down helped me see the distress peaked around a 6, then eased once I 
     },
     {
       date: 'June 7, 2026',
-      preview: 'Brought my distress log to therapy — the trends were clearer on paper.',
+      preview: 'Brought my distress log to therapy - the trends were clearer on paper.',
       active: false
     },
     {
@@ -51,7 +51,7 @@ Writing it down helped me see the distress peaked around a 6, then eased once I 
       <span class="yellow"></span>
       <span class="green"></span>
     </div>
-    <span class="mac-title">Patterns — Journal & OCD Tracker</span>
+    <span class="mac-title">Patterns - Journal & OCD Tracker</span>
   </div>
 
   <div class="mockup-body">

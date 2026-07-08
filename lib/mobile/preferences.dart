@@ -56,7 +56,7 @@ class ProNotifier extends Notifier<bool> {
 
 final proProvider = NotifierProvider<ProNotifier, bool>(ProNotifier.new);
 
-/// Daily reminder preference (on/off + time of day). Persistence only — the
+/// Daily reminder preference (on/off + time of day). Persistence only - the
 /// Settings screen owns the OS permission + scheduling side effects, mirroring
 /// how the app-lock toggle works.
 class ReminderSettings {

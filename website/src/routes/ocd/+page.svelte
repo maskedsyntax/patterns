@@ -7,7 +7,7 @@
     {
       '@context': 'https://schema.org',
       '@type': 'MedicalWebPage',
-      name: 'Understanding OCD — the obsessive-compulsive cycle',
+      name: 'Understanding OCD - the obsessive-compulsive cycle',
       description:
         'A calm, plain-language explanation of OCD: what obsessions and compulsions are, how the OCD cycle reinforces itself, and how self-tracking helps you see the pattern.',
       url: `${links.site}ocd`,
@@ -26,8 +26,8 @@
 </script>
 
 <Seo
-  title="Understanding OCD — Obsessions, Compulsions & the OCD Cycle | Patterns"
-  description="What is OCD, really? A clear, empathetic guide to obsessions, compulsions, and the self-reinforcing OCD cycle — and how tracking the pattern helps you loosen its grip."
+  title="Understanding OCD - Obsessions, Compulsions & the OCD Cycle | Patterns"
+  description="What is OCD, really? A clear, empathetic guide to obsessions, compulsions, and the self-reinforcing OCD cycle - and how tracking the pattern helps you loosen its grip."
   path="ocd"
   {jsonLd}
 />

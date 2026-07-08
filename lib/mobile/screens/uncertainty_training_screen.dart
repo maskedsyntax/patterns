@@ -42,13 +42,13 @@ const uncertaintyExercises = <UncertaintyExercise>[
     intro: 'Let a nagging question stay open instead of resolving it.',
     why:
         'Your brain learns that an unanswered question is uncomfortable but '
-        'safe — and the discomfort fades.',
+        'safe, and the discomfort fades.',
     prompt: 'Choose one question you would normally settle, and leave it be.',
   ),
   UncertaintyExercise(
     id: 'resist',
     title: 'Resist certainty-seeking',
-    intro: 'Notice the pull to check, google, or ask — and don\'t.',
+    intro: 'Notice the pull to check, google, or ask, and don\'t.',
     why:
         'Each time you resist, the urge to seek certainty gets a little '
         'quieter.',

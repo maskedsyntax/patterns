@@ -7,7 +7,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 /// Optional one-shot tips from the user to support development.
 ///
 /// Wraps `InAppPurchase` for the three consumable products configured in
-/// the app stores. Consumables grant no entitlement — repeat tips are expected.
+/// the app stores. Consumables grant no entitlement - repeat tips are expected.
 /// The plugin's `purchaseStream` is subscribed at app start so any interrupted
 /// purchases from a prior session are completed before the user can tip again.
 class TipJarService {

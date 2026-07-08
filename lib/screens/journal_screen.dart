@@ -147,144 +147,142 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(48),
         child: Container(
-            decoration: BoxDecoration(
-              color: isDark ? Colors.black : Colors.white,
-              border: Border(
-                bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
-              ),
+          decoration: BoxDecoration(
+            color: isDark ? Colors.black : Colors.white,
+            border: Border(
+              bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
             ),
-            child: AppBar(
-              toolbarHeight: 48,
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              leading: IconButton(
-                icon: Icon(
-                  _isFocusMode ? LineIcons.compress : LineIcons.expand,
-                  size: 20,
-                ),
-                tooltip: _isFocusMode ? 'Exit Focus Mode' : 'Enter Focus Mode',
-                onPressed: () => setState(() => _isFocusMode = !_isFocusMode),
+          ),
+          child: AppBar(
+            toolbarHeight: 48,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(
+                _isFocusMode ? LineIcons.compress : LineIcons.expand,
+                size: 20,
               ),
-              titleSpacing: 0,
-              title: Stack(
-                alignment: Alignment.center,
-                children: [
-                  if (!_isFocusMode)
-                    Center(
-                      child: Container(
-                        height: 30,
-                        width: 250,
-                        child: TextField(
-                          controller: _searchController,
-                          onChanged: (value) =>
-                              ref
-                                      .read(journalSearchQueryProvider.notifier)
-                                      .query =
-                                  value,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: theme.colorScheme.onSurface,
+              tooltip: _isFocusMode ? 'Exit Focus Mode' : 'Enter Focus Mode',
+              onPressed: () => setState(() => _isFocusMode = !_isFocusMode),
+            ),
+            titleSpacing: 0,
+            title: Stack(
+              alignment: Alignment.center,
+              children: [
+                if (!_isFocusMode)
+                  Center(
+                    child: Container(
+                      height: 30,
+                      width: 250,
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) =>
+                            ref
+                                    .read(journalSearchQueryProvider.notifier)
+                                    .query =
+                                value,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Search journals...',
+                          prefixIcon: Icon(
+                            LineIcons.search,
+                            size: 16,
+                            color: theme.colorScheme.onSurface.withOpacity(0.4),
                           ),
-                          decoration: InputDecoration(
-                            hintText: 'Search journals...',
-                            prefixIcon: Icon(
-                              LineIcons.search,
-                              size: 16,
-                              color: theme.colorScheme.onSurface.withOpacity(
-                                0.4,
-                              ),
-                            ),
-                            contentPadding: EdgeInsets.zero,
-                            fillColor: theme.colorScheme.onSurface.withOpacity(
-                              0.05,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide.none,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide.none,
-                            ),
+                          contentPadding: EdgeInsets.zero,
+                          fillColor: theme.colorScheme.onSurface.withOpacity(
+                            0.05,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none,
                           ),
                         ),
                       ),
                     ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          DateFormat('MMMM d, yyyy').format(_selectedDate),
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.onSurface,
-                          ),
-                        ),
-                        Text(
-                          _hasUnsavedChanges ? 'Unsaved' : 'Saved',
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w500,
-                            color: _hasUnsavedChanges
-                                ? theme.colorScheme.primary
-                                : theme.colorScheme.onSurface.withOpacity(0.3),
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
-                ],
-              ),
-              actions: [
-                JournalFormatToolbar(controller: _controller),
-                const SizedBox(width: 12),
-                SizedBox(
-                  height: 28,
-                  child: ElevatedButton.icon(
-                    onPressed: (_isSaving || !_hasUnsavedChanges) ? null : _save,
-                    icon: _isSaving
-                        ? SizedBox(
-                            width: 10,
-                            height: 10,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: theme.colorScheme.onPrimary,
-                            ),
-                          )
-                        : const Icon(LineIcons.save, size: 14),
-                    label: const Text('Save', style: TextStyle(fontSize: 12)),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        DateFormat('MMMM d, yyyy').format(_selectedDate),
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      Text(
+                        _hasUnsavedChanges ? 'Unsaved' : 'Saved',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w500,
+                          color: _hasUnsavedChanges
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.onSurface.withOpacity(0.3),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                IconButton(
-                  mouseCursor: SystemMouseCursors.click,
-                  icon: Icon(
-                    LineIcons.calendar,
-                    size: 18,
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
-                  ),
-                  onPressed: () async {
-                    final picked = await showDatePicker(
-                      context: context,
-                      initialDate: _selectedDate,
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime.now(),
-                    );
-                    if (picked != null) {
-                      _loadEntryForDate(picked, journalAsync.value ?? []);
-                    }
-                  },
-                ),
-                const SizedBox(width: 4),
-                const WindowControls(),
               ],
             ),
+            actions: [
+              JournalFormatToolbar(controller: _controller),
+              const SizedBox(width: 12),
+              SizedBox(
+                height: 28,
+                child: ElevatedButton.icon(
+                  onPressed: (_isSaving || !_hasUnsavedChanges) ? null : _save,
+                  icon: _isSaving
+                      ? SizedBox(
+                          width: 10,
+                          height: 10,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: theme.colorScheme.onPrimary,
+                          ),
+                        )
+                      : const Icon(LineIcons.save, size: 14),
+                  label: const Text('Save', style: TextStyle(fontSize: 12)),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                mouseCursor: SystemMouseCursors.click,
+                icon: Icon(
+                  LineIcons.calendar,
+                  size: 18,
+                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                ),
+                onPressed: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: _selectedDate,
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime.now(),
+                  );
+                  if (picked != null) {
+                    _loadEntryForDate(picked, journalAsync.value ?? []);
+                  }
+                },
+              ),
+              const SizedBox(width: 4),
+              const WindowControls(),
+            ],
           ),
         ),
+      ),
       body: Row(
         children: [
           AnimatedContainer(

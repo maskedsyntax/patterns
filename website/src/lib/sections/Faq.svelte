@@ -16,7 +16,7 @@
         <p class="eyebrow">Frequently asked questions</p>
         <h1 id="faq-title" class="title serif">Questions, answered.</h1>
         <p class="intro">
-          A few common questions about OCD, ERP, and how Patterns works — and what it
+          A few common questions about OCD, ERP, and how Patterns works - and what it
           isn't.
         </p>
       </div>

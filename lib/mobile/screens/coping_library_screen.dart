@@ -32,7 +32,7 @@ const _categories = <_CopingCategory>[
     _Strategy(
       'Urge surfing',
       'Picture the urge as a wave. Watch it rise, crest, and fall on its own. '
-          'You do not have to act — it always passes.',
+          'You do not have to act. It always passes.',
     ),
     _Strategy(
       'Acceptance statements',
@@ -48,7 +48,7 @@ const _categories = <_CopingCategory>[
   _CopingCategory('During anxiety', [
     _Strategy(
       'Progressive muscle relaxation',
-      'Tense each muscle group for about 5 seconds, then release — from your '
+      'Tense each muscle group for about 5 seconds, then release, from your '
           'feet up to your face. Notice the contrast as you let go.',
     ),
     _Strategy(
@@ -171,10 +171,7 @@ class _StrategyCardState extends State<_StrategyCard> {
                 padding: const EdgeInsets.only(top: 10),
                 child: Text(
                   widget.strategy.body,
-                  style: TextStyle(
-                    color: AppTheme.textSecondary,
-                    height: 1.5,
-                  ),
+                  style: TextStyle(color: AppTheme.textSecondary, height: 1.5),
                 ),
               ),
               crossFadeState: _expanded

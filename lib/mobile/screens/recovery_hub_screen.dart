@@ -24,7 +24,7 @@ import 'structured_programs_screen.dart';
 import 'uncertainty_training_screen.dart';
 import 'urge_surf_screen.dart';
 
-/// The "Recovery" tab — a hub that gathers every ERP tool. Free tools sit on
+/// The "Recovery" tab - a hub that gathers every ERP tool. Free tools sit on
 /// top; Pro tools appear below with a lock badge until Patterns Pro is unlocked.
 class RecoveryHubScreen extends ConsumerWidget {
   const RecoveryHubScreen({super.key});

@@ -120,42 +120,42 @@ class DbHelper {
   }
 
   Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // v2: Compulsion Delay Tool — added the delay_sessions table.
+    // v2: Compulsion Delay Tool - added the delay_sessions table.
     if (oldVersion < 2) {
       await _createDelaySessionsTable(db);
     }
-    // v3: Guided ERP Exercises — added completed exercise sessions.
+    // v3: Guided ERP Exercises - added completed exercise sessions.
     if (oldVersion < 3) {
       await _createErpExercisePlansTable(db);
       await _createErpExerciseSessionsTable(db);
     }
-    // v4: Pro — Exposure Hierarchy Builder (fear ladders + their steps).
+    // v4: Pro - Exposure Hierarchy Builder (fear ladders + their steps).
     if (oldVersion < 4) {
       await _createExposureHierarchiesTable(db);
       await _createExposureStepsTable(db);
     }
-    // v5: Pro — Response Prevention + Urge Surfing trackers.
+    // v5: Pro - Response Prevention + Urge Surfing trackers.
     if (oldVersion < 5) {
       await _createResponsePreventionLogsTable(db);
       await _createUrgeSurfSessionsTable(db);
     }
-    // v6: Pro — Structured ERP Programs (enrollments + task progress).
+    // v6: Pro - Structured ERP Programs (enrollments + task progress).
     if (oldVersion < 6) {
       await _createProgramEnrollmentsTable(db);
       await _createProgramTaskProgressTable(db);
     }
-    // v7: Pro — Behavioral Experiments + Exposure Reflection Journal.
+    // v7: Pro - Behavioral Experiments + Exposure Reflection Journal.
     if (oldVersion < 7) {
       await _createBehavioralExperimentsTable(db);
       await _createExposureReflectionsTable(db);
     }
-    // v8: Pro — Action Planner, Implementation Intentions, Uncertainty Training.
+    // v8: Pro - Action Planner, Implementation Intentions, Uncertainty Training.
     if (oldVersion < 8) {
       await _createActionPlansTable(db);
       await _createImplementationIntentionsTable(db);
       await _createUncertaintyLogTable(db);
     }
-    // v9: Pro — Exposure Materials (trigger library: scripts/loop tapes/images/links).
+    // v9: Pro - Exposure Materials (trigger library: scripts/loop tapes/images/links).
     if (oldVersion < 9) {
       await _createExposureMaterialsTable(db);
     }
@@ -688,7 +688,9 @@ class DbHelper {
   Future<int> updateBehavioralExperiment(BehavioralExperiment exp) async {
     final id = exp.id;
     if (id == null) {
-      throw ArgumentError('Cannot update a behavioral experiment without an id');
+      throw ArgumentError(
+        'Cannot update a behavioral experiment without an id',
+      );
     }
     final db = await instance.database;
     final map = exp.toMap()..remove('id');
@@ -1058,10 +1060,7 @@ class DbHelper {
         data,
         'behavioral_experiments',
       ).length,
-      exposureReflectionCount: _backupList(
-        data,
-        'exposure_reflections',
-      ).length,
+      exposureReflectionCount: _backupList(data, 'exposure_reflections').length,
       actionPlanCount: _backupList(data, 'action_plans').length,
       implementationIntentionCount: _backupList(
         data,

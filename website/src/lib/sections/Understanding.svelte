@@ -7,7 +7,7 @@
     { label: 'Obsession', note: 'An intrusive thought latches on' },
     { label: 'Distress', note: 'Anxiety spikes fast' },
     { label: 'Compulsion', note: 'You act to feel safe' },
-    { label: 'Relief', note: 'It fades — briefly' }
+    { label: 'Relief', note: 'It fades - briefly' }
   ];
 </script>
 
@@ -21,7 +21,7 @@
         </h2>
         <p class="subtitle">
           Intrusive thoughts aren't who you are. OCD keeps you stuck by making one
-          thought feel like a threat — and making a ritual feel like the only way out.
+          thought feel like a threat - and making a ritual feel like the only way out.
           The relief never lasts, so the loop tightens. Seeing the pattern clearly is the
           first step to breaking it.
         </p>

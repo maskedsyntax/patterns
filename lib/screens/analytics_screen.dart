@@ -35,52 +35,57 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(48),
         child: Container(
-            decoration: BoxDecoration(
-              color: isDark ? Colors.black : Colors.white,
-              border: Border(
-                bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
-              ),
-            ),
-            child: AppBar(
-              toolbarHeight: 48,
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              title: Text(
-                'Analytics',
-                style: TextStyle(
-                  color: theme.colorScheme.onSurface,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-              actions: [
-                if (isPdfExportSupported)
-                  IconButton(
-                    tooltip: 'Export report',
-                    onPressed: () => ExportReportSheet.show(
-                      context,
-                      initialOptions: ExportReportOptions(range: _range),
-                    ),
-                    icon: const Icon(LineIcons.fileExport, size: 18),
-                  ),
-                const WindowControls(),
-              ],
+          decoration: BoxDecoration(
+            color: isDark ? Colors.black : Colors.white,
+            border: Border(
+              bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
             ),
           ),
+          child: AppBar(
+            toolbarHeight: 48,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: Text(
+              'Analytics',
+              style: TextStyle(
+                color: theme.colorScheme.onSurface,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+            actions: [
+              if (isPdfExportSupported)
+                IconButton(
+                  tooltip: 'Export report',
+                  onPressed: () => ExportReportSheet.show(
+                    context,
+                    initialOptions: ExportReportOptions(range: _range),
+                  ),
+                  icon: const Icon(LineIcons.fileExport, size: 18),
+                ),
+              const WindowControls(),
+            ],
+          ),
         ),
+      ),
       body: journalAsync.when(
         data: (journals) {
           return ocdAsync.when(
             data: (ocds) {
-              final filteredJournals =
-                  AnalyticsService.filterJournals(journals, filter);
+              final filteredJournals = AnalyticsService.filterJournals(
+                journals,
+                filter,
+              );
               final filteredOcds = AnalyticsService.filterOcds(ocds, filter);
-              final totalObsessions =
-                  AnalyticsService.obsessionCount(filteredOcds);
-              final totalCompulsions =
-                  AnalyticsService.compulsionCount(filteredOcds);
-              final avgDistress =
-                  AnalyticsService.averageDistress(filteredOcds);
+              final totalObsessions = AnalyticsService.obsessionCount(
+                filteredOcds,
+              );
+              final totalCompulsions = AnalyticsService.compulsionCount(
+                filteredOcds,
+              );
+              final avgDistress = AnalyticsService.averageDistress(
+                filteredOcds,
+              );
 
               final sortedOcds = List<OcdEntry>.from(filteredOcds)
                 ..sort((a, b) => a.datetime.compareTo(b.datetime));
@@ -239,10 +244,7 @@ class _DesktopRangeSelector extends StatelessWidget {
   final AnalyticsDateRange range;
   final ValueChanged<AnalyticsDateRange> onChanged;
 
-  const _DesktopRangeSelector({
-    required this.range,
-    required this.onChanged,
-  });
+  const _DesktopRangeSelector({required this.range, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {

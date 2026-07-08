@@ -29,8 +29,8 @@ class PaywallSheet extends StatefulWidget {
 
 class _PaywallSheetState extends State<PaywallSheet> {
   static const _proPoints = <String>[
-    'Exposure Hierarchy Builder — climb fear ladders step by step',
-    'Exposure materials — scripts, loop tapes, images & links',
+    'Exposure Hierarchy Builder: climb fear ladders step by step',
+    'Exposure materials: scripts, loop tapes, images & links',
     'Urge surfing & response-prevention trackers',
     'Structured ERP programs & uncertainty training',
     'Action planner & behavioral experiments',
@@ -201,7 +201,7 @@ class _PaywallSheetState extends State<PaywallSheet> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Move beyond tracking and practice recovery. A one-time unlock — '
+              'Move beyond tracking and practice recovery. A one-time unlock, '
               'yours for good, no subscription.',
               style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
             ),

@@ -39,7 +39,7 @@ class MaterialFileStore {
   }
 
   /// Absolute [File] for a stored [fileName]. May not exist (e.g. media missing
-  /// after a metadata-only restore) — callers should check `existsSync()`.
+  /// after a metadata-only restore) - callers should check `existsSync()`.
   static Future<File> resolve(String fileName) async {
     final materials = await dir();
     return File(p.join(materials.path, fileName));
@@ -54,10 +54,7 @@ class MaterialFileStore {
   /// All stored material files (used to bundle them into a backup zip).
   static Future<List<File>> allFiles() async {
     final materials = await dir();
-    return materials
-        .listSync()
-        .whereType<File>()
-        .toList(growable: false);
+    return materials.listSync().whereType<File>().toList(growable: false);
   }
 
   /// Removes every stored material file. Called from "Wipe all data".

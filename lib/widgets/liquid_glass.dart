@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 /// A reusable "Liquid Glass" surface, approximating the iOS 26 material in pure
 /// Flutter. It combines three things plain frosted glass lacks:
 ///
-/// 1. **Vibrancy** — the backdrop blur is composed with a saturation boost, so
+/// 1. **Vibrancy** - the backdrop blur is composed with a saturation boost, so
 ///    content behind glows through instead of looking milky.
-/// 2. **Specular edge light** — a bright rim along the top edge (the glass
+/// 2. **Specular edge light** - a bright rim along the top edge (the glass
 ///    bevel), fading toward the bottom (see [_GlassRim]).
-/// 3. **Depth** — a soft outer drop shadow plus a faint translucent body.
+/// 3. **Depth** - a soft outer drop shadow plus a faint translucent body.
 class LiquidGlass extends StatelessWidget {
   final Widget child;
 
@@ -54,7 +54,7 @@ class LiquidGlass extends StatelessWidget {
             borderRadius: BorderRadius.circular(borderRadius),
           );
 
-    // Translucent body — lighter/clearer than a flat fill so content shows
+    // Translucent body - lighter/clearer than a flat fill so content shows
     // through. Brighter at the top to read as a lit glass pane. A [tint] folds
     // straight into the gradient (e.g. amber glass for the FAB).
     final List<Color> bodyColors;
@@ -93,10 +93,7 @@ class LiquidGlass extends StatelessWidget {
 
     // Specular rim painted on top of the glass body.
     glass = CustomPaint(
-      foregroundPainter: _GlassRim(
-        shape: shape,
-        isDark: isDark,
-      ),
+      foregroundPainter: _GlassRim(shape: shape, isDark: isDark),
       child: glass,
     );
 
@@ -126,10 +123,26 @@ List<double> _saturationMatrix(double s) {
   const lr = 0.2126, lg = 0.7152, lb = 0.0722;
   final sr = (1 - s) * lr, sg = (1 - s) * lg, sb = (1 - s) * lb;
   return <double>[
-    sr + s, sg, sb, 0, 0,
-    sr, sg + s, sb, 0, 0,
-    sr, sg, sb + s, 0, 0,
-    0, 0, 0, 1, 0,
+    sr + s,
+    sg,
+    sb,
+    0,
+    0,
+    sr,
+    sg + s,
+    sb,
+    0,
+    0,
+    sr,
+    sg,
+    sb + s,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
   ];
 }
 

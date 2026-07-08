@@ -11,7 +11,7 @@ import 'coping_library_screen.dart';
 import 'urge_surf_screen.dart';
 
 /// Free crisis-support screen. Quick, calming actions for a high-distress
-/// moment — never gated behind Pro.
+/// moment - never gated behind Pro.
 class EmergencyToolkitScreen extends StatelessWidget {
   const EmergencyToolkitScreen({super.key});
 
@@ -59,7 +59,10 @@ class EmergencyToolkitScreen extends StatelessWidget {
                   Text(
                     'You do not have to act on the urge. Pick one thing below '
                     'and take it slowly.',
-                    style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
+                    style: TextStyle(
+                      color: AppTheme.textSecondary,
+                      height: 1.45,
+                    ),
                   ),
                 ],
               ),
@@ -76,7 +79,8 @@ class EmergencyToolkitScreen extends StatelessWidget {
               icon: Icons.hourglass_bottom_rounded,
               title: 'Delay the urge',
               subtitle: 'Sit with it on a timer',
-              onTap: () => _pushFullscreen(context, const CompulsionDelayFlow()),
+              onTap: () =>
+                  _pushFullscreen(context, const CompulsionDelayFlow()),
             ),
             const SizedBox(height: 10),
             _ActionTile(
@@ -287,7 +291,9 @@ class _BreathingScreenState extends State<BreathingScreen> {
                       height: size,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: theme.colorScheme.primary.withValues(alpha: 0.16),
+                        color: theme.colorScheme.primary.withValues(
+                          alpha: 0.16,
+                        ),
                         border: Border.all(
                           color: theme.colorScheme.primary,
                           width: 2,

@@ -8,7 +8,7 @@
       icon: Timer,
       title: 'Delay the urge',
       description:
-        'The Compulsion Delay Tool helps you pause and ride out a wave instead of acting on it — the core move of response prevention.'
+        'The Compulsion Delay Tool helps you pause and ride out a wave instead of acting on it - the core move of response prevention.'
     },
     {
       icon: Gauge,

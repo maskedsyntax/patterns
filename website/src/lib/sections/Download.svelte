@@ -44,7 +44,7 @@
       <div class="header">
         <h2 id="download-title" class="title serif">Download Patterns</h2>
         <p class="subtitle">
-          A calm, local-first space for journaling and OCD self-tracking — available where you
+          A calm, local-first space for journaling and OCD self-tracking - available where you
           reflect.
         </p>
       </div>
@@ -66,7 +66,7 @@
           <h3 class="serif">On your phone</h3>
           <p>
             Track obsessions, log distress, and journal in a calm private space. Your entries stay
-            on your device — no accounts, no uploads.
+            on your device - no accounts, no uploads.
           </p>
           <div class="store-badges">
             <a class="store-badge" href={links.ios} target="_blank" rel="noopener noreferrer" onclick={() => open(links.ios, 'iOS')}>

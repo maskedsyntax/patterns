@@ -8,7 +8,7 @@
   <Info size={compact ? 18 : 20} color="var(--accent)" strokeWidth={1.75} />
   <p>
     Patterns is a self-reflection and tracking tool. It supports your own journaling
-    and ERP practice — it does not diagnose, treat, or cure OCD, and it is
+    and ERP practice - it does not diagnose, treat, or cure OCD, and it is
     <strong>not a substitute for care from a qualified clinician</strong>. If you're
     struggling, reaching out to a mental health professional is a sign of strength.
   </p>

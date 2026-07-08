@@ -14,7 +14,7 @@ const Map<String, ({String title, List<String> points})> sectionIntros = {
   'today': (
     title: 'Your daily anchor',
     points: [
-      'A calm home base — a short reflection prompt and where you left off.',
+      'A calm home base with a short reflection prompt and where you left off.',
       'Check in here once a day to keep the habit gentle and consistent.',
     ],
   ),
@@ -36,14 +36,14 @@ const Map<String, ({String title, List<String> points})> sectionIntros = {
     title: 'Your recovery toolkit',
     points: [
       'Structured ERP exercises and coping tools, all in one place.',
-      'Start with the free tools — reach for the rest when you are ready.',
+      'Start with the free tools. Reach for the rest when you are ready.',
     ],
   ),
   'insights': (
     title: 'See the bigger picture',
     points: [
       'Charts turn your entries into trends across days and weeks.',
-      'Progress in OCD recovery is rarely linear — this helps you spot it anyway.',
+      'Progress in OCD recovery is rarely linear. This helps you spot it anyway.',
     ],
   ),
 
@@ -66,7 +66,7 @@ const Map<String, ({String title, List<String> points})> sectionIntros = {
     title: 'For the hard moments',
     points: [
       'Fast grounding techniques for when distress spikes.',
-      'Keep it a tap away — you do not have to think clearly to use it.',
+      'Keep it a tap away. You do not have to think clearly to use it.',
     ],
   ),
   'copingLibrary': (
@@ -145,7 +145,7 @@ const Map<String, ({String title, List<String> points})> sectionIntros = {
     title: 'Get comfortable not knowing',
     points: [
       'Short practices for tolerating doubt instead of seeking reassurance.',
-      'OCD feeds on certainty — this starves it a little.',
+      'OCD feeds on certainty. This starves it a little.',
     ],
   ),
   'exposureMaterials': (
@@ -160,7 +160,7 @@ const Map<String, ({String title, List<String> points})> sectionIntros = {
 /// A one-time introduction card for a section. Shows the first time a user
 /// opens the screen, then collapses to nothing on "Got it" (or if already
 /// seen). Self-contained so stateless [ConsumerWidget] screens don't need to
-/// become stateful — just drop `const SectionIntro(id: '<id>')` into the body.
+/// become stateful - just drop `const SectionIntro(id: '<id>')` into the body.
 class SectionIntro extends StatefulWidget {
   final String id;
 

@@ -365,7 +365,7 @@ class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
                   Expanded(
                     child: Text(
                       done == total
-                          ? 'Program complete — wonderful work.'
+                          ? 'Program complete. Wonderful work.'
                           : '$done of $total tasks done',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,

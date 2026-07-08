@@ -88,6 +88,8 @@ class TipJarService {
     List<PurchaseDetails> purchases,
   ) async {
     for (final purchase in purchases) {
+      if (!_productIds.contains(purchase.productID)) continue;
+
       switch (purchase.status) {
         case PurchaseStatus.pending:
           break;

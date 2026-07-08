@@ -45,6 +45,9 @@ app.*.map.json
 /android/app/release
 /android/key.properties
 
+# Signing certificates and local release credentials
+*.pem
+
 # Personal IAP setup notes (not for the repo)
 /playstoreiap.md
 socials/

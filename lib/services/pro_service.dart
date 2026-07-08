@@ -97,14 +97,14 @@ class ProService {
     List<PurchaseDetails> purchases,
   ) async {
     for (final purchase in purchases) {
+      if (purchase.productID != productIdPro) continue;
+
       switch (purchase.status) {
         case PurchaseStatus.pending:
           break;
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
-          if (purchase.productID == productIdPro) {
-            await mobilePreferences?.setBool(proUnlockedKey, true);
-          }
+          await mobilePreferences?.setBool(proUnlockedKey, true);
           if (purchase.pendingCompletePurchase) {
             await _iap.completePurchase(purchase);
           }

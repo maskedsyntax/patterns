@@ -79,7 +79,7 @@
           src={heroImageSrc}
           srcset={heroImageSrcSet}
           sizes={heroImageSizes}
-          alt="Patterns mobile app for private journaling, OCD event tracking, ERP practice, insights, and reminders"
+          alt="Patterns app for private journaling, OCD event tracking, ERP practice, insights, and reminders"
           width="1536"
           height="1024"
           fetchpriority="high"
@@ -102,7 +102,7 @@
           onclick={() => handleStoreDownload(links.playStore, 'Android')}
         ></a>
         <figcaption class="sr-only">
-          Patterns mobile app CTA with App Store and Google Play download badges
+          Patterns app CTA with App Store and Google Play download badges
         </figcaption>
       </figure>
     </div>

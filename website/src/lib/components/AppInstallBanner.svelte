@@ -41,7 +41,7 @@
 
 {#if visible}
   <aside class="install-banner" aria-label="Get the Patterns app">
-    <img src="/icons/Icon-192.png" alt="" width="44" height="44" class="icon" />
+    <img src="/assets/logo.png" alt="" width="44" height="44" class="icon" />
     <div class="copy">
       <strong>Patterns</strong>
       <span>OCD tracker & journal · {storeLabel}</span>

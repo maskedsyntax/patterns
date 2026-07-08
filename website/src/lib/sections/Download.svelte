@@ -54,7 +54,7 @@
           <div class="phone-wrap">
             <img
               src="/assets/mockups/frame-1.jpg"
-              alt="Patterns home screen on iPhone"
+              alt="Patterns home screen on a phone"
               width="148"
               height="320"
               loading="lazy"
@@ -90,7 +90,7 @@
           <div class="phone-wrap">
             <img
               src="/assets/mockups/frame-1.jpg"
-              alt="Patterns home screen on iPhone"
+              alt="Patterns home screen on a phone"
               width="148"
               height="320"
               loading="lazy"

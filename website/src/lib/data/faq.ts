@@ -38,7 +38,7 @@ export const faqs: FaqItem[] = [
   {
     question: 'Which platforms is Patterns available on?',
     answer:
-      'Patterns is available for iPhone and iPad, macOS, Android, Windows, and Linux. It is built with Flutter for a clean, focused experience on every screen.'
+      'Patterns is available for iOS, Android, macOS, Windows, and Linux. It is built with Flutter for a clean, focused experience on every screen.'
   },
   {
     question: 'How much does Patterns cost?',

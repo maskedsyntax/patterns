@@ -68,6 +68,26 @@ void main() async {
         ),
       );
     }
+    final hasStarted = mobilePreferences?.getBool('hasStarted') ?? false;
+    final releaseSeen =
+        mobilePreferences?.getString(lastSeenReleaseKey) == currentReleaseId;
+    final releaseScheduled =
+        mobilePreferences?.getString(releaseAnnouncementScheduledKey) ==
+        currentReleaseId;
+    final canUseExistingReminderPermission =
+        mobilePreferences?.getBool(reminderEnabledKey) ?? false;
+    if (hasStarted &&
+        !releaseSeen &&
+        !releaseScheduled &&
+        canUseExistingReminderPermission) {
+      await NotificationService.scheduleUpdateAnnouncement(
+        DateTime.now().add(const Duration(hours: 6)),
+      );
+      await mobilePreferences?.setString(
+        releaseAnnouncementScheduledKey,
+        currentReleaseId,
+      );
+    }
   }
 
   TipJarService.init();

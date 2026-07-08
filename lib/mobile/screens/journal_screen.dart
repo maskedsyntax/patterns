@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,19 +8,20 @@ import 'package:line_icons/line_icons.dart';
 
 import '../../models/models.dart';
 import '../../providers/providers.dart';
+import '../../services/analytics_service.dart';
 import '../../services/review_prompt.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 import '../../widgets/app_snack_bar.dart';
 import '../../widgets/rich_journal.dart';
 import '../widgets/section_intro.dart';
-import 'emergency_toolkit_screen.dart';
 
 class TodayScreen extends ConsumerStatefulWidget {
   final VoidCallback onJournal;
   final VoidCallback onTrack;
   final VoidCallback onDelay;
   final VoidCallback onErp;
+  final VoidCallback onInsights;
   final VoidCallback onSettings;
 
   const TodayScreen({
@@ -27,6 +30,7 @@ class TodayScreen extends ConsumerStatefulWidget {
     required this.onTrack,
     required this.onDelay,
     required this.onErp,
+    required this.onInsights,
     required this.onSettings,
   });
 
@@ -37,182 +41,765 @@ class TodayScreen extends ConsumerStatefulWidget {
 class _TodayScreenState extends ConsumerState<TodayScreen> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final journalAsync = ref.watch(journalProvider);
     final ocdAsync = ref.watch(ocdProvider);
-    final dateLabel = DateFormat('EEEE, MMMM d').format(DateTime.now());
+    final delays = ref.watch(delaySessionProvider).asData?.value ?? const [];
+    final erp = ref.watch(erpExerciseSessionProvider).asData?.value ?? const [];
+    final steps = ref.watch(exposureStepProvider).asData?.value ?? const [];
+    final responses =
+        ref.watch(responsePreventionProvider).asData?.value ?? const [];
+    final surfs = ref.watch(urgeSurfProvider).asData?.value ?? const [];
+
+    final journals = journalAsync.asData?.value ?? const <JournalEntry>[];
+    final ocds = ocdAsync.asData?.value ?? const <OcdEntry>[];
     final todayKey = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    final hasJournalToday =
-        journalAsync.asData?.value.any((entry) => entry.date == todayKey) ??
-        false;
+    final hasCheckedIn = journals.any((entry) => entry.date == todayKey);
+    final metrics = AnalyticsService.buildRecoveryMetrics(
+      delaySessions: delays,
+      erpSessions: erp,
+      exposureSteps: steps,
+      responsePreventionLogs: responses,
+      urgeSurfSessions: surfs,
+    );
+    final dashboard = AnalyticsService.buildRecoveryDashboard(
+      journals: journals,
+      ocds: ocds,
+      delaySessions: delays,
+      erpSessions: erp,
+      exposureSteps: steps,
+      responsePreventionLogs: responses,
+      urgeSurfSessions: surfs,
+    );
+    final recentDelay = _latestDelay(delays);
 
     return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 116),
-          children: staggered([
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Today', style: _screenTitle(theme)),
-                      const SizedBox(height: 5),
-                      Text(dateLabel, style: _muted(theme, 15)),
-                    ],
-                  ),
-                ),
-                _RoundIconButton(
-                  icon: LineIcons.cog,
-                  onTap: widget.onSettings,
-                  semanticLabel: 'Settings',
-                ),
-              ],
-            ),
-            const SizedBox(height: 28),
-            const SectionIntro(id: 'today'),
-            _Card(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    LineIcons.feather,
-                    color: theme.colorScheme.primary,
-                    size: 24,
-                  ),
-                  const SizedBox(height: 18),
-                  Text(
-                    hasJournalToday
-                        ? 'You showed up today.'
-                        : 'A quiet note for today.',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      height: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    hasJournalToday
-                        ? 'Let the rest of the day be lighter. You do not need to solve every thought.'
-                        : 'You do not have to solve the pattern right now. Just notice one thing gently.',
-                    style: _muted(
-                      theme,
-                      16,
-                    ).copyWith(height: 1.55, color: AppTheme.textSecondary),
-                  ),
-                ],
+      body: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF090A09), AppTheme.deepCharcoal],
+          ),
+        ),
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 112),
+            children: staggered([
+              _HomeHeader(
+                streak: metrics.practiceStreakDays,
+                onSettings: widget.onSettings,
               ),
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(
-                  child: _ActionCard(
-                    icon: LineIcons.penNib,
-                    title: 'Write\nJournal',
-                    onTap: widget.onJournal,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: _ActionCard(
-                    icon: LineIcons.bullseye,
-                    title: 'Track OCD\nEvent',
-                    onTap: widget.onTrack,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            _ErpCard(onTap: widget.onErp),
-            const SizedBox(height: 14),
-            _DelayCard(onTap: widget.onDelay),
-            const SizedBox(height: 14),
-            _EmergencyCard(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const EmergencyToolkitScreen(),
-                ),
+              const SizedBox(height: 18),
+              _HomeScoreCard(summary: dashboard, onTap: widget.onInsights),
+              const SizedBox(height: 20),
+              _HomeSectionHeader(
+                title: 'Continue your practice',
+                actionLabel: 'See all',
+                onAction: widget.onErp,
               ),
-            ),
-            const SizedBox(height: 28),
-            Text(
-              'Recent Activity',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
+              const SizedBox(height: 10),
+              _ContinuePracticeCard(
+                recentDelay: recentDelay,
+                onResume: recentDelay == null ? widget.onErp : widget.onDelay,
               ),
-            ),
-            const SizedBox(height: 12),
-            journalAsync.when(
-              data: (entries) => _RecentRow(
-                icon: LineIcons.bookOpen,
-                title: 'Last journal entry',
-                value: entries.isEmpty
-                    ? 'No entries yet'
-                    : DateFormat(
-                        'MMM d',
-                      ).format(DateTime.parse(entries.last.date)),
+              const SizedBox(height: 22),
+              const _HomeSectionHeader(title: 'Quick actions'),
+              const SizedBox(height: 10),
+              _QuickActionGrid(
+                onJournal: widget.onJournal,
+                onErp: widget.onErp,
+                onExposureTools: widget.onErp,
+                onInsights: widget.onInsights,
               ),
-              loading: () => const _RecentSkeleton(),
-              error: (error, stackTrace) => const _RecentRow(
-                icon: LineIcons.bookOpen,
-                title: 'Last journal entry',
-                value: 'Unavailable',
+              const SizedBox(height: 14),
+              _DailyCheckInCard(
+                checkedIn: hasCheckedIn,
+                onTap: widget.onJournal,
               ),
-            ),
-            const SizedBox(height: 10),
-            ocdAsync.when(
-              data: (entries) => _RecentRow(
-                icon: LineIcons.bullseye,
-                title: 'Last OCD event',
-                value: entries.isEmpty
-                    ? 'No events yet'
-                    : DateFormat(
-                        'MMM d, h:mm a',
-                      ).format(entries.first.datetime),
-              ),
-              loading: () => const _RecentSkeleton(),
-              error: (error, stackTrace) => const _RecentRow(
-                icon: LineIcons.bullseye,
-                title: 'Last OCD event',
-                value: 'Unavailable',
-              ),
-            ),
-            const SizedBox(height: 10),
-            journalAsync.when(
-              data: (entries) => _RecentRow(
-                icon: LineIcons.calendarCheck,
-                title: 'Consistency',
-                value: _streakLabel(entries),
-              ),
-              loading: () => const _RecentSkeleton(),
-              error: (error, stackTrace) => const _RecentRow(
-                icon: LineIcons.calendarCheck,
-                title: 'Consistency',
-                value: 'Unavailable',
-              ),
-            ),
-          ]),
+            ]),
+          ),
         ),
       ),
     );
   }
 
-  String _streakLabel(List<JournalEntry> entries) {
-    if (entries.isEmpty) return 'Start with one entry';
-    final dates = entries.map((e) => e.date).toSet();
-    var cursor = DateTime.now();
-    var streak = 0;
-    while (dates.contains(DateFormat('yyyy-MM-dd').format(cursor))) {
-      streak++;
-      cursor = cursor.subtract(const Duration(days: 1));
+  DelaySession? _latestDelay(List<DelaySession> sessions) {
+    DelaySession? latest;
+    for (final session in sessions) {
+      if (latest == null || session.createdAt.isAfter(latest.createdAt)) {
+        latest = session;
+      }
     }
-    if (streak == 0) return 'Last entry saved';
-    if (streak == 1) return '1 day streak';
-    return '$streak day streak';
+    return latest;
   }
+}
+
+class _HomeHeader extends StatelessWidget {
+  final int streak;
+  final VoidCallback onSettings;
+
+  const _HomeHeader({required this.streak, required this.onSettings});
+
+  @override
+  Widget build(BuildContext context) {
+    final greeting = _greetingFor(DateTime.now());
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                greeting,
+                style: const TextStyle(
+                  fontFamily: AppTheme.sansFamily,
+                  fontSize: 23,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.4,
+                  color: AppTheme.warmYellow,
+                  height: 1.12,
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                "You've got this. One choice at a time.",
+                style: TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 14,
+                  height: 1.25,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        PressScale(
+          onTap: onSettings,
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(11, 10, 13, 10),
+            decoration: _homeCardDecoration(radius: 16),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.local_fire_department_rounded,
+                  color: AppTheme.warmYellow,
+                  size: 18,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '$streak',
+                  style: const TextStyle(
+                    color: AppTheme.warmYellow,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _greetingFor(DateTime now) {
+    final part = now.hour < 12
+        ? 'morning'
+        : now.hour < 17
+        ? 'afternoon'
+        : 'evening';
+    return 'Good $part';
+  }
+}
+
+class _HomeScoreCard extends StatelessWidget {
+  final RecoveryDashboardSummary summary;
+  final VoidCallback onTap;
+
+  const _HomeScoreCard({required this.summary, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final score = summary.recoveryScore;
+    final label = _scoreLabel(score, summary.hasAnyData);
+    return PressScale(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: _homeCardDecoration(radius: 22),
+        child: Row(
+          children: [
+            _HomeScoreRing(score: score, label: label),
+            const SizedBox(width: 18),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'RECOVERY SCORE',
+                    style: TextStyle(
+                      color: AppTheme.warmYellow,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.6,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    summary.hasAnyData ? 'Steady progress' : 'Start gently',
+                    style: const TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      height: 1.18,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    summary.hasAnyData
+                        ? "You're showing up and building new patterns."
+                        : 'Your score will build as you journal, track, and practice.',
+                    style: const TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 13,
+                      height: 1.34,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    _deltaText(summary.scoreDelta.value, summary.hasAnyData),
+                    style: const TextStyle(
+                      color: AppTheme.warmYellow,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(LineIcons.angleRight, color: AppTheme.textSecondary),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _scoreLabel(int score, bool hasData) {
+    if (!hasData) return 'New';
+    if (score >= 80) return 'Strong';
+    if (score >= 60) return 'Good';
+    if (score >= 40) return 'Building';
+    return 'Start';
+  }
+
+  String _deltaText(double delta, bool hasData) {
+    if (!hasData) return 'Begin with one small check-in';
+    final rounded = delta.round();
+    if (rounded == 0) return 'No change from last period';
+    final direction = rounded > 0 ? 'up' : 'down';
+    return '${rounded.abs()} pts $direction from last period';
+  }
+}
+
+class _HomeScoreRing extends StatelessWidget {
+  final int score;
+  final String label;
+
+  const _HomeScoreRing({required this.score, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 108,
+      height: 108,
+      child: CustomPaint(
+        painter: _HomeScoreRingPainter(score),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '$score',
+                style: const TextStyle(
+                  color: AppTheme.textPrimary,
+                  fontSize: 31,
+                  fontWeight: FontWeight.w800,
+                  height: 1,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: AppTheme.warmYellow,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HomeScoreRingPainter extends CustomPainter {
+  final int score;
+
+  const _HomeScoreRingPainter(this.score);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final radius = math.min(size.width, size.height) / 2 - 8;
+    final track = Paint()
+      ..color = Colors.white.withValues(alpha: 0.09)
+      ..strokeWidth = 8
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    final progress = Paint()
+      ..shader = const SweepGradient(
+        colors: [AppTheme.warmYellow, Color(0xFFFFE994), AppTheme.warmYellow],
+      ).createShader(Rect.fromCircle(center: center, radius: radius))
+      ..strokeWidth = 8
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    canvas.drawCircle(center, radius, track);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -math.pi / 2,
+      (score.clamp(0, 100) / 100) * math.pi * 2,
+      false,
+      progress,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _HomeScoreRingPainter oldDelegate) {
+    return oldDelegate.score != score;
+  }
+}
+
+class _HomeSectionHeader extends StatelessWidget {
+  final String title;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  const _HomeSectionHeader({
+    required this.title,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: AppTheme.textPrimary,
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        if (actionLabel != null && onAction != null)
+          GestureDetector(
+            onTap: onAction,
+            child: Text(
+              actionLabel!,
+              style: const TextStyle(
+                color: AppTheme.warmYellow,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _ContinuePracticeCard extends StatelessWidget {
+  final DelaySession? recentDelay;
+  final VoidCallback onResume;
+
+  const _ContinuePracticeCard({
+    required this.recentDelay,
+    required this.onResume,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final session = recentDelay;
+    final hasSession = session != null;
+    final progress = hasSession && session.plannedSeconds > 0
+        ? (session.actualSeconds / session.plannedSeconds).clamp(0.0, 1.0)
+        : 0.58;
+    final elapsed = hasSession ? _formatSeconds(session.actualSeconds) : '2:30';
+    final planned = hasSession
+        ? _formatSeconds(session.plannedSeconds)
+        : '5:00';
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: _homeCardDecoration(radius: 18),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 60,
+            height: 60,
+            child: CustomPaint(
+              painter: _MiniProgressPainter(progress),
+              child: const Center(
+                child: Icon(
+                  LineIcons.clock,
+                  color: AppTheme.warmYellow,
+                  size: 22,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  hasSession ? 'Compulsion Delay' : 'Start ERP Practice',
+                  style: const TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  hasSession
+                      ? 'Resist the urge, ride the wave.'
+                      : 'Build tolerance step by step.',
+                  style: const TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 12,
+                    height: 1.25,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(999),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 4,
+                          backgroundColor: Colors.white.withValues(alpha: 0.13),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            AppTheme.warmYellow,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '$elapsed / $planned',
+                      style: const TextStyle(
+                        color: AppTheme.textSecondary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          ElevatedButton(
+            onPressed: onResume,
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(0, 40),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            child: Text(hasSession ? 'Resume' : 'Start'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatSeconds(int seconds) {
+    final minutes = seconds ~/ 60;
+    final remainder = seconds % 60;
+    return '$minutes:${remainder.toString().padLeft(2, '0')}';
+  }
+}
+
+class _MiniProgressPainter extends CustomPainter {
+  final double progress;
+
+  const _MiniProgressPainter(this.progress);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final radius = math.min(size.width, size.height) / 2 - 5;
+    final track = Paint()
+      ..color = Colors.white.withValues(alpha: 0.10)
+      ..strokeWidth = 5
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    final active = Paint()
+      ..color = AppTheme.warmYellow
+      ..strokeWidth = 5
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    canvas.drawCircle(center, radius, track);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -math.pi / 2,
+      progress.clamp(0.0, 1.0) * math.pi * 2,
+      false,
+      active,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _MiniProgressPainter oldDelegate) {
+    return oldDelegate.progress != progress;
+  }
+}
+
+class _QuickActionGrid extends StatelessWidget {
+  final VoidCallback onJournal;
+  final VoidCallback onErp;
+  final VoidCallback onExposureTools;
+  final VoidCallback onInsights;
+
+  const _QuickActionGrid({
+    required this.onJournal,
+    required this.onErp,
+    required this.onExposureTools,
+    required this.onInsights,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _QuickActionTile(
+                icon: LineIcons.edit,
+                title: 'Journal',
+                subtitle: 'Write it out, get it clear.',
+                onTap: onJournal,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _QuickActionTile(
+                icon: LineIcons.bullseye,
+                title: 'Start ERP Practice',
+                subtitle: 'Build tolerance step by step.',
+                onTap: onErp,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _QuickActionTile(
+                icon: LineIcons.layerGroup,
+                title: 'Exposure Tools',
+                subtitle: 'Hierarchy, materials, uncertainty.',
+                onTap: onExposureTools,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _QuickActionTile(
+                icon: LineIcons.barChart,
+                title: 'Insights',
+                subtitle: 'See your patterns and progress.',
+                onTap: onInsights,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _QuickActionTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _QuickActionTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return PressScale(
+      onTap: onTap,
+      child: Container(
+        height: 98,
+        padding: const EdgeInsets.all(14),
+        decoration: _homeCardDecoration(radius: 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: AppTheme.warmYellow, size: 27),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      height: 1.05,
+                    ),
+                  ),
+                  const SizedBox(height: 7),
+                  Text(
+                    subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 11.5,
+                      height: 1.18,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              LineIcons.angleRight,
+              color: AppTheme.textSecondary,
+              size: 17,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DailyCheckInCard extends StatelessWidget {
+  final bool checkedIn;
+  final VoidCallback onTap;
+
+  const _DailyCheckInCard({required this.checkedIn, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: _homeCardDecoration(radius: 18),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppTheme.softGreen.withValues(alpha: 0.12),
+            ),
+            child: const Icon(Icons.eco_rounded, color: AppTheme.softGreen),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  checkedIn ? 'Daily check-in complete' : 'Daily check-in',
+                  style: const TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  checkedIn
+                      ? 'You showed up today. Let that count.'
+                      : 'Small steps today create lasting change.',
+                  style: const TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 12,
+                    height: 1.25,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          ElevatedButton(
+            onPressed: onTap,
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(0, 40),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            child: Text(checkedIn ? 'Open' : 'Check in'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+BoxDecoration _homeCardDecoration({double radius = 20}) {
+  return BoxDecoration(
+    gradient: const LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [Color(0xFF1D1D1B), Color(0xFF141413)],
+    ),
+    borderRadius: BorderRadius.circular(radius),
+    border: Border.all(color: const Color(0xFF35332F)),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withValues(alpha: 0.28),
+        blurRadius: 24,
+        offset: const Offset(0, 12),
+      ),
+      BoxShadow(
+        color: AppTheme.warmYellow.withValues(alpha: 0.035),
+        blurRadius: 30,
+      ),
+    ],
+  );
 }
 
 class JournalScreen extends ConsumerStatefulWidget {
@@ -866,253 +1453,6 @@ class _TodayEntryCard extends StatelessWidget {
           Icon(LineIcons.angleRight, color: AppTheme.textSecondary),
         ],
       ),
-    );
-  }
-}
-
-class _ActionCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final VoidCallback onTap;
-
-  const _ActionCard({
-    required this.icon,
-    required this.title,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return _Card(
-      onTap: onTap,
-      child: SizedBox(
-        height: 124,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: theme.colorScheme.primary, size: 26),
-            const Spacer(),
-            Text(
-              title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                height: 1.22,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _DelayCard extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const _DelayCard({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return _Card(
-      onTap: onTap,
-      child: Row(
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(
-              LineIcons.hourglassHalf,
-              color: theme.colorScheme.primary,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Pause an urge',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Sit with it for a while before acting.',
-                  style: _muted(theme, 14).copyWith(height: 1.35),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Icon(LineIcons.angleRight, color: AppTheme.textSecondary, size: 18),
-        ],
-      ),
-    );
-  }
-}
-
-class _EmergencyCard extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const _EmergencyCard({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return _Card(
-      onTap: onTap,
-      child: Row(
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: AppTheme.mutedRed.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(
-              Icons.health_and_safety_rounded,
-              color: AppTheme.mutedRed,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Right now',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Quick help for a hard moment.',
-                  style: _muted(theme, 14).copyWith(height: 1.35),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Icon(LineIcons.angleRight, color: AppTheme.textSecondary, size: 18),
-        ],
-      ),
-    );
-  }
-}
-
-class _ErpCard extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const _ErpCard({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return _Card(
-      onTap: onTap,
-      child: Row(
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(
-              Icons.self_improvement_rounded,
-              color: theme.colorScheme.primary,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Practice ERP',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Choose a guided exercise for the urge in front of you.',
-                  style: _muted(theme, 14).copyWith(height: 1.35),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Icon(LineIcons.angleRight, color: AppTheme.textSecondary, size: 18),
-        ],
-      ),
-    );
-  }
-}
-
-class _RecentRow extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String value;
-
-  const _RecentRow({
-    required this.icon,
-    required this.title,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: _softDecoration(theme, radius: 20),
-      child: Row(
-        children: [
-          Icon(icon, color: AppTheme.textSecondary, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              title,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          Text(value, style: _muted(theme, 13)),
-        ],
-      ),
-    );
-  }
-}
-
-class _RecentSkeleton extends StatelessWidget {
-  const _RecentSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    return const _RecentRow(
-      icon: LineIcons.circle,
-      title: 'Loading',
-      value: '...',
     );
   }
 }

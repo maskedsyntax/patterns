@@ -8,6 +8,7 @@ import 'package:local_auth/local_auth.dart'
 import '../models/models.dart';
 import '../providers/providers.dart';
 import '../services/demo_seed_service.dart';
+import '../services/notification_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/animations.dart';
 import '../widgets/liquid_glass.dart';
@@ -17,6 +18,7 @@ import 'screens/analytics_screen.dart';
 import 'screens/compulsion_delay_screen.dart';
 import 'screens/journal_screen.dart';
 import 'screens/ocd_tracker_screen.dart';
+import 'screens/onboarding_screen.dart';
 import 'screens/recovery_hub_screen.dart';
 import 'screens/settings_screen.dart';
 
@@ -49,14 +51,37 @@ class MobileShell extends ConsumerStatefulWidget {
 
 class _MobileShellState extends ConsumerState<MobileShell> {
   late bool _hasStarted = mobilePreferences?.getBool('hasStarted') ?? false;
+  late bool _hasSeenCurrentRelease =
+      !_hasStarted ||
+      mobilePreferences?.getString(lastSeenReleaseKey) == currentReleaseId;
 
   void _startApp() {
     mobilePreferences?.setBool('hasStarted', true);
-    setState(() => _hasStarted = true);
+    mobilePreferences?.setString(lastSeenReleaseKey, currentReleaseId);
+    setState(() {
+      _hasStarted = true;
+      _hasSeenCurrentRelease = true;
+    });
+  }
+
+  Future<void> _markReleaseSeen({bool showHome = false}) async {
+    await mobilePreferences?.setString(lastSeenReleaseKey, currentReleaseId);
+    if (showHome) {
+      await mobilePreferences?.setString(mobileSelectedTabKey, _Tab.home.name);
+    }
+    await NotificationService.cancelUpdateAnnouncement();
+    if (!mounted) return;
+    setState(() => _hasSeenCurrentRelease = true);
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_hasStarted && !_hasSeenCurrentRelease) {
+      return WhatsNewScreen(
+        onShowHome: () => _markReleaseSeen(showHome: true),
+        onContinue: _markReleaseSeen,
+      );
+    }
     if (_hasStarted) return const MobileHome();
     return WelcomeScreen(
       onStart: _startApp,
@@ -68,6 +93,236 @@ class _MobileShellState extends ConsumerState<MobileShell> {
           );
         });
       },
+    );
+  }
+}
+
+class WhatsNewScreen extends StatelessWidget {
+  final Future<void> Function() onShowHome;
+  final Future<void> Function() onContinue;
+
+  const WhatsNewScreen({
+    super.key,
+    required this.onShowHome,
+    required this.onContinue,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF090A09), AppTheme.deepCharcoal],
+          ),
+        ),
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(22, 28, 22, 28),
+            children: [
+              FadeSlideIn(
+                child: Container(
+                  padding: const EdgeInsets.all(22),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF20201D), Color(0xFF141413)],
+                    ),
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: const Color(0xFF39362F)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.35),
+                        blurRadius: 30,
+                        offset: const Offset(0, 16),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 54,
+                        height: 54,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppTheme.warmYellow.withValues(alpha: 0.16),
+                        ),
+                        child: const Icon(
+                          Icons.auto_awesome_rounded,
+                          color: AppTheme.warmYellow,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Patterns got a major upgrade',
+                        style: TextStyle(
+                          color: AppTheme.textPrimary,
+                          fontFamily: AppTheme.displayFamily,
+                          fontSize: 35,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.8,
+                          height: 1.05,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Your Home now brings recovery score, daily practice, quick actions, and progress into one calm place.',
+                        style: TextStyle(
+                          color: AppTheme.textSecondary,
+                          fontSize: 15,
+                          height: 1.45,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              FadeSlideIn(
+                delay: const Duration(milliseconds: 80),
+                child: const _WhatsNewFeatureList(),
+              ),
+              const SizedBox(height: 22),
+              FadeSlideIn(
+                delay: const Duration(milliseconds: 140),
+                child: FilledButton(
+                  onPressed: () {
+                    onShowHome();
+                  },
+                  child: const Text('Show me the new Home'),
+                ),
+              ),
+              const SizedBox(height: 10),
+              FadeSlideIn(
+                delay: const Duration(milliseconds: 180),
+                child: TextButton(
+                  onPressed: () {
+                    onContinue();
+                  },
+                  child: const Text('Continue to Patterns'),
+                ),
+              ),
+              const SizedBox(height: 18),
+              const Text(
+                'Notifications are only used if you already opted in. You can change reminders any time in Settings.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 12,
+                  height: 1.35,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WhatsNewFeatureList extends StatelessWidget {
+  const _WhatsNewFeatureList();
+
+  static const _features = [
+    _WhatsNewFeature(
+      icon: LineIcons.lineChart,
+      title: 'Recovery score on Home',
+      body: 'See progress without digging through analytics.',
+    ),
+    _WhatsNewFeature(
+      icon: LineIcons.clock,
+      title: 'Continue your practice',
+      body: 'Jump back into ERP and delay tools faster.',
+    ),
+    _WhatsNewFeature(
+      icon: LineIcons.layerGroup,
+      title: 'Exposure tools are closer',
+      body: 'Find hierarchy, materials, and uncertainty practice from Home.',
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (var i = 0; i < _features.length; i++) ...[
+          _WhatsNewFeatureTile(feature: _features[i]),
+          if (i != _features.length - 1) const SizedBox(height: 10),
+        ],
+      ],
+    );
+  }
+}
+
+class _WhatsNewFeature {
+  final IconData icon;
+  final String title;
+  final String body;
+
+  const _WhatsNewFeature({
+    required this.icon,
+    required this.title,
+    required this.body,
+  });
+}
+
+class _WhatsNewFeatureTile extends StatelessWidget {
+  final _WhatsNewFeature feature;
+
+  const _WhatsNewFeatureTile({required this.feature});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF181817),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF34322D)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              color: AppTheme.warmYellow.withValues(alpha: 0.14),
+            ),
+            child: Icon(feature.icon, color: AppTheme.warmYellow, size: 22),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  feature.title,
+                  style: const TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  feature.body,
+                  style: const TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 12.5,
+                    height: 1.25,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -341,174 +596,6 @@ class _PrivacyCover extends StatelessWidget {
   }
 }
 
-class WelcomeScreen extends StatefulWidget {
-  final VoidCallback onStart;
-  final VoidCallback onImport;
-
-  const WelcomeScreen({
-    super.key,
-    required this.onStart,
-    required this.onImport,
-  });
-
-  @override
-  State<WelcomeScreen> createState() => _WelcomeScreenState();
-}
-
-class _WelcomeScreenState extends State<WelcomeScreen>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _pulse = AnimationController(
-    vsync: this,
-    duration: const Duration(seconds: 3),
-  )..repeat(reverse: true);
-
-  @override
-  void dispose() {
-    _pulse.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final reduceMotion = motionDisabled(context);
-
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
-          child: Column(
-            children: [
-              const Spacer(),
-              FadeSlideIn(
-                duration: AppMotion.slow,
-                offset: AppMotion.mediumOffset,
-                child: Container(
-                  width: 164,
-                  height: 164,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: theme.colorScheme.surface,
-                    border: Border.all(color: theme.dividerColor),
-                  ),
-                  child: AnimatedBuilder(
-                    animation: _pulse,
-                    builder: (context, _) {
-                      final t = reduceMotion
-                          ? 0.0
-                          : Curves.easeInOut.transform(_pulse.value);
-                      return Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Container(
-                            width: 104 + t * 8,
-                            height: 104 + t * 8,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: theme.colorScheme.primary.withValues(
-                                  alpha: 0.24 + t * 0.18,
-                                ),
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            width: 58 + t * 6,
-                            height: 58 + t * 6,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: theme.colorScheme.primary.withValues(
-                                alpha: 0.14 + t * 0.10,
-                              ),
-                            ),
-                          ),
-                          Icon(
-                            LineIcons.feather,
-                            color: theme.colorScheme.primary,
-                            size: 34,
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-              ),
-              const SizedBox(height: 48),
-              FadeSlideIn(
-                delay: const Duration(milliseconds: 100),
-                offset: AppMotion.smallOffset,
-                child: Text(
-                  'Understand your patterns.\nOne entry at a time.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: AppTheme.displayFamily,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 32,
-                    height: 1.12,
-                    letterSpacing: -0.6,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 18),
-              FadeSlideIn(
-                delay: const Duration(milliseconds: 140),
-                offset: AppMotion.smallOffset,
-                child: Text(
-                  'Track intrusive thoughts, compulsions, distress, and daily reflections in a calm private space.',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: AppTheme.textSecondary,
-                    height: 1.55,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 14),
-              FadeSlideIn(
-                delay: const Duration(milliseconds: 180),
-                offset: AppMotion.smallOffset,
-                child: Text(
-                  'Patterns is for personal reflection and self-tracking. It does not diagnose, treat, or replace care from a qualified clinician.',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppTheme.textSecondary,
-                    height: 1.45,
-                  ),
-                ),
-              ),
-              const Spacer(),
-              FadeSlideIn(
-                delay: const Duration(milliseconds: 220),
-                offset: AppMotion.smallOffset,
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: widget.onStart,
-                    child: const Text('Start journaling'),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              FadeSlideIn(
-                delay: const Duration(milliseconds: 260),
-                offset: AppMotion.smallOffset,
-                child: SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: widget.onImport,
-                    child: const Text('Import existing data'),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 enum _Tab { home, journal, track, erp, insights }
 
 class MobileHome extends ConsumerStatefulWidget {
@@ -519,7 +606,7 @@ class MobileHome extends ConsumerStatefulWidget {
 }
 
 class _MobileHomeState extends ConsumerState<MobileHome> {
-  _Tab _selectedTab = _Tab.home;
+  late _Tab _selectedTab = _savedTab();
 
   @override
   void initState() {
@@ -549,6 +636,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
       onTrack: () => _openOcdFlow(context),
       onDelay: () => _openDelayFlow(context),
       onErp: _openErpTab,
+      onInsights: _openInsightsTab,
       onSettings: () => Navigator.of(
         context,
       ).push(MaterialPageRoute<void>(builder: (_) => const SettingsScreen())),
@@ -564,10 +652,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
       _Tab.insights: const AnalyticsScreen(),
     };
 
-    final showFab =
-        _selectedTab == _Tab.home ||
-        _selectedTab == _Tab.journal ||
-        _selectedTab == _Tab.track;
+    final showFab = _selectedTab == _Tab.journal || _selectedTab == _Tab.track;
 
     return Scaffold(
       body: Stack(
@@ -601,7 +686,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
                 selectedTab: _selectedTab,
                 onSelected: (tab) {
                   if (tab == _selectedTab) return;
-                  setState(() => _selectedTab = tab);
+                  _selectTab(tab);
                 },
               ),
             ),
@@ -674,7 +759,25 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
 
   void _openErpTab() {
     if (_selectedTab == _Tab.erp) return;
-    setState(() => _selectedTab = _Tab.erp);
+    _selectTab(_Tab.erp);
+  }
+
+  void _openInsightsTab() {
+    if (_selectedTab == _Tab.insights) return;
+    _selectTab(_Tab.insights);
+  }
+
+  void _selectTab(_Tab tab) {
+    mobilePreferences?.setString(mobileSelectedTabKey, tab.name);
+    setState(() => _selectedTab = tab);
+  }
+
+  _Tab _savedTab() {
+    final saved = mobilePreferences?.getString(mobileSelectedTabKey);
+    return _Tab.values.firstWhere(
+      (tab) => tab.name == saved,
+      orElse: () => _Tab.home,
+    );
   }
 
   void _showAddSheet(BuildContext context) {

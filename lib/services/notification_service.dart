@@ -17,6 +17,7 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   static const int _reminderId = 1001;
+  static const int _releaseAnnouncementId = 1002;
   static const int pauseTimerNotificationId = 2001;
   static const int erpTimerNotificationId = 2002;
 
@@ -28,6 +29,10 @@ class NotificationService {
   static const String _practiceTimerChannelName = 'Practice timer';
   static const String _practiceTimerChannelDescription =
       'A gentle alert when a timed practice window is complete.';
+  static const String _updateChannelId = 'app_updates';
+  static const String _updateChannelName = 'App updates';
+  static const String _updateChannelDescription =
+      'Occasional notes when Patterns gets meaningful new recovery tools.';
 
   static const int defaultHour = 20; // 8:00 PM
   static const int defaultMinute = 0;
@@ -124,6 +129,41 @@ class NotificationService {
     if (!isSupported) return;
     await init();
     await _plugin.cancel(id: _reminderId);
+  }
+
+  /// Schedules a one-time release note for users who already opted into
+  /// notifications. This never requests permission; if the OS has not granted
+  /// it, the notification simply will not surface.
+  static Future<void> scheduleUpdateAnnouncement(DateTime scheduledAt) async {
+    if (!isSupported) return;
+    await init();
+    final scheduled = _dateTimeInLocalZone(scheduledAt);
+    if (!scheduled.isAfter(tz.TZDateTime.now(tz.local))) return;
+    await _plugin.cancel(id: _releaseAnnouncementId);
+    await _plugin.zonedSchedule(
+      id: _releaseAnnouncementId,
+      title: 'Patterns got better',
+      body:
+          'New recovery tools, progress insights, and a calmer Home are ready.',
+      scheduledDate: scheduled,
+      notificationDetails: const NotificationDetails(
+        android: AndroidNotificationDetails(
+          _updateChannelId,
+          _updateChannelName,
+          channelDescription: _updateChannelDescription,
+          importance: Importance.defaultImportance,
+          priority: Priority.defaultPriority,
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+    );
+  }
+
+  static Future<void> cancelUpdateAnnouncement() async {
+    if (!isSupported) return;
+    await init();
+    await _plugin.cancel(id: _releaseAnnouncementId);
   }
 
   /// Schedules a one-shot completion cue for an active ERP/urge timer.

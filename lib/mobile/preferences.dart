@@ -8,10 +8,14 @@ import '../services/pro_service.dart';
 SharedPreferences? mobilePreferences;
 
 const appLockPreferenceKey = 'appLockEnabled';
+const mobileSelectedTabKey = 'mobileSelectedTab';
 const reminderEnabledKey = 'reminderEnabled';
 const reminderHourKey = 'reminderHour';
 const reminderMinuteKey = 'reminderMinute';
 const proUnlockedKey = 'proUnlocked';
+const lastSeenReleaseKey = 'lastSeenReleaseId';
+const releaseAnnouncementScheduledKey = 'releaseAnnouncementScheduledId';
+const currentReleaseId = 'patterns_1_6_home_cockpit';
 
 Future<void> initMobilePreferences() async {
   mobilePreferences = await SharedPreferences.getInstance();

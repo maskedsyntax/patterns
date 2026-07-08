@@ -18,13 +18,6 @@ class AppTheme {
   static const Color darkTextSecondary = Color(0xFF86868B);
   static const Color darkBorder = Color(0xFF2C2C2E);
 
-  // Refined Light Palette
-  static const Color lightBg = Color(0xFFFFFFFF); // Pure white background
-  static const Color lightSurface = Color(0xFFFFFFFF); // Pure white surface
-  static const Color lightTextPrimary = Color(0xFF1D1D1F);
-  static const Color lightTextSecondary = Color(0xFF6E6E73);
-  static const Color lightBorder = Color(0xFFD1D1D6);
-
   // Mobile palette (used by lib/mobile/* screens and the mobile themes
   // below). The desktop palette above is kept verbatim.
   static const String displayFamily = 'Fraunces';
@@ -41,8 +34,6 @@ class AppTheme {
   static const Color softBorder = Color(0xFF343434);
   static const Color textPrimary = Color(0xFFF4F0E8);
   static const Color textSecondary = Color(0xFFA9A39A);
-  static const Color mobileLightBg = Color(0xFFFBFAF7);
-  static const Color mobileLightBorder = Color(0xFFE3DED4);
 
   static TextTheme _buildMobileTextTheme(Color body, Color muted) {
     return TextTheme(
@@ -260,101 +251,6 @@ class AppTheme {
     snackBarTheme: _snackBarTheme(charcoalCard, textPrimary, softBorder),
   );
 
-  static ThemeData mobileLightTheme = ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.light,
-    colorScheme: ColorScheme.light(
-      primary: primaryGold,
-      onPrimary: Colors.black,
-      secondary: primaryGold,
-      surface: lightSurface,
-      onSurface: lightTextPrimary,
-      outline: mobileLightBorder,
-    ),
-    scaffoldBackgroundColor: mobileLightBg,
-    dividerColor: mobileLightBorder,
-    fontFamily: sansFamily,
-    textTheme: _buildMobileTextTheme(lightTextPrimary, lightTextSecondary),
-    cardTheme: CardThemeData(
-      color: lightSurface,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: const BorderSide(color: mobileLightBorder, width: 1),
-      ),
-    ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: mobileLightBg,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      centerTitle: false,
-      titleTextStyle: TextStyle(
-        fontFamily: displayFamily,
-        fontSize: 24,
-        fontWeight: FontWeight.w500,
-        letterSpacing: -0.3,
-        color: lightTextPrimary,
-      ),
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: primaryGold,
-        foregroundColor: Colors.black,
-        elevation: 0,
-        minimumSize: const Size(0, 54),
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        textStyle: const TextStyle(
-          fontFamily: sansFamily,
-          fontWeight: FontWeight.w700,
-          fontSize: 15,
-          letterSpacing: -0.1,
-        ),
-      ),
-    ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        foregroundColor: lightTextPrimary,
-        minimumSize: const Size(0, 54),
-        side: const BorderSide(color: mobileLightBorder),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        textStyle: const TextStyle(
-          fontFamily: sansFamily,
-          fontWeight: FontWeight.w700,
-          fontSize: 15,
-          letterSpacing: -0.1,
-        ),
-      ),
-    ),
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: lightSurface,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
-        borderSide: const BorderSide(color: mobileLightBorder),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
-        borderSide: const BorderSide(color: mobileLightBorder),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
-        borderSide: const BorderSide(color: primaryGold, width: 1.5),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-    ),
-    sliderTheme: const SliderThemeData(
-      activeTrackColor: primaryGold,
-      thumbColor: primaryGold,
-      inactiveTrackColor: mobileLightBorder,
-    ),
-    snackBarTheme: _snackBarTheme(
-      mobileLightBg,
-      lightTextPrimary,
-      mobileLightBorder,
-    ),
-  );
-
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
@@ -440,93 +336,6 @@ class AppTheme {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),
     snackBarTheme: _snackBarTheme(darkSurface, darkTextPrimary, darkBorder),
-  );
-
-  static ThemeData lightTheme = ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.light,
-    colorScheme: ColorScheme.light(
-      primary: primaryGold,
-      onPrimary: Colors.black,
-      secondary: primaryGold,
-      surface: lightSurface,
-      background: lightBg,
-      onSurface: lightTextPrimary,
-      onBackground: lightTextPrimary,
-      outline: lightBorder,
-    ),
-    scaffoldBackgroundColor: lightBg,
-    dividerColor: lightBorder,
-    fontFamily: 'Manrope',
-    textTheme: const TextTheme().apply(
-      bodyColor: lightTextPrimary,
-      displayColor: lightTextPrimary,
-      fontFamily: 'Manrope',
-    ),
-    cardTheme: CardThemeData(
-      color: lightSurface,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: lightBorder, width: 1),
-      ),
-    ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: lightBg,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      centerTitle: false,
-      titleTextStyle: TextStyle(
-        fontSize: 17,
-        fontWeight: FontWeight.w700,
-        color: lightTextPrimary,
-        fontFamily: 'Manrope',
-      ),
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: primaryGold,
-        foregroundColor: Colors.black,
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        textStyle: const TextStyle(
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.2,
-          fontFamily: 'Manrope',
-        ),
-      ),
-    ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.black,
-        side: const BorderSide(color: primaryGold, width: 2.0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        textStyle: const TextStyle(
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.2,
-          fontFamily: 'Manrope',
-        ),
-      ),
-    ),
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: lightSurface,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: lightBorder),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: lightBorder),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: primaryGold, width: 2.0),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-    ),
-    snackBarTheme: _snackBarTheme(lightSurface, lightTextPrimary, lightBorder),
   );
 
   static SnackBarThemeData _snackBarTheme(

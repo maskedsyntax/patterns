@@ -830,19 +830,16 @@ class _FloatingTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
     return LiquidGlass(
       borderRadius: 28,
-      tint: isDark ? AppTheme.charcoalCard : AppTheme.mobileLightBg,
-      opacity: isDark ? 0.58 : 0.88,
-      blurSigma: isDark ? 22 : 20,
-      saturation: isDark ? 1.25 : 1.12,
+      tint: AppTheme.charcoalCard,
+      opacity: 0.58,
+      blurSigma: 22,
+      saturation: 1.25,
       shadows: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.16),
-          blurRadius: isDark ? 30 : 24,
+          color: Colors.black.withValues(alpha: 0.30),
+          blurRadius: 30,
           offset: const Offset(0, 14),
         ),
       ],
@@ -956,14 +953,9 @@ class _SegmentTabItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final inactiveColor = isDark
-        ? AppTheme.textSecondary
-        : AppTheme.lightTextPrimary.withValues(alpha: 0.86);
+    final inactiveColor = AppTheme.textSecondary;
     final activeColor = theme.colorScheme.primary;
-    final activeBackground = activeColor.withValues(
-      alpha: isDark ? 0.14 : 0.13,
-    );
+    final activeBackground = activeColor.withValues(alpha: 0.14);
 
     return Expanded(
       child: Tooltip(
@@ -989,9 +981,7 @@ class _SegmentTabItem extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                           border: active
                               ? Border.all(
-                                  color: activeColor.withValues(
-                                    alpha: isDark ? 0.10 : 0.16,
-                                  ),
+                                  color: activeColor.withValues(alpha: 0.10),
                                 )
                               : null,
                         ),
@@ -1191,9 +1181,8 @@ class _SheetAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final fill = isDark ? AppTheme.charcoalInput : AppTheme.mobileLightBg;
-    final textColor = isDark ? AppTheme.textPrimary : AppTheme.lightTextPrimary;
+    final fill = AppTheme.charcoalInput;
+    final textColor = AppTheme.textPrimary;
 
     return PressScale(
       onTap: onTap,

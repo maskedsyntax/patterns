@@ -10,7 +10,6 @@ import 'package:local_auth/local_auth.dart'
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../database/db_helper.dart';
-import '../../main.dart';
 import '../../providers/providers.dart';
 import '../../services/material_file_store.dart';
 import '../../services/notification_service.dart';
@@ -33,7 +32,6 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final themeMode = ref.watch(themeModeProvider);
     final appLockEnabled = ref.watch(appLockEnabledProvider);
     final reminder = ref.watch(reminderProvider);
 
@@ -52,43 +50,6 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 22),
-            Text(
-              'Theme',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: _softDecoration(theme, radius: 22),
-              child: Row(
-                children: [
-                  _ThemeChoice(
-                    label: 'System',
-                    selected: themeMode == ThemeMode.system,
-                    onTap: () => ref
-                        .read(themeModeProvider.notifier)
-                        .setThemeMode(ThemeMode.system),
-                  ),
-                  _ThemeChoice(
-                    label: 'Dark',
-                    selected: themeMode == ThemeMode.dark,
-                    onTap: () => ref
-                        .read(themeModeProvider.notifier)
-                        .setThemeMode(ThemeMode.dark),
-                  ),
-                  _ThemeChoice(
-                    label: 'Light',
-                    selected: themeMode == ThemeMode.light,
-                    onTap: () => ref
-                        .read(themeModeProvider.notifier)
-                        .setThemeMode(ThemeMode.light),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 28),
             Text(
               'Data',
               style: theme.textTheme.titleMedium?.copyWith(
@@ -720,48 +681,6 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ThemeChoice extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _ThemeChoice({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Expanded(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: selected ? theme.colorScheme.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: selected
-                  ? theme.colorScheme.onPrimary
-                  : AppTheme.textSecondary,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
         ),
       ),
     );

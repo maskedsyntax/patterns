@@ -24,7 +24,6 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
     final filteredOcdAsync = ref.watch(filteredOcdProvider);
     final isHighDistressOnly = ref.watch(ocdHighDistressOnlyProvider);
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -32,7 +31,7 @@ class _OcdTrackerScreenState extends ConsumerState<OcdTrackerScreen> {
         preferredSize: const Size.fromHeight(48),
         child: Container(
           decoration: BoxDecoration(
-            color: isDark ? Colors.black : Colors.white,
+            color: Colors.black,
             border: Border(
               bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
             ),

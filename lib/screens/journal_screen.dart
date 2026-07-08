@@ -129,7 +129,6 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
     final journalAsync = ref.watch(journalProvider);
     final filteredJournalAsync = ref.watch(filteredJournalProvider);
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
 
     ref.listen<AsyncValue<List<JournalEntry>>>(journalProvider, (
@@ -148,7 +147,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
         preferredSize: const Size.fromHeight(48),
         child: Container(
           decoration: BoxDecoration(
-            color: isDark ? Colors.black : Colors.white,
+            color: Colors.black,
             border: Border(
               bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
             ),
@@ -291,9 +290,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
             width: _isFocusMode ? 0 : 280,
             child: Container(
               decoration: BoxDecoration(
-                color: isDark
-                    ? theme.colorScheme.surface
-                    : theme.scaffoldBackgroundColor,
+                color: theme.colorScheme.surface,
                 border: Border(
                   right: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
                 ),
@@ -365,7 +362,7 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
           ),
           Expanded(
             child: Container(
-              color: isDark ? Colors.black : Colors.white,
+              color: Colors.black,
               child: Center(
                 child: Container(
                   constraints: const BoxConstraints(maxWidth: 800),
@@ -439,8 +436,6 @@ class _JournalTileState extends State<_JournalTile> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = widget.theme.brightness == Brightness.dark;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
       child: MouseRegion(
@@ -491,9 +486,7 @@ class _JournalTileState extends State<_JournalTile> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: widget.isSelected
-                    ? widget.theme.colorScheme.primary.withOpacity(
-                        isDark ? 0.15 : 0.1,
-                      )
+                    ? widget.theme.colorScheme.primary.withOpacity(0.15)
                     : (_isHovered
                           ? widget.theme.colorScheme.onSurface.withOpacity(0.05)
                           : Colors.transparent),
@@ -508,9 +501,7 @@ class _JournalTileState extends State<_JournalTile> {
                     ).format(DateTime.parse(widget.entry.date)),
                     style: TextStyle(
                       color: widget.isSelected
-                          ? (isDark
-                                ? widget.theme.colorScheme.primary
-                                : Colors.black)
+                          ? widget.theme.colorScheme.primary
                           : widget.theme.colorScheme.onSurface.withOpacity(0.8),
                       fontWeight: widget.isSelected
                           ? FontWeight.w700

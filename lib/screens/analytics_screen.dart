@@ -27,7 +27,6 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
     final journalAsync = ref.watch(journalProvider);
     final ocdAsync = ref.watch(ocdProvider);
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final filter = DateRangeFilter.fromPreset(_range);
 
     return Scaffold(
@@ -36,7 +35,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
         preferredSize: const Size.fromHeight(48),
         child: Container(
           decoration: BoxDecoration(
-            color: isDark ? Colors.black : Colors.white,
+            color: Colors.black,
             border: Border(
               bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
             ),

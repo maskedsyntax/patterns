@@ -174,29 +174,43 @@ class _HomeHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
+        Container(
+          padding: const EdgeInsets.fromLTRB(11, 10, 13, 10),
+          decoration: _homeCardDecoration(radius: 16),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.local_fire_department_rounded,
+                color: AppTheme.warmYellow,
+                size: 18,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '$streak',
+                style: const TextStyle(
+                  color: AppTheme.warmYellow,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 10),
         PressScale(
           onTap: onSettings,
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(11, 10, 13, 10),
-            decoration: _homeCardDecoration(radius: 16),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.local_fire_department_rounded,
-                  color: AppTheme.warmYellow,
-                  size: 18,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  '$streak',
-                  style: const TextStyle(
-                    color: AppTheme.warmYellow,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
+          child: Semantics(
+            button: true,
+            label: 'Settings',
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: _homeCardDecoration(radius: 16),
+              child: const Icon(
+                LineIcons.cog,
+                color: AppTheme.textSecondary,
+                size: 18,
+              ),
             ),
           ),
         ),
@@ -1472,17 +1486,14 @@ class _DatePill extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final accent = theme.colorScheme.primary;
-    final isDark = theme.brightness == Brightness.dark;
 
     final weekday = DateFormat('EEE').format(date);
     final day = DateFormat('d').format(date);
     final month = DateFormat('MMM').format(date);
 
     final fillColor = isToday
-        ? accent.withValues(alpha: isDark ? 0.18 : 0.14)
-        : (isDark
-              ? Colors.white.withValues(alpha: 0.04)
-              : Colors.black.withValues(alpha: 0.03));
+        ? accent.withValues(alpha: 0.18)
+        : Colors.white.withValues(alpha: 0.04);
     final borderColor = isToday
         ? accent.withValues(alpha: 0.55)
         : theme.dividerColor.withValues(alpha: 0.6);

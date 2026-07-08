@@ -35,6 +35,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // This screen is visually hard-coded dark (fixed dark gradient + glass
+    // cards), so force the dark theme regardless of the app's resolved
+    // themeMode. Otherwise, in light mode, themed descendants (buttons,
+    // theme-derived text) render light-on-dark and become unreadable.
+    return Theme(
+      data: AppTheme.mobileDarkTheme,
+      child: Builder(builder: _buildContent),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -212,12 +223,12 @@ class _OnboardingPageView extends StatelessWidget {
                   child: Text(
                     page.title,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: AppTheme.displayFamily,
                       fontWeight: FontWeight.w600,
                       fontSize: 34,
                       height: 1.08,
-                      color: theme.colorScheme.onSurface,
+                      color: AppTheme.textPrimary,
                     ),
                   ),
                 ),
@@ -374,7 +385,14 @@ class _PointRow extends StatelessWidget {
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: Text(text, style: const TextStyle(fontSize: 13, height: 1.3)),
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 13,
+              height: 1.3,
+              color: AppTheme.textPrimary,
+            ),
+          ),
         ),
       ],
     );

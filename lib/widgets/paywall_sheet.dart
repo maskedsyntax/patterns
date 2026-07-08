@@ -307,10 +307,7 @@ void _showUnlockedDialog(BuildContext context, {required bool restored}) {
     barrierDismissible: true,
     builder: (dialogContext) {
       final theme = Theme.of(dialogContext);
-      final isDark = theme.brightness == Brightness.dark;
-      final surface = isDark
-          ? AppTheme.charcoalCard
-          : theme.colorScheme.surface;
+      final surface = AppTheme.charcoalCard;
       return Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),

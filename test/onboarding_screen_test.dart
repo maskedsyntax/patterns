@@ -74,13 +74,31 @@ void main() {
 
     expect(find.text('Patterns Pro'), findsOneWidget);
   });
+
+  testWidgets('onboarding text uses fixed light-on-dark colors', (
+    tester,
+  ) async {
+    // The screen is hard-coded dark. Its text must use the fixed light color
+    // rather than theme-derived colors so it stays readable on the dark
+    // background (the app is dark-only, but this guards the intent).
+    await _pumpOnboarding(
+      tester,
+      const WelcomeScreen(onStart: _noop, onImport: _noop),
+    );
+
+    final title = tester.widget<Text>(find.text('Understand your patterns.'));
+    expect(title.style?.color, AppTheme.textPrimary);
+
+    final point = tester.widget<Text>(
+      find.text('Private local-first reflection'),
+    );
+    expect(point.style?.color, AppTheme.textPrimary);
+  });
 }
 
 Widget _host(Widget child) {
   return MaterialApp(
-    theme: AppTheme.mobileLightTheme,
-    darkTheme: AppTheme.mobileDarkTheme,
-    themeMode: ThemeMode.dark,
+    theme: AppTheme.mobileDarkTheme,
     home: child,
   );
 }

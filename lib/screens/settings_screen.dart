@@ -13,7 +13,6 @@ import '../widgets/tip_jar_sheet.dart';
 import '../widgets/window_controls.dart';
 import '../widgets/export_report_sheet.dart';
 import '../widgets/platform.dart';
-import '../main.dart';
 
 const String _githubSponsorsUrl = 'https://github.com/sponsors/maskedsyntax';
 
@@ -114,8 +113,6 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final themeMode = ref.watch(themeModeProvider);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -123,7 +120,7 @@ class SettingsScreen extends ConsumerWidget {
         preferredSize: const Size.fromHeight(48),
         child: Container(
           decoration: BoxDecoration(
-            color: isDark ? Colors.black : Colors.white,
+            color: Colors.black,
             border: Border(
               bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
             ),
@@ -150,67 +147,6 @@ class SettingsScreen extends ConsumerWidget {
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
             children: [
-              Text(
-                'Appearance',
-                style: GoogleFonts.inter(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: theme.colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(height: 24),
-              _SettingsCard(
-                theme: theme,
-                child: Column(
-                  children: [
-                    _SettingsRow(
-                      title: 'Theme Mode',
-                      subtitle: 'Current: ${themeMode.name.toUpperCase()}',
-                      icon: LineIcons.palette,
-                      theme: theme,
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.white.withOpacity(0.05)
-                            : Colors.black.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.all(4),
-                      child: Row(
-                        children: [
-                          _ThemeOption(
-                            label: 'System',
-                            isSelected: themeMode == ThemeMode.system,
-                            onTap: () => ref
-                                .read(themeModeProvider.notifier)
-                                .setThemeMode(ThemeMode.system),
-                            theme: theme,
-                          ),
-                          _ThemeOption(
-                            label: 'Light',
-                            isSelected: themeMode == ThemeMode.light,
-                            onTap: () => ref
-                                .read(themeModeProvider.notifier)
-                                .setThemeMode(ThemeMode.light),
-                            theme: theme,
-                          ),
-                          _ThemeOption(
-                            label: 'Dark',
-                            isSelected: themeMode == ThemeMode.dark,
-                            onTap: () => ref
-                                .read(themeModeProvider.notifier)
-                                .setThemeMode(ThemeMode.dark),
-                            theme: theme,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 48),
               Text(
                 'Data Management',
                 style: GoogleFonts.inter(
@@ -322,120 +258,6 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SettingsCard extends StatelessWidget {
-  final Widget child;
-  final ThemeData theme;
-  const _SettingsCard({required this.child, required this.theme});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: theme.cardTheme.color,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.dividerColor),
-      ),
-      child: child,
-    );
-  }
-}
-
-class _SettingsRow extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final ThemeData theme;
-
-  const _SettingsRow({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.theme,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, size: 20, color: theme.colorScheme.primary),
-        ),
-        const SizedBox(width: 20),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
-                color: theme.colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              subtitle,
-              style: TextStyle(
-                color: theme.colorScheme.onSurface.withOpacity(0.4),
-                fontSize: 13,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _ThemeOption extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-  final ThemeData theme;
-
-  const _ThemeOption({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-    required this.theme,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? theme.colorScheme.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: isSelected
-                    ? theme.colorScheme.onPrimary
-                    : theme.colorScheme.onSurface.withOpacity(0.4),
-              ),
-            ),
           ),
         ),
       ),

@@ -46,7 +46,6 @@ class LiquidGlass extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     final shape = circle
         ? const CircleBorder()
@@ -60,18 +59,13 @@ class LiquidGlass extends StatelessWidget {
     final List<Color> bodyColors;
     if (tint != null) {
       bodyColors = [
-        tint!.withValues(alpha: (isDark ? 0.88 : 0.94) * opacity),
-        tint!.withValues(alpha: (isDark ? 0.64 : 0.74) * opacity),
-      ];
-    } else if (isDark) {
-      bodyColors = [
-        Colors.white.withValues(alpha: 0.14 * opacity),
-        theme.colorScheme.surface.withValues(alpha: 0.40 * opacity),
+        tint!.withValues(alpha: 0.88 * opacity),
+        tint!.withValues(alpha: 0.64 * opacity),
       ];
     } else {
       bodyColors = [
-        Colors.white.withValues(alpha: 0.55 * opacity),
-        Colors.white.withValues(alpha: 0.28 * opacity),
+        Colors.white.withValues(alpha: 0.14 * opacity),
+        theme.colorScheme.surface.withValues(alpha: 0.40 * opacity),
       ];
     }
     final bodyGradient = LinearGradient(
@@ -93,7 +87,7 @@ class LiquidGlass extends StatelessWidget {
 
     // Specular rim painted on top of the glass body.
     glass = CustomPaint(
-      foregroundPainter: _GlassRim(shape: shape, isDark: isDark),
+      foregroundPainter: _GlassRim(shape: shape),
       child: glass,
     );
 
@@ -150,9 +144,8 @@ List<double> _saturationMatrix(double s) {
 /// a beveled glass edge catching light.
 class _GlassRim extends CustomPainter {
   final ShapeBorder shape;
-  final bool isDark;
 
-  _GlassRim({required this.shape, required this.isDark});
+  _GlassRim({required this.shape});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -166,8 +159,8 @@ class _GlassRim extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          Colors.white.withValues(alpha: isDark ? 0.55 : 0.85),
-          Colors.white.withValues(alpha: isDark ? 0.10 : 0.30),
+          Colors.white.withValues(alpha: 0.55),
+          Colors.white.withValues(alpha: 0.10),
           Colors.white.withValues(alpha: 0.04),
         ],
         stops: const [0.0, 0.45, 1.0],
@@ -176,6 +169,5 @@ class _GlassRim extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_GlassRim old) =>
-      old.isDark != isDark || old.shape != shape;
+  bool shouldRepaint(_GlassRim old) => old.shape != shape;
 }

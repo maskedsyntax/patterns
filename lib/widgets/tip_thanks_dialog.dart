@@ -17,8 +17,7 @@ class TipThanksDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final surface = isDark ? AppTheme.charcoalCard : theme.colorScheme.surface;
+    final surface = AppTheme.charcoalCard;
 
     return Dialog(
       backgroundColor: Colors.transparent,

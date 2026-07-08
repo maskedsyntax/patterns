@@ -19,33 +19,6 @@ import 'services/tip_jar.dart';
 import 'widgets/app_snack_bar.dart';
 import 'widgets/platform.dart';
 
-class ThemeModeNotifier extends Notifier<ThemeMode> {
-  @override
-  ThemeMode build() {
-    final saved = mobilePreferences?.getString('themeMode');
-    if (saved != null) {
-      return ThemeMode.values.firstWhere(
-        (mode) => mode.name == saved,
-        orElse: () => ThemeMode.system,
-      );
-    }
-    return ThemeMode.system;
-  }
-
-  void setThemeMode(ThemeMode mode) {
-    mobilePreferences?.setString('themeMode', mode.name);
-    state = mode;
-  }
-
-  void toggle(bool currentlyDark) {
-    setThemeMode(currentlyDark ? ThemeMode.light : ThemeMode.dark);
-  }
-}
-
-final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
-  ThemeModeNotifier.new,
-);
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GoogleFonts.config.allowRuntimeFetching = false;
@@ -101,14 +74,13 @@ class PatternsApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeModeProvider);
-
     return MaterialApp(
       title: 'Patterns',
       debugShowCheckedModeBanner: false,
-      theme: kIsDesktop ? AppTheme.lightTheme : AppTheme.mobileLightTheme,
-      darkTheme: kIsDesktop ? AppTheme.darkTheme : AppTheme.mobileDarkTheme,
-      themeMode: themeMode,
+      // Dark-only app. A single dark theme is supplied and the mode is pinned,
+      // so the OS appearance setting and any legacy saved preference are ignored.
+      theme: kIsDesktop ? AppTheme.darkTheme : AppTheme.mobileDarkTheme,
+      themeMode: ThemeMode.dark,
       scaffoldMessengerKey: rootScaffoldMessengerKey,
       localizationsDelegates: const [
         FlutterQuillLocalizations.delegate,
@@ -145,7 +117,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       body: Row(
@@ -193,19 +164,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   tooltip: 'Settings',
                 ),
                 const Spacer(),
-                IconButton(
-                  mouseCursor: SystemMouseCursors.click,
-                  icon: Icon(
-                    isDark
-                        ? Icons.light_mode_outlined
-                        : Icons.dark_mode_outlined,
-                    size: 20,
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
-                  ),
-                  onPressed: () {
-                    ref.read(themeModeProvider.notifier).toggle(isDark);
-                  },
-                ),
                 const SizedBox(height: 32),
               ],
             ),
@@ -282,11 +240,7 @@ class _NavIconState extends State<_NavIcon> {
                   color: widget.isSelected
                       ? widget.theme.colorScheme.primary
                       : widget.theme.colorScheme.onSurface.withOpacity(
-                          widget.theme.brightness == Brightness.dark
-                              ? (_isHovered ? 0.7 : 0.3)
-                              : (_isHovered
-                                    ? 0.8
-                                    : 0.5), // Darker for light mode
+                          _isHovered ? 0.7 : 0.3,
                         ),
                   size: 24,
                 ),

@@ -1270,7 +1270,6 @@ class _TemplatePill extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primary = theme.colorScheme.primary;
-    final isDark = theme.brightness == Brightness.dark;
 
     return PressScale(
       onTap: onTap,
@@ -1281,8 +1280,8 @@ class _TemplatePill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 13),
         decoration: BoxDecoration(
           color: selected
-              ? primary.withValues(alpha: isDark ? 0.18 : 0.12)
-              : (isDark ? AppTheme.charcoalInput : theme.colorScheme.surface),
+              ? primary.withValues(alpha: 0.18)
+              : AppTheme.charcoalInput,
           borderRadius: BorderRadius.circular(999),
           border: Border.all(
             color: selected
@@ -2059,9 +2058,8 @@ class _RingPainter extends CustomPainter {
 }
 
 BoxDecoration _softDecoration(ThemeData theme, {required double radius}) {
-  final isDark = theme.brightness == Brightness.dark;
   return BoxDecoration(
-    color: isDark ? AppTheme.charcoalInput : theme.colorScheme.surface,
+    color: AppTheme.charcoalInput,
     borderRadius: BorderRadius.circular(radius),
     border: Border.all(color: theme.dividerColor.withValues(alpha: 0.75)),
   );

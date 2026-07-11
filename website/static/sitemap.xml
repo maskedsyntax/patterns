@@ -34,6 +34,36 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://patterns.maskedsyntax.com/toolkit</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://patterns.maskedsyntax.com/blog</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://patterns.maskedsyntax.com/blog/why-i-built-patterns</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://patterns.maskedsyntax.com/blog/the-loop-and-how-i-loosen-it</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://patterns.maskedsyntax.com/blog/why-patterns-stays-private</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://patterns.maskedsyntax.com/faq</loc>
     <lastmod>2026-07-04</lastmod>
     <changefreq>monthly</changefreq>

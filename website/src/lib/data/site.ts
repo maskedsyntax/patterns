@@ -8,7 +8,7 @@ import { links } from './links';
 export const site = {
   name: 'Patterns',
   /** Keep in sync with the Flutter app's pubspec version (marketing version). */
-  appVersion: '1.4.0',
+  appVersion: '1.5.0',
   url: links.site,
   /** Purpose-built 1200×630 social share image. */
   ogImage: `${links.site}og/patterns-og.png`,

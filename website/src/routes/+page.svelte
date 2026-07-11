@@ -5,6 +5,7 @@
   import Features from '$lib/sections/Features.svelte';
   import Preview from '$lib/sections/Preview.svelte';
   import BuiltForErp from '$lib/sections/BuiltForErp.svelte';
+  import RecoveryToolkit from '$lib/sections/RecoveryToolkit.svelte';
   import Download from '$lib/sections/Download.svelte';
   import Support from '$lib/sections/Support.svelte';
   import Footer from '$lib/sections/Footer.svelte';
@@ -46,12 +47,26 @@
         'OCD self-tracking for obsessions, compulsions, triggers, and responses',
         'Distress (SUDS 0–10) rating and trend analysis',
         'Compulsion Delay Tool to support ERP practice',
+        'Recovery toolkit with guided ERP, emergency toolkit, and coping library',
+        'Patterns Pro: exposure hierarchy builder, urge surfing, response-prevention and uncertainty training',
+        'Structured ERP programs, behavioral experiments, action planner, and recovery metrics',
         'Mobile app for iOS and Android',
         'Local-first storage - no accounts or cloud sync',
         'Optional app lock with Face ID or device passcode',
         'Manual JSON export and import for backups'
       ],
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      offers: [
+        { '@type': 'Offer', name: 'Patterns (free)', price: '0', priceCurrency: 'USD' },
+        {
+          '@type': 'Offer',
+          name: 'Patterns Pro (one-time unlock)',
+          category: 'One-time purchase',
+          priceSpecification: {
+            '@type': 'PriceSpecification',
+            priceCurrency: 'USD'
+          }
+        }
+      ],
       author: { '@type': 'Person', name: site.author.name, url: site.author.url },
       publisher: { '@type': 'Organization', name: site.publisher.name, url: site.publisher.url }
     },
@@ -124,6 +139,7 @@
 <Features />
 <Preview />
 <BuiltForErp />
+<RecoveryToolkit />
 <Download />
 <Support />
 <Footer />

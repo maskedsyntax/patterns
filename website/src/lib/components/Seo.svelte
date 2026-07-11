@@ -12,7 +12,8 @@
     ogType = 'website',
     twitterCard = 'summary_large_image',
     keywords,
-    jsonLd = []
+    jsonLd = [],
+    article
   }: {
     title: string;
     description: string;
@@ -23,6 +24,8 @@
     twitterCard?: string;
     keywords?: string;
     jsonLd?: Record<string, unknown>[];
+    /** Extra Open Graph metadata for article pages (blog posts). */
+    article?: { publishedTime?: string; modifiedTime?: string; author?: string };
   } = $props();
 
   const url = $derived(`${links.site}${path}`);
@@ -44,6 +47,18 @@
   <meta property="og:image:width" content={String(site.ogImageWidth)} />
   <meta property="og:image:height" content={String(site.ogImageHeight)} />
   <meta property="og:image:alt" content={imageAlt} />
+
+  {#if article}
+    {#if article.publishedTime}
+      <meta property="article:published_time" content={article.publishedTime} />
+    {/if}
+    {#if article.modifiedTime}
+      <meta property="article:modified_time" content={article.modifiedTime} />
+    {/if}
+    {#if article.author}
+      <meta property="article:author" content={article.author} />
+    {/if}
+  {/if}
 
   <meta name="twitter:card" content={twitterCard} />
   <meta name="twitter:title" content={title} />

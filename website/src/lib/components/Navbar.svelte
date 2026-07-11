@@ -21,6 +21,7 @@
   const learnLinks = [
     { label: 'Understanding OCD', href: '/ocd' },
     { label: 'ERP & how it helps', href: '/erp' },
+    { label: 'Recovery toolkit', href: '/toolkit' },
     { label: 'FAQ', href: '/faq' }
   ];
 
@@ -110,6 +111,7 @@
             {/each}
           </div>
         </div>
+        <a href="/blog" class="nav-link">Blog</a>
         <button type="button" onclick={goPrivacy}>Privacy</button>
         <button
           type="button"
@@ -184,6 +186,7 @@
         </div>
 
         <div class="mobile-nav-section">
+          <a href="/blog" onclick={closeMobile}>Blog</a>
           <button type="button" onclick={goPrivacy}>Privacy</button>
         </div>
       </nav>
@@ -250,14 +253,16 @@
     gap: 32px;
   }
 
-  .desktop-links button {
+  .desktop-links button,
+  .desktop-links .nav-link {
     font-size: 14px;
     font-weight: 500;
     color: color-mix(in srgb, var(--text) 65%, transparent);
     transition: color 0.2s;
   }
 
-  .desktop-links button:hover {
+  .desktop-links button:hover,
+  .desktop-links .nav-link:hover {
     color: var(--text);
   }
 

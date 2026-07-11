@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://patterns.maskedsyntax.com/sitemap.xml
+Sitemap: https://patternsocd.com/sitemap.xml

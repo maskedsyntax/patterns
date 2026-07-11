@@ -13,7 +13,7 @@ export const links = {
   issues: 'https://github.com/maskedsyntax/patterns/issues',
   license: 'https://github.com/maskedsyntax/patterns/blob/master/LICENSE',
   maskedsyntax: 'https://maskedsyntax.com/',
-  site: 'https://patterns.maskedsyntax.com/'
+  site: 'https://patternsocd.com/'
 } as const;
 
 export const githubStats = {

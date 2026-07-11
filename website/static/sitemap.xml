@@ -4,73 +4,73 @@
   xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
 >
   <url>
-    <loc>https://patterns.maskedsyntax.com/</loc>
+    <loc>https://patternsocd.com/</loc>
     <lastmod>2026-07-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://patterns.maskedsyntax.com/assets/website-cta-1200.jpg</image:loc>
+      <image:loc>https://patternsocd.com/assets/website-cta-1200.jpg</image:loc>
       <image:title>Patterns mobile app download CTA for OCD journaling and ERP practice</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://patterns.maskedsyntax.com/assets/mockups/feature-graphic.jpg</image:loc>
+      <image:loc>https://patternsocd.com/assets/mockups/feature-graphic.jpg</image:loc>
       <image:title>Patterns OCD tracker app for iPhone and Android</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://patterns.maskedsyntax.com/og/patterns-og.png</image:loc>
+      <image:loc>https://patternsocd.com/og/patterns-og.png</image:loc>
       <image:title>Patterns private OCD tracker and ERP journal app</image:title>
     </image:image>
   </url>
   <url>
-    <loc>https://patterns.maskedsyntax.com/ocd</loc>
+    <loc>https://patternsocd.com/ocd</loc>
     <lastmod>2026-07-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://patterns.maskedsyntax.com/erp</loc>
+    <loc>https://patternsocd.com/erp</loc>
     <lastmod>2026-07-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://patterns.maskedsyntax.com/toolkit</loc>
+    <loc>https://patternsocd.com/toolkit</loc>
     <lastmod>2026-07-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://patterns.maskedsyntax.com/blog</loc>
+    <loc>https://patternsocd.com/blog</loc>
     <lastmod>2026-07-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://patterns.maskedsyntax.com/blog/why-i-built-patterns</loc>
+    <loc>https://patternsocd.com/blog/why-i-built-patterns</loc>
     <lastmod>2026-07-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://patterns.maskedsyntax.com/blog/the-loop-and-how-i-loosen-it</loc>
+    <loc>https://patternsocd.com/blog/the-loop-and-how-i-loosen-it</loc>
     <lastmod>2026-07-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://patterns.maskedsyntax.com/blog/why-patterns-stays-private</loc>
+    <loc>https://patternsocd.com/blog/why-patterns-stays-private</loc>
     <lastmod>2026-07-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://patterns.maskedsyntax.com/faq</loc>
+    <loc>https://patternsocd.com/faq</loc>
     <lastmod>2026-07-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://patterns.maskedsyntax.com/privacy</loc>
+    <loc>https://patternsocd.com/privacy</loc>
     <lastmod>2026-07-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

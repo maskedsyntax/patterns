@@ -22,6 +22,12 @@
     </image:image>
   </url>
   <url>
+    <loc>https://patternsocd.com/get</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://patternsocd.com/ocd</loc>
     <lastmod>2026-07-04</lastmod>
     <changefreq>monthly</changefreq>

@@ -8,6 +8,11 @@
 
   let { children } = $props();
 
+  // Dedicated ad/landing routes render "bare": no navbar or install banner, so the
+  // page is a clean, distraction-free destination with store links front and centre.
+  const bareRoutes = ['/get'];
+  const bare = $derived(bareRoutes.includes($page.url.pathname.replace(/\/$/, '') || '/'));
+
   onMount(() => {
     theme.init();
 
@@ -44,11 +49,15 @@
   <meta name="apple-mobile-web-app-title" content="Patterns" />
 </svelte:head>
 
-<Navbar />
-<AppInstallBanner />
-<main>
+{#if bare}
   {@render children()}
-</main>
+{:else}
+  <Navbar />
+  <AppInstallBanner />
+  <main>
+    {@render children()}
+  </main>
+{/if}
 
 <style>
   main {

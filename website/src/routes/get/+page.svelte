@@ -4,7 +4,7 @@
   import BrandIcon from '$lib/components/BrandIcon.svelte';
   import { links } from '$lib/data/links';
   import { isAndroid, isIOS } from '$lib/utils/platform';
-  import { logDownload, logEvent } from '$lib/utils/analytics';
+  import { logEvent } from '$lib/utils/analytics';
   import { siAppstore, siGoogleplay } from 'simple-icons';
   import { ShieldCheck, HeartHandshake, Sparkles } from 'lucide-svelte';
 
@@ -12,15 +12,31 @@
   // lost if native smart banners fail inside an in-app webview (e.g. YouTube).
   let platform = $state<'ios' | 'android' | 'other'>('other');
 
+  // Campaign params captured from the ad URL (utm_source, utm_campaign, etc.), so
+  // each landing view and store tap is stamped with which ad/creative drove it.
+  let utm: Record<string, string> = {};
+
+  function readUtm(): Record<string, string> {
+    if (typeof window === 'undefined') return {};
+    const params = new URLSearchParams(window.location.search);
+    const out: Record<string, string> = {};
+    for (const key of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']) {
+      const value = params.get(key);
+      if (value) out[key] = value;
+    }
+    return out;
+  }
+
   onMount(() => {
     platform = isIOS() ? 'ios' : isAndroid() ? 'android' : 'other';
-    logEvent('get_landing_view', { platform });
+    utm = readUtm();
+    logEvent('get_landing_view', { platform, ...utm });
   });
 
   // Plain same-tab navigation is the most reliable way to hand off to the native
   // store app from inside an in-app browser, so these stay as normal anchors.
   function track(store: 'iOS' | 'Android') {
-    logDownload(store, 'store');
+    logEvent('download', { platform: store, version: 'store', ...utm });
   }
 
   const trust = [

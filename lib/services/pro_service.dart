@@ -26,6 +26,11 @@ class ProService {
 
   static Stream<ProEvent> get events => _events.stream;
 
+  /// The last product successfully loaded this session, if any. Used by the
+  /// paywall as a fallback so a transient store failure still shows a usable
+  /// (purchasable) price instead of an error. Null until the first success.
+  static ProductDetails? get cachedProduct => _cachedProduct;
+
   /// Whether Pro has been unlocked on this device. Reads the persisted flag so
   /// gating works synchronously and offline. Defaults to false (incl. desktop
   /// where `mobilePreferences` is null).

@@ -64,30 +64,62 @@ class _PaywallSheetState extends State<PaywallSheet> {
     try {
       final available = await ProService.isAvailable();
       if (!available) {
-        if (!mounted) return;
-        setState(() {
-          _loading = false;
-          _loadError = 'In-app purchases are unavailable on this device.';
-        });
+        _applyProduct(
+          null,
+          unavailableMessage:
+              'In-app purchases are unavailable on this device.',
+        );
         return;
       }
-      final product = await ProService.loadProduct(forceReload: true);
-      if (!mounted) return;
-      setState(() {
-        _product = product;
-        _loading = false;
-        if (product == null) {
-          _loadError =
-              'Patterns Pro is not available right now. Please try again later.';
-        }
-      });
+      final product = await _fetchProductWithRetry();
+      _applyProduct(
+        product,
+        unavailableMessage:
+            'Patterns Pro is not available right now. Please try again later.',
+      );
     } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _loadError = 'Could not load Patterns Pro. Please try again later.';
-      });
+      _applyProduct(
+        null,
+        unavailableMessage:
+            'Could not load Patterns Pro. Please try again later.',
+      );
     }
+  }
+
+  /// Loads the product, retrying a few times with short backoff to ride out
+  /// transient store failures. Returns null only if every attempt came back
+  /// empty; rethrows if the final attempt errored.
+  Future<ProductDetails?> _fetchProductWithRetry() async {
+    const maxAttempts = 3;
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        final product = await ProService.loadProduct(forceReload: true);
+        if (product != null || attempt == maxAttempts) return product;
+      } catch (_) {
+        if (attempt == maxAttempts) rethrow;
+      }
+      await Future.delayed(Duration(milliseconds: 400 * attempt));
+    }
+    return null;
+  }
+
+  /// Applies a load result, falling back to the last cached product so a
+  /// transient failure still shows a usable price instead of an error.
+  void _applyProduct(
+    ProductDetails? product, {
+    required String unavailableMessage,
+  }) {
+    if (!mounted) return;
+    final resolved = product ?? ProService.cachedProduct;
+    setState(() {
+      _loading = false;
+      if (resolved != null) {
+        _product = resolved;
+        _loadError = null;
+      } else {
+        _loadError = unavailableMessage;
+      }
+    });
   }
 
   void _onEvent(ProEvent event) {

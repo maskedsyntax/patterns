@@ -8,6 +8,18 @@
     <!-- Recording audio "loop tapes" for exposure materials (record package). -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
+    <!-- RECORD_AUDIO implies a required microphone and the portrait-locked
+         activity implies a required portrait screen. Both are used when present
+         but must not gate installation, so mark them optional — otherwise Play
+         excludes mic-less and landscape-only devices (tablets, Chromebooks,
+         TV boxes). Recording should still check mic availability at runtime. -->
+    <uses-feature
+        android:name="android.hardware.microphone"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.screen.portrait"
+        android:required="false" />
+
     <supports-screens
         android:smallScreens="true"
         android:normalScreens="true"

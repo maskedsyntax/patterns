@@ -53,29 +53,64 @@ class _TipJarSheetState extends State<TipJarSheet> {
     try {
       final available = await TipJarService.isAvailable();
       if (!available) {
-        if (!mounted) return;
-        setState(() {
-          _loading = false;
-          _loadError = 'In-app purchases are unavailable on this device.';
-        });
+        _applyProducts(
+          null,
+          unavailableMessage:
+              'In-app purchases are unavailable on this device.',
+        );
         return;
       }
-      final products = await TipJarService.loadProducts(forceReload: true);
-      if (!mounted) return;
-      setState(() {
-        _products = products;
-        _loading = false;
-        if (products.isEmpty) {
-          _loadError = 'No tip options found. Please try again later.';
-        }
-      });
-    } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _loadError = 'Could not load tip options. Please try again later.';
-      });
+      final products = await _fetchProductsWithRetry();
+      _applyProducts(
+        products,
+        unavailableMessage: 'No tip options found. Please try again later.',
+      );
+    } catch (_) {
+      _applyProducts(
+        null,
+        unavailableMessage:
+            'Could not load tip options. Please try again later.',
+      );
     }
+  }
+
+  /// Loads the products, retrying a few times with short backoff to ride out
+  /// transient store failures. Returns an empty list only if every attempt
+  /// came back empty; rethrows if the final attempt errored.
+  Future<List<ProductDetails>> _fetchProductsWithRetry() async {
+    const maxAttempts = 3;
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        final products = await TipJarService.loadProducts(forceReload: true);
+        if (products.isNotEmpty || attempt == maxAttempts) return products;
+      } catch (_) {
+        if (attempt == maxAttempts) rethrow;
+      }
+      await Future.delayed(Duration(milliseconds: 400 * attempt));
+    }
+    return const [];
+  }
+
+  /// Applies a load result, falling back to the last cached products so a
+  /// transient failure still shows usable options instead of an error.
+  void _applyProducts(
+    List<ProductDetails>? products, {
+    required String unavailableMessage,
+  }) {
+    if (!mounted) return;
+    final resolved = (products != null && products.isNotEmpty)
+        ? products
+        : TipJarService.cachedProducts;
+    setState(() {
+      _loading = false;
+      if (resolved != null && resolved.isNotEmpty) {
+        _products = resolved;
+        _loadError = null;
+      } else {
+        _products = const [];
+        _loadError = unavailableMessage;
+      }
+    });
   }
 
   void _onEvent(TipJarEvent event) {

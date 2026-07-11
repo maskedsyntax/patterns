@@ -29,6 +29,11 @@ class TipJarService {
 
   static Stream<TipJarEvent> get events => _events.stream;
 
+  /// The products last successfully loaded this session, if any. Used by the
+  /// tip sheet as a fallback so a transient store failure still shows usable
+  /// (purchasable) options instead of an error. Null until the first success.
+  static List<ProductDetails>? get cachedProducts => _cachedProducts;
+
   static bool get isPlatformSupported {
     if (kIsWeb) return false;
     return Platform.isIOS || Platform.isAndroid || Platform.isMacOS;

@@ -30,8 +30,12 @@
 	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>Patterns may request camera access only if the system file picker offers the camera while you attach exposure materials. Captured files stay on your device.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Patterns uses Face ID to unlock your private journal and OCD tracking data when app lock is enabled.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Patterns does not use your location for tracking. This string is included because Apple may detect location-capable APIs in system file picker or platform libraries.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Patterns uses the microphone only when you record an audio loop tape for your exposure exercises. Recordings stay on your device.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

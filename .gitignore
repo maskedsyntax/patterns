@@ -57,3 +57,11 @@ socials/
 
 # Pro / paid-version planning (not for the repo)
 /PRO_ROADMAP.md
+
+# Local marketing ad animations + recorded outputs (not for the repo)
+/lib/marketing_animations/
+/marketing_videos/
+
+# backend/play-rtdn (Node/TS Cloud Function)
+backend/play-rtdn/node_modules/
+backend/play-rtdn/build/

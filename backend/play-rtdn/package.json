@@ -1,0 +1,24 @@
+{
+  "name": "play-rtdn",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cloud Function that acknowledges Google Play purchases via Real-time Developer Notifications, as a backstop for client-side acknowledgment.",
+  "main": "build/src/index.js",
+  "scripts": {
+    "build": "tsc",
+    "gcp-build": "npm run build",
+    "test": "npm run build && node --test build/test/*.test.js",
+    "start": "npm run build && functions-framework --target=acknowledgePurchase --signature-type=cloudevent"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.4.2",
+    "googleapis": "^144.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.20",
+    "typescript": "^5.8.3"
+  }
+}

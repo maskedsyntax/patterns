@@ -4,18 +4,16 @@ import 'package:flutter_quill/flutter_quill.dart'
     show FlutterQuillLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:line_icons/line_icons.dart';
+
+import 'app_preferences.dart';
+import 'desktop/onboarding.dart';
+import 'desktop/shell.dart';
 import 'mobile/main_shell.dart';
-import 'mobile/preferences.dart';
-import 'theme/app_theme.dart';
-import 'screens/journal_screen.dart';
-import 'screens/ocd_tracker_screen.dart';
-import 'screens/analytics_screen.dart';
-import 'screens/settings_screen.dart';
 import 'services/notification_service.dart';
 import 'services/pro_service.dart';
 import 'services/review_prompt.dart';
 import 'services/tip_jar.dart';
+import 'theme/app_theme.dart';
 import 'widgets/app_snack_bar.dart';
 import 'widgets/platform.dart';
 
@@ -23,32 +21,33 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GoogleFonts.config.allowRuntimeFetching = false;
 
+  await initAppPreferences();
+
   if (!kIsDesktop) {
-    await initMobilePreferences();
     await ReviewPromptService.recordSessionStart();
     await NotificationService.init();
     // Re-arm the saved reminder so it survives app updates and reinstalls of
     // the schedule (the OS clears pending notifications on app upgrade).
-    if (mobilePreferences?.getBool(reminderEnabledKey) ?? false) {
+    if (appPreferences?.getBool(reminderEnabledKey) ?? false) {
       await NotificationService.scheduleDailyReminder(
         TimeOfDay(
           hour:
-              mobilePreferences?.getInt(reminderHourKey) ??
+              appPreferences?.getInt(reminderHourKey) ??
               NotificationService.defaultHour,
           minute:
-              mobilePreferences?.getInt(reminderMinuteKey) ??
+              appPreferences?.getInt(reminderMinuteKey) ??
               NotificationService.defaultMinute,
         ),
       );
     }
-    final hasStarted = mobilePreferences?.getBool('hasStarted') ?? false;
+    final hasStarted = appPreferences?.getBool(hasStartedKey) ?? false;
     final releaseSeen =
-        mobilePreferences?.getString(lastSeenReleaseKey) == currentReleaseId;
+        appPreferences?.getString(lastSeenReleaseKey) == currentReleaseId;
     final releaseScheduled =
-        mobilePreferences?.getString(releaseAnnouncementScheduledKey) ==
+        appPreferences?.getString(releaseAnnouncementScheduledKey) ==
         currentReleaseId;
     final canUseExistingReminderPermission =
-        mobilePreferences?.getBool(reminderEnabledKey) ?? false;
+        appPreferences?.getBool(reminderEnabledKey) ?? false;
     if (hasStarted &&
         !releaseSeen &&
         !releaseScheduled &&
@@ -56,9 +55,25 @@ void main() async {
       await NotificationService.scheduleUpdateAnnouncement(
         DateTime.now().add(const Duration(hours: 6)),
       );
-      await mobilePreferences?.setString(
+      await appPreferences?.setString(
         releaseAnnouncementScheduledKey,
         currentReleaseId,
+      );
+    }
+  } else {
+    // Desktop: notifications (macOS) + review session for later settings/polish.
+    await ReviewPromptService.recordSessionStart();
+    await NotificationService.init();
+    if (appPreferences?.getBool(reminderEnabledKey) ?? false) {
+      await NotificationService.scheduleDailyReminder(
+        TimeOfDay(
+          hour:
+              appPreferences?.getInt(reminderHourKey) ??
+              NotificationService.defaultHour,
+          minute:
+              appPreferences?.getInt(reminderMinuteKey) ??
+              NotificationService.defaultMinute,
+        ),
       );
     }
   }
@@ -88,167 +103,11 @@ class PatternsApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      navigatorKey: kIsDesktop ? null : mobileRootNavigatorKey,
+      navigatorKey: kIsDesktop ? desktopRootNavigatorKey : mobileRootNavigatorKey,
       builder: kIsDesktop
           ? null
           : (context, child) => MobileAppFrame(child: child),
-      home: kIsDesktop ? const HomeScreen() : const MobileShell(),
-    );
-  }
-}
-
-class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({super.key});
-
-  @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int _selectedIndex = 0;
-
-  final List<Widget> _screens = [
-    const JournalScreen(),
-    const OcdTrackerScreen(),
-    const AnalyticsScreen(),
-    const SettingsScreen(),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Scaffold(
-      body: Row(
-        children: [
-          // UNIFIED SIDEBAR (Navigation Part)
-          Container(
-            width: 72,
-            decoration: BoxDecoration(
-              color:
-                  theme.colorScheme.surface, // Shared background with the list
-              border: Border(
-                right: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
-              ),
-            ),
-            child: Column(
-              children: [
-                const SizedBox(height: 56), // Placeholder for drag area
-                const SizedBox(height: 8),
-                _NavIcon(
-                  icon: LineIcons.penNib,
-                  isSelected: _selectedIndex == 0,
-                  onTap: () => setState(() => _selectedIndex = 0),
-                  theme: theme,
-                  tooltip: 'Journal',
-                ),
-                _NavIcon(
-                  icon: LineIcons.list,
-                  isSelected: _selectedIndex == 1,
-                  onTap: () => setState(() => _selectedIndex = 1),
-                  theme: theme,
-                  tooltip: 'OCD Tracker',
-                ),
-                _NavIcon(
-                  icon: LineIcons.barChart,
-                  isSelected: _selectedIndex == 2,
-                  onTap: () => setState(() => _selectedIndex = 2),
-                  theme: theme,
-                  tooltip: 'Analytics',
-                ),
-                _NavIcon(
-                  icon: LineIcons.cog,
-                  isSelected: _selectedIndex == 3,
-                  onTap: () => setState(() => _selectedIndex = 3),
-                  theme: theme,
-                  tooltip: 'Settings',
-                ),
-                const Spacer(),
-                const SizedBox(height: 32),
-              ],
-            ),
-          ),
-
-          // MAIN CONTENT (which will include its own contextual sidebar)
-          Expanded(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: _screens[_selectedIndex],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _NavIcon extends StatefulWidget {
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onTap;
-  final ThemeData theme;
-  final String tooltip;
-
-  const _NavIcon({
-    required this.icon,
-    required this.isSelected,
-    required this.onTap,
-    required this.theme,
-    required this.tooltip,
-  });
-
-  @override
-  State<_NavIcon> createState() => _NavIconState();
-}
-
-class _NavIconState extends State<_NavIcon> {
-  bool _isHovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Tooltip(
-        message: widget.tooltip,
-        preferBelow: false,
-        margin: const EdgeInsets.only(left: 60),
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          onEnter: (_) => setState(() => _isHovered = true),
-          onExit: (_) => setState(() => _isHovered = false),
-          child: GestureDetector(
-            onTap: widget.onTap,
-            child: Container(
-              decoration: BoxDecoration(
-                color: widget.isSelected
-                    ? widget.theme.colorScheme.primary.withOpacity(0.15)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: !widget.isSelected && _isHovered
-                      ? widget.theme.colorScheme.onSurface.withOpacity(0.05)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  widget.icon,
-                  color: widget.isSelected
-                      ? widget.theme.colorScheme.primary
-                      : widget.theme.colorScheme.onSurface.withOpacity(
-                          _isHovered ? 0.7 : 0.3,
-                        ),
-                  size: 24,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+      home: kIsDesktop ? const DesktopRoot() : const MobileShell(),
     );
   }
 }

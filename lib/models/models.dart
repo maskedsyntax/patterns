@@ -839,6 +839,93 @@ class UncertaintyLog {
   }
 }
 
+/// Y-BOCS severity bands, derived from the 0–40 total score. Ordered from
+/// least to most severe so `.index` doubles as the stored value.
+enum YbocsSeverity { subclinical, mild, moderate, severe, extreme }
+
+/// Maps a Y-BOCS total (0–40) onto its clinical severity band. These are the
+/// standard Goodman et al. ranges. This is a self-check aid, not a diagnosis.
+YbocsSeverity ybocsSeverityForScore(int total) {
+  if (total <= 7) return YbocsSeverity.subclinical;
+  if (total <= 15) return YbocsSeverity.mild;
+  if (total <= 23) return YbocsSeverity.moderate;
+  if (total <= 31) return YbocsSeverity.severe;
+  return YbocsSeverity.extreme;
+}
+
+/// A saved Y-BOCS self-check. Stores the 10 severity item scores (each 0–4),
+/// the obsession/compulsion subtotals and 0–40 total, the derived severity
+/// band, and the symptom-checklist selections (category ids in [themes], item
+/// ids in [symptoms]) so past checks can be reviewed and compared over time.
+class YbocsAssessment {
+  final int? id;
+  final DateTime datetime;
+  final int obsessionScore; // 0–20 (items 1–5)
+  final int compulsionScore; // 0–20 (items 6–10)
+  final int totalScore; // 0–40
+  final YbocsSeverity severity;
+  final List<int> itemScores; // 10 ints, each 0–4
+  final List<String> themes; // symptom category ids with ≥1 selection
+  final List<String> symptoms; // selected symptom item ids
+  final DateTime createdAt;
+
+  YbocsAssessment({
+    this.id,
+    required this.datetime,
+    required this.obsessionScore,
+    required this.compulsionScore,
+    required this.totalScore,
+    required this.severity,
+    required this.itemScores,
+    required this.themes,
+    required this.symptoms,
+    required this.createdAt,
+  });
+
+  Map<String, dynamic> toMap() {
+    final Map<String, dynamic> map = {
+      'datetime': datetime.toIso8601String(),
+      'obsession_score': obsessionScore,
+      'compulsion_score': compulsionScore,
+      'total_score': totalScore,
+      'severity': severity.index,
+      'item_scores': itemScores.join(','),
+      'themes': themes.join(','),
+      'symptoms': symptoms.join(','),
+      'created_at': createdAt.toIso8601String(),
+    };
+    if (id != null) map['id'] = id;
+    return map;
+  }
+
+  factory YbocsAssessment.fromMap(Map<String, dynamic> map) {
+    return YbocsAssessment(
+      id: map['id'],
+      datetime: DateTime.parse(map['datetime']),
+      obsessionScore: map['obsession_score'],
+      compulsionScore: map['compulsion_score'],
+      totalScore: map['total_score'],
+      severity: YbocsSeverity.values[map['severity'] as int],
+      itemScores: _splitInts(map['item_scores']),
+      themes: _splitIds(map['themes']),
+      symptoms: _splitIds(map['symptoms']),
+      createdAt: DateTime.parse(map['created_at']),
+    );
+  }
+
+  static List<int> _splitInts(Object? raw) {
+    final s = (raw as String?)?.trim() ?? '';
+    if (s.isEmpty) return const [];
+    return s.split(',').map(int.parse).toList();
+  }
+
+  static List<String> _splitIds(Object? raw) {
+    final s = (raw as String?)?.trim() ?? '';
+    if (s.isEmpty) return const [];
+    return s.split(',');
+  }
+}
+
 enum MaterialType { script, loopTape, image, link }
 
 /// A Pro "Exposure Material" - a stimulus the user saves for use during an

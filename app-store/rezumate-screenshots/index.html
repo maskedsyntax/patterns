@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rezumate App Store Screenshots</title>
+  <style>
+    @font-face {
+      font-family: "Plus Jakarta";
+      src: url("../../assets/fonts/PlusJakartaSans-Variable.ttf") format("truetype");
+      font-weight: 400 800;
+    }
+
+    :root {
+      --ink: #111111;
+      --paper: #fff8e8;
+      --card: #fffdf6;
+      --yellow: #ffd84d;
+      --blue: #2f7dff;
+      --green: #42c36b;
+      --soft: #f1ead9;
+      --muted: #6b675d;
+      --line: 5px solid var(--ink);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #ded6c6;
+      color: var(--ink);
+      font-family: "Plus Jakarta", Arial, sans-serif;
+    }
+
+    .shot {
+      position: relative;
+      width: 1290px;
+      height: 2796px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 10% 18%, rgba(47, 125, 255, 0.13), transparent 18%),
+        linear-gradient(180deg, #fffaf0 0%, #f8efdd 100%);
+      padding: 150px 92px 0;
+    }
+
+    .shot::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(17,17,17,0.035) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(17,17,17,0.035) 2px, transparent 2px);
+      background-size: 58px 58px;
+      pointer-events: none;
+    }
+
+    .brand-row {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 56px;
+      font-size: 31px;
+      font-weight: 800;
+    }
+
+    .app-icon {
+      width: 76px;
+      height: 76px;
+      border: var(--line);
+      border-radius: 22px;
+      background: var(--blue);
+      box-shadow: 8px 8px 0 var(--ink);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 900;
+      font-size: 38px;
+    }
+
+    h1 {
+      position: relative;
+      width: 1070px;
+      margin: 0;
+      font-size: 94px;
+      line-height: 0.98;
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+
+    .support {
+      position: relative;
+      width: 940px;
+      margin: 30px 0 66px;
+      color: #343129;
+      font-size: 40px;
+      line-height: 1.22;
+      font-weight: 650;
+    }
+
+    .stage {
+      position: relative;
+      height: 1842px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .phone {
+      position: relative;
+      width: 790px;
+      height: 1716px;
+      border: 8px solid var(--ink);
+      border-radius: 88px;
+      background: var(--ink);
+      box-shadow: 24px 28px 0 rgba(17, 17, 17, 0.98);
+      padding: 24px;
+    }
+
+    .phone::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 21px;
+      width: 208px;
+      height: 44px;
+      transform: translateX(-50%);
+      background: var(--ink);
+      border-radius: 0 0 26px 26px;
+      z-index: 4;
+    }
+
+    .screen {
+      height: 100%;
+      border-radius: 62px;
+      overflow: hidden;
+      background: var(--paper);
+      border: 3px solid #252525;
+      position: relative;
+    }
+
+    .status {
+      height: 94px;
+      padding: 30px 42px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .ios-dots {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 2px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--ink);
+    }
+
+    .app {
+      padding: 0 42px 42px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 26px;
+    }
+
+    .logo-lockup {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      font-size: 29px;
+      font-weight: 900;
+    }
+
+    .mini-icon {
+      width: 44px;
+      height: 44px;
+      border: 4px solid var(--ink);
+      border-radius: 13px;
+      background: var(--blue);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .pill {
+      border: 4px solid var(--ink);
+      border-radius: 999px;
+      padding: 11px 18px;
+      background: white;
+      font-size: 20px;
+      font-weight: 850;
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+
+    .page-title {
+      font-size: 48px;
+      line-height: 1;
+      margin: 0 0 16px;
+      font-weight: 900;
+    }
+
+    .page-copy {
+      margin: 0 0 28px;
+      font-size: 24px;
+      line-height: 1.27;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .card {
+      background: var(--card);
+      border: var(--line);
+      border-radius: 28px;
+      box-shadow: 8px 8px 0 var(--ink);
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .card.tight { padding: 22px; margin-bottom: 20px; }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 12px;
+    }
+
+    .label {
+      font-size: 23px;
+      font-weight: 900;
+    }
+
+    .tag {
+      background: var(--yellow);
+      border: 4px solid var(--ink);
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 16px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .textarea {
+      min-height: 172px;
+      border: 4px solid var(--ink);
+      border-radius: 22px;
+      background: white;
+      padding: 20px;
+      font-size: 20px;
+      line-height: 1.33;
+      color: #37332c;
+      font-weight: 650;
+    }
+
+    .textarea.small { min-height: 138px; }
+    .textarea.tall { min-height: 224px; }
+
+    .button {
+      height: 72px;
+      border: 5px solid var(--ink);
+      border-radius: 22px;
+      background: var(--yellow);
+      box-shadow: 7px 7px 0 var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .split-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 26px;
+    }
+
+    .ghost {
+      background: white;
+      box-shadow: none;
+    }
+
+    .privacy-note {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      font-size: 21px;
+      font-weight: 850;
+      color: #2f2b25;
+    }
+
+    .badge-icon {
+      width: 44px;
+      height: 44px;
+      border: 4px solid var(--ink);
+      border-radius: 50%;
+      background: var(--blue);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .score-card {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .score-ring {
+      width: 200px;
+      height: 200px;
+      border: 12px solid var(--ink);
+      border-radius: 50%;
+      background:
+        conic-gradient(var(--yellow) 0 68%, #f3ead8 68% 100%);
+      display: grid;
+      place-items: center;
+      box-shadow: 8px 8px 0 var(--ink);
+    }
+
+    .score-inner {
+      width: 132px;
+      height: 132px;
+      border: 5px solid var(--ink);
+      border-radius: 50%;
+      background: white;
+      display: grid;
+      place-items: center;
+      font-size: 48px;
+      font-weight: 900;
+    }
+
+    .score-title {
+      font-size: 34px;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .score-copy {
+      color: var(--muted);
+      font-size: 21px;
+      line-height: 1.28;
+      font-weight: 650;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .metric {
+      border: 4px solid var(--ink);
+      border-radius: 21px;
+      padding: 17px;
+      background: white;
+    }
+
+    .metric .num {
+      font-size: 31px;
+      font-weight: 900;
+    }
+
+    .metric .name {
+      color: var(--muted);
+      font-size: 18px;
+      font-weight: 750;
+    }
+
+    .chips {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border: 4px solid var(--ink);
+      border-radius: 999px;
+      background: white;
+      padding: 9px 15px;
+      font-size: 18px;
+      font-weight: 850;
+    }
+
+    .chip.missing { background: #ffe5df; }
+    .chip.match { background: #ddf8e6; }
+    .chip.blue { background: #e5efff; }
+
+    .diagnosis {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      border-top: 4px solid var(--ink);
+      padding-top: 18px;
+      margin-top: 20px;
+    }
+
+    .mini-num {
+      width: 42px;
+      height: 42px;
+      border: 4px solid var(--ink);
+      border-radius: 14px;
+      background: var(--yellow);
+      display: grid;
+      place-items: center;
+      font-size: 19px;
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .diagnosis strong {
+      display: block;
+      font-size: 22px;
+      margin-bottom: 5px;
+    }
+
+    .diagnosis span {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.27;
+      font-weight: 650;
+    }
+
+    .before-after {
+      display: grid;
+      gap: 18px;
+    }
+
+    .bullet-card {
+      border: 4px solid var(--ink);
+      border-radius: 24px;
+      background: white;
+      padding: 20px;
+    }
+
+    .bullet-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .old {
+      color: #81796d;
+      text-decoration: line-through;
+      text-decoration-thickness: 3px;
+    }
+
+    .new {
+      background: #fff2a8;
+      border: 3px solid var(--ink);
+      border-radius: 18px;
+      padding: 14px;
+      font-weight: 800;
+      line-height: 1.28;
+    }
+
+    .bullet-text {
+      font-size: 20px;
+      line-height: 1.32;
+      font-weight: 700;
+    }
+
+    .resume-lines {
+      display: grid;
+      gap: 13px;
+      margin-top: 18px;
+    }
+
+    .line {
+      height: 16px;
+      border-radius: 999px;
+      background: #ded6c4;
+    }
+
+    .line.black { background: var(--ink); height: 18px; }
+    .line.yellow { background: var(--yellow); border: 3px solid var(--ink); height: 24px; }
+    .w90 { width: 90%; }
+    .w78 { width: 78%; }
+    .w66 { width: 66%; }
+    .w52 { width: 52%; }
+    .w42 { width: 42%; }
+
+    .keyword-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 3px solid #181818;
+    }
+
+    .keyword-row:last-child { border-bottom: 0; }
+
+    .keyword-title {
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .keyword-sub {
+      color: var(--muted);
+      font-size: 17px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .check {
+      width: 42px;
+      height: 42px;
+      border: 4px solid var(--ink);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #ddf8e6;
+      font-weight: 900;
+    }
+
+    .check.miss { background: #ffe5df; }
+
+    .privacy-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .privacy-item {
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      gap: 15px;
+      align-items: center;
+      border: 4px solid var(--ink);
+      border-radius: 24px;
+      padding: 18px;
+      background: white;
+    }
+
+    .privacy-title {
+      font-size: 23px;
+      font-weight: 900;
+    }
+
+    .privacy-sub {
+      color: var(--muted);
+      font-size: 17px;
+      font-weight: 700;
+      margin-top: 3px;
+    }
+
+    .variant {
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      gap: 16px;
+      align-items: center;
+      border: 4px solid var(--ink);
+      border-radius: 24px;
+      padding: 17px;
+      background: white;
+      margin-bottom: 16px;
+    }
+
+    .doc-icon {
+      width: 56px;
+      height: 68px;
+      border: 4px solid var(--ink);
+      border-radius: 12px;
+      background: #e5efff;
+      position: relative;
+    }
+
+    .doc-icon::after {
+      content: "";
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      top: 17px;
+      height: 4px;
+      background: var(--ink);
+      box-shadow: 0 12px 0 var(--ink), 0 24px 0 var(--ink);
+    }
+
+    .variant-title {
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .variant-sub {
+      color: var(--muted);
+      font-size: 17px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .mini-score {
+      border: 4px solid var(--ink);
+      border-radius: 999px;
+      background: var(--yellow);
+      padding: 8px 11px;
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .bottom-nav {
+      position: absolute;
+      left: 44px;
+      right: 44px;
+      bottom: 34px;
+      height: 86px;
+      border: 5px solid var(--ink);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.92);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      align-items: center;
+      box-shadow: 7px 7px 0 var(--ink);
+      overflow: hidden;
+    }
+
+    .nav-item {
+      text-align: center;
+      font-size: 17px;
+      font-weight: 900;
+      color: #575249;
+    }
+
+    .nav-item.active {
+      color: var(--ink);
+      background: var(--yellow);
+      align-self: stretch;
+      display: grid;
+      place-items: center;
+    }
+
+    .corner-note {
+      position: absolute;
+      right: 80px;
+      bottom: 82px;
+      width: 260px;
+      transform: rotate(-3deg);
+      border: var(--line);
+      border-radius: 28px;
+      background: var(--yellow);
+      padding: 23px;
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1.12;
+      box-shadow: 8px 8px 0 var(--ink);
+    }
+
+    .shot:nth-child(even) .corner-note {
+      left: 74px;
+      right: auto;
+      transform: rotate(3deg);
+      background: #e5efff;
+    }
+
+    .offset-left .phone { transform: translateX(-116px); }
+    .offset-right .phone { transform: translateX(94px); }
+    .lower .stage { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <section class="shot offset-left" id="shot-1">
+    <div class="brand-row"><div class="app-icon">R</div><span>Rezumate</span></div>
+    <h1>Tailor your resume before you apply</h1>
+    <p class="support">Check ATS-style fit against any job post.</p>
+    <div class="stage">
+      <div class="phone">
+        <div class="screen">
+          <div class="status"><span>9:41</span><div class="ios-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
+          <div class="app">
+            <div class="topbar"><div class="logo-lockup"><div class="mini-icon">R</div>Analyze</div><div class="pill">Private</div></div>
+            <h2 class="page-title">Job fit check</h2>
+            <p class="page-copy">Paste your resume and the job post. Rezumate checks fit locally.</p>
+            <div class="split-actions">
+              <div class="button ghost">Import PDF</div>
+              <div class="button ghost">Paste Resume</div>
+            </div>
+            <div class="card">
+              <div class="label-row"><div class="label">Resume</div><div class="tag">Ready</div></div>
+              <div class="textarea">Product Manager with 6 years leading roadmap, research, launches, and cross-functional delivery.</div>
+            </div>
+            <div class="card">
+              <div class="label-row"><div class="label">Job Description</div><div class="tag">New role</div></div>
+              <div class="textarea tall">Seeking a product manager for B2B SaaS growth, analytics, customer discovery, experimentation, and stakeholder alignment.</div>
+            </div>
+            <div class="button">Analyze Resume</div>
+            <div class="card tight privacy-note" style="margin-top: 28px;"><div class="badge-icon">L</div><span>No account. Your resume stays on your iPhone.</span></div>
+          </div>
+          <div class="bottom-nav"><div class="nav-item active">Analyze</div><div class="nav-item">Results</div><div class="nav-item">Saved</div><div class="nav-item">Pro</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="corner-note">Resume plus job post. One focused flow.</div>
+  </section>
+
+  <section class="shot offset-right" id="shot-2">
+    <div class="brand-row"><div class="app-icon">R</div><span>Rezumate</span></div>
+    <h1>See what your resume is missing</h1>
+    <p class="support">Score, keywords, gaps, and weak sections in one view.</p>
+    <div class="stage">
+      <div class="phone">
+        <div class="screen">
+          <div class="status"><span>9:41</span><div class="ios-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
+          <div class="app">
+            <div class="topbar"><div class="logo-lockup"><div class="mini-icon">R</div>Results</div><div class="pill">ATS-style</div></div>
+            <div class="card score-card">
+              <div class="score-ring"><div class="score-inner">68</div></div>
+              <div><div class="score-title">Good start</div><div class="score-copy">Your resume matches the role, but key SaaS and analytics terms are missing.</div></div>
+            </div>
+            <div class="card">
+              <div class="label-row"><div class="label">Component scores</div><div class="tag">4 checks</div></div>
+              <div class="metrics">
+                <div class="metric"><div class="num">82</div><div class="name">Experience</div></div>
+                <div class="metric"><div class="num">61</div><div class="name">Keywords</div></div>
+                <div class="metric"><div class="num">74</div><div class="name">Impact</div></div>
+                <div class="metric"><div class="num">55</div><div class="name">Summary</div></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="label-row"><div class="label">Missing keywords</div><div class="tag">Add 6</div></div>
+              <div class="chips">
+                <span class="chip missing">B2B SaaS</span><span class="chip missing">SQL</span><span class="chip missing">Experimentation</span><span class="chip missing">Stakeholders</span><span class="chip missing">Activation</span>
+              </div>
+              <div class="diagnosis"><div class="mini-num">1</div><div><strong>Weak summary</strong><span>Opening section does not mirror the role's product growth focus.</span></div></div>
+              <div class="diagnosis"><div class="mini-num">2</div><div><strong>Low keyword coverage</strong><span>Several role terms appear in the job post but not your resume.</span></div></div>
+            </div>
+          </div>
+          <div class="bottom-nav"><div class="nav-item">Analyze</div><div class="nav-item active">Results</div><div class="nav-item">Saved</div><div class="nav-item">Pro</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="corner-note">Score first. Details right below.</div>
+  </section>
+
+  <section class="shot offset-left lower" id="shot-3">
+    <div class="brand-row"><div class="app-icon">R</div><span>Rezumate</span></div>
+    <h1>Improve weak bullets instantly</h1>
+    <p class="support">Add stronger action, impact, and job keywords.</p>
+    <div class="stage">
+      <div class="phone">
+        <div class="screen">
+          <div class="status"><span>9:41</span><div class="ios-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
+          <div class="app">
+            <div class="topbar"><div class="logo-lockup"><div class="mini-icon">R</div>Improve</div><div class="pill">+14 pts</div></div>
+            <h2 class="page-title">Stronger bullets</h2>
+            <p class="page-copy">Rezumate rewrites weak lines around impact and the job's language.</p>
+            <div class="card before-after">
+              <div class="bullet-card">
+                <div class="bullet-head"><span>Before</span><span class="tag">Weak</span></div>
+                <div class="bullet-text old">Worked with teams to improve onboarding and product metrics.</div>
+              </div>
+              <div class="bullet-card">
+                <div class="bullet-head"><span>After</span><span class="tag">Improved</span></div>
+                <div class="bullet-text new">Led B2B SaaS onboarding experiments that lifted activation 18% across sales-led customer segments.</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="label-row"><div class="label">Updated resume preview</div><div class="tag">Fit 82</div></div>
+              <div class="resume-lines">
+                <div class="line black w66"></div><div class="line w90"></div><div class="line yellow w78"></div><div class="line w90"></div><div class="line w52"></div><div class="line yellow w66"></div><div class="line w78"></div>
+              </div>
+            </div>
+            <div class="button">Save Improved Version</div>
+          </div>
+          <div class="bottom-nav"><div class="nav-item">Analyze</div><div class="nav-item active">Results</div><div class="nav-item">Saved</div><div class="nav-item">Pro</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="corner-note">Clear before and after without extra tools.</div>
+  </section>
+
+  <section class="shot offset-right" id="shot-4">
+    <div class="brand-row"><div class="app-icon">R</div><span>Rezumate</span></div>
+    <h1>Match the role's keywords</h1>
+    <p class="support">Find missing skills, tools, and role terms.</p>
+    <div class="stage">
+      <div class="phone">
+        <div class="screen">
+          <div class="status"><span>9:41</span><div class="ios-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
+          <div class="app">
+            <div class="topbar"><div class="logo-lockup"><div class="mini-icon">R</div>Keywords</div><div class="pill">Role fit</div></div>
+            <div class="card">
+              <div class="label-row"><div class="label">Matched terms</div><div class="tag">12 found</div></div>
+              <div class="chips">
+                <span class="chip match">Roadmap</span><span class="chip match">Research</span><span class="chip match">Launches</span><span class="chip match">Product strategy</span><span class="chip match">Customer discovery</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="label-row"><div class="label">Missing from resume</div><div class="tag">Priority</div></div>
+              <div class="keyword-row"><div><div class="keyword-title">B2B SaaS</div><div class="keyword-sub">Appears 4 times in the job post</div></div><div class="check miss">!</div></div>
+              <div class="keyword-row"><div><div class="keyword-title">Experimentation</div><div class="keyword-sub">Useful for growth product roles</div></div><div class="check miss">!</div></div>
+              <div class="keyword-row"><div><div class="keyword-title">SQL</div><div class="keyword-sub">Listed under preferred tools</div></div><div class="check miss">!</div></div>
+              <div class="keyword-row"><div><div class="keyword-title">Stakeholder alignment</div><div class="keyword-sub">Good fit for leadership bullets</div></div><div class="check miss">!</div></div>
+            </div>
+            <div class="card tight">
+              <div class="label-row"><div class="label">Suggested placement</div><div class="tag">Summary</div></div>
+              <div class="textarea small">Product manager for B2B SaaS teams, focused on experimentation, activation, and customer-led roadmap decisions.</div>
+            </div>
+          </div>
+          <div class="bottom-nav"><div class="nav-item">Analyze</div><div class="nav-item active">Results</div><div class="nav-item">Saved</div><div class="nav-item">Pro</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="corner-note">Role language, not generic buzzwords.</div>
+  </section>
+
+  <section class="shot offset-left" id="shot-5">
+    <div class="brand-row"><div class="app-icon">R</div><span>Rezumate</span></div>
+    <h1>Private by design</h1>
+    <p class="support">Optimize locally. No account required.</p>
+    <div class="stage">
+      <div class="phone">
+        <div class="screen">
+          <div class="status"><span>9:41</span><div class="ios-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
+          <div class="app">
+            <div class="topbar"><div class="logo-lockup"><div class="mini-icon">R</div>Profile</div><div class="pill">Local</div></div>
+            <h2 class="page-title">Your resume stays yours</h2>
+            <p class="page-copy">Rezumate is built for private, on-device resume optimization.</p>
+            <div class="card">
+              <div class="privacy-grid">
+                <div class="privacy-item"><div class="badge-icon">L</div><div><div class="privacy-title">On-device analysis</div><div class="privacy-sub">Resume checks run locally on iPhone.</div></div></div>
+                <div class="privacy-item"><div class="badge-icon">N</div><div><div class="privacy-title">No account required</div><div class="privacy-sub">Start tailoring without a login.</div></div></div>
+                <div class="privacy-item"><div class="badge-icon">S</div><div><div class="privacy-title">Saved locally</div><div class="privacy-sub">Variants remain in your local history.</div></div></div>
+              </div>
+            </div>
+            <div class="card tight">
+              <div class="label-row"><div class="label">Local history</div><div class="tag">3 resumes</div></div>
+              <div class="variant"><div class="doc-icon"></div><div><div class="variant-title">Product Manager</div><div class="variant-sub">Updated today</div></div><div class="mini-score">82</div></div>
+              <div class="variant"><div class="doc-icon"></div><div><div class="variant-title">Growth PM</div><div class="variant-sub">Saved yesterday</div></div><div class="mini-score">79</div></div>
+            </div>
+          </div>
+          <div class="bottom-nav"><div class="nav-item">Analyze</div><div class="nav-item">Results</div><div class="nav-item">Saved</div><div class="nav-item active">Pro</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="corner-note">Trust story, calm and concrete.</div>
+  </section>
+
+  <section class="shot offset-right" id="shot-6">
+    <div class="brand-row"><div class="app-icon">R</div><span>Rezumate</span></div>
+    <h1>Save variants. Export clean PDFs.</h1>
+    <p class="support">One-time Pro unlock. No subscription.</p>
+    <div class="stage">
+      <div class="phone">
+        <div class="screen">
+          <div class="status"><span>9:41</span><div class="ios-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
+          <div class="app">
+            <div class="topbar"><div class="logo-lockup"><div class="mini-icon">R</div>Saved</div><div class="pill">Pro</div></div>
+            <h2 class="page-title">Tailored versions</h2>
+            <p class="page-copy">Keep a clean resume for every application and export when ready.</p>
+            <div class="card">
+              <div class="variant"><div class="doc-icon"></div><div><div class="variant-title">B2B SaaS PM</div><div class="variant-sub">Stripe job post - Fit 84</div></div><div class="mini-score">PDF</div></div>
+              <div class="variant"><div class="doc-icon"></div><div><div class="variant-title">Growth Product</div><div class="variant-sub">Marketplace role - Fit 81</div></div><div class="mini-score">PDF</div></div>
+              <div class="variant"><div class="doc-icon"></div><div><div class="variant-title">Platform PM</div><div class="variant-sub">Developer tools - Fit 76</div></div><div class="mini-score">PDF</div></div>
+            </div>
+            <div class="card tight">
+              <div class="label-row"><div class="label">Rezumate Pro</div><div class="tag">One-time</div></div>
+              <div class="privacy-grid">
+                <div class="privacy-item"><div class="badge-icon">V</div><div><div class="privacy-title">Unlimited variants</div><div class="privacy-sub">Save each job-specific resume.</div></div></div>
+                <div class="privacy-item"><div class="badge-icon">P</div><div><div class="privacy-title">Clean PDF export</div><div class="privacy-sub">Send a polished version anywhere.</div></div></div>
+              </div>
+            </div>
+            <div class="button">Export PDF</div>
+          </div>
+          <div class="bottom-nav"><div class="nav-item">Analyze</div><div class="nav-item">Results</div><div class="nav-item active">Saved</div><div class="nav-item">Pro</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="corner-note">Practical paid value after the core story.</div>
+  </section>
+</body>
+</html>

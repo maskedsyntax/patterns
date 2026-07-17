@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patterns App - Ad Creatives</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- GSAP Animation Library -->
+  <script src="/gsap/gsap.min.js"></script>
+</head>
+<body>
+  <div id="video-container">
+    
+    <!-- ========================================== -->
+    <!-- CONCEPT 1: OCD Cycle vs The ERP Exit       -->
+    <!-- ========================================== -->
+    <div id="concept-1" class="concept-view hidden">
+      <!-- Background Glowing Aura -->
+      <div class="glow-bg glow-red" id="c1-glow"></div>
+      
+      <div class="header">
+        <span class="badge warning">THE OCD CYCLE</span>
+        <h1 class="main-title">Breaking The Loop</h1>
+      </div>
+      
+      <!-- Interactive Diagram Area -->
+      <div class="diagram-area">
+        <svg id="c1-svg" width="1000" height="1000" viewBox="0 0 1000 1000">
+          <defs>
+            <linearGradient id="path-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#E6B94A" stop-opacity="0.8" />
+              <stop offset="50%" stop-color="#4B5563" stop-opacity="0.5" />
+              <stop offset="100%" stop-color="#374151" stop-opacity="0.2" />
+            </linearGradient>
+            <filter id="glow-filter" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="8" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+          
+          <!-- Base circular path of the OCD loop -->
+          <path id="ocd-circle" d="M 500,200 A 300,300 0 1,1 499.9,200" fill="none" stroke="url(#path-gradient)" stroke-width="8" stroke-linecap="round" />
+          
+          <!-- Detour Path (ERP Exit) -->
+          <path id="erp-detour" d="M 800,500 C 800,650 700,750 500,780" fill="none" stroke="#F5C543" stroke-width="12" stroke-linecap="round" stroke-dasharray="15,10" class="hidden-path" />
+          
+          <!-- Glowing tracker bullet running along active lines -->
+          <circle id="tracker" r="14" fill="#F5C543" filter="url(#glow-filter)" />
+        </svg>
+        
+        <!-- Node 1: Obsession -->
+        <div class="node-card" id="node-obsession" style="top: 20%; left: 50%;">
+          <div class="node-number">1</div>
+          <div class="node-content">
+            <h3>Intrusive Thought</h3>
+            <p>Obsession strikes</p>
+          </div>
+        </div>
+        
+        <!-- Node 2: Anxiety -->
+        <div class="node-card danger" id="node-anxiety" style="top: 50%; left: 80%;">
+          <div class="node-number">2</div>
+          <div class="node-content">
+            <h3>Anxiety Spikes</h3>
+            <p>Distress reaches peak</p>
+          </div>
+        </div>
+        
+        <!-- Node 3: Compulsion -->
+        <div class="node-card" id="node-compulsion" style="top: 80%; left: 50%;">
+          <div class="node-number">3</div>
+          <div class="node-content">
+            <h3>Ritual</h3>
+            <p>Performing compulsion</p>
+          </div>
+        </div>
+        
+        <!-- Node 4: Relief -->
+        <div class="node-card" id="node-relief" style="top: 50%; left: 20%;">
+          <div class="node-number">4</div>
+          <div class="node-content">
+            <h3>Temporary Relief</h3>
+            <p>Feeds the brain's loop</p>
+          </div>
+        </div>
+        
+        <!-- ERP Node: Exit path (styled like app recovery items) -->
+        <div class="node-card success" id="node-erp" style="top: 78%; left: 50%;">
+          <div class="node-badge">ERP PRACTICE</div>
+          <div class="icon-circle gold">
+            <svg viewBox="0 0 24 24" class="clock-icon"><path fill="currentColor" d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm0-1.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13ZM12.5 7v5.25l4.5 2.25-.75 1.2-5.25-2.7V7h1.5Z"/></svg>
+          </div>
+          <div class="node-content">
+            <h3>Compulsion Delay</h3>
+            <p>Resist the urge, ride the wave.</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Outro Overlay / CTA Card styled exactly like home screen from actual app -->
+      <div class="outro-overlay" id="c1-outro">
+        <div class="phone-frame">
+          <div class="phone-island"></div>
+          <div class="phone-screen">
+            <!-- Status Bar -->
+            <div class="phone-status-bar">
+              <span>4:13</span>
+              <div class="status-icons">
+                <span>•••</span>
+                <svg class="wifi-icon" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c3.9-3.9 10.2-3.9 14.1 0l1.38-1.79C21.06 16.07 21.8 14.12 21.8 12c0-4.97-4.03-9-9-9Z"/></svg>
+                <svg class="battery-icon" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M17 5H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z"/></svg>
+              </div>
+            </div>
+            
+            <!-- Header Row -->
+            <div class="app-header-row">
+              <div>
+                <h2 class="app-greeting">Good afternoon</h2>
+                <p class="app-subgreeting">You've got this. One choice at a time.</p>
+              </div>
+              <div class="streak-badge">
+                <span class="streak-icon">🔥</span>
+                <span class="streak-num">0</span>
+              </div>
+            </div>
+            
+            <!-- Recovery Score Card (Image 2) -->
+            <div class="app-card">
+              <div class="card-columns">
+                <div class="ring-container">
+                  <svg class="progress-ring" width="90" height="90">
+                    <circle class="ring-bg" cx="45" cy="45" r="36"/>
+                    <circle class="ring-indicator" cx="45" cy="45" r="36"/>
+                  </svg>
+                  <div class="ring-text">
+                    <span class="ring-score">82</span>
+                    <span class="ring-label">Strong</span>
+                  </div>
+                </div>
+                <div class="card-details">
+                  <span class="card-label">RECOVERY SCORE</span>
+                  <h4 class="card-title">Steady progress</h4>
+                  <p class="card-desc">You're showing up and building new patterns.</p>
+                  <span class="card-stat success">41 pts up from last period</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Continue your practice Card (Image 2) -->
+            <div class="app-card">
+              <span class="section-title">Continue your practice</span>
+              <div class="practice-row">
+                <div class="icon-circle">
+                  <svg viewBox="0 0 24 24" class="clock-icon"><path fill="currentColor" d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm0-1.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13ZM12.5 7v5.25l4.5 2.25-.75 1.2-5.25-2.7V7h1.5Z"/></svg>
+                </div>
+                <div class="practice-details">
+                  <h4>Compulsion Delay</h4>
+                  <p>Resist the urge, ride the wave.</p>
+                  <div class="progress-line-container">
+                    <div class="progress-line-fill"></div>
+                  </div>
+                  <span class="progress-time-text">15:00 / 15:00</span>
+                </div>
+                <button class="resume-btn">Resume</button>
+              </div>
+            </div>
+            
+            <!-- Quick Actions Mock (Image 2) -->
+            <div class="quick-actions-row">
+              <div class="action-tile">
+                <div class="tile-header">
+                  <span class="tile-icon">📝</span>
+                  <span class="tile-arrow">›</span>
+                </div>
+                <h4>Journal</h4>
+                <p>Write it out, get it clear.</p>
+              </div>
+              <div class="action-tile">
+                <div class="tile-header">
+                  <span class="tile-icon">🎯</span>
+                  <span class="tile-arrow">›</span>
+                </div>
+                <h4>Start ERP Practice</h4>
+                <p>Build tolerance step by step.</p>
+              </div>
+            </div>
+            
+            <!-- Tab Bar -->
+            <div class="phone-tab-bar">
+              <div class="tab-item active">
+                <span class="tab-icon">🏠</span>
+                <span class="tab-label">Home</span>
+              </div>
+              <div class="tab-item">
+                <span class="tab-icon">📖</span>
+                <span class="tab-label">Journal</span>
+              </div>
+              <div class="tab-item">
+                <span class="tab-icon">⦿</span>
+                <span class="tab-label">Track</span>
+              </div>
+              <div class="tab-item">
+                <span class="tab-icon">🧘</span>
+                <span class="tab-label">Recovery</span>
+              </div>
+              <div class="tab-item">
+                <span class="tab-icon">📊</span>
+                <span class="tab-label">Insights</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="cta-overlay-details">
+          <h2 class="cta-title">Break the Loop.</h2>
+          <p class="cta-subtitle">Log triggers. Track hierarchies. Practice sitting with the urge. Fully secure and private.</p>
+          <div class="download-button gold-btn">
+            <svg viewBox="0 0 24 24" class="store-icon"><path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C3.79 16.32 4.67 9.07 9.35 8.9c1.4.05 2.25.79 3.06.78.8-.02 1.95-.9 3.56-.7 1.63.2 2.76.99 3.39 2.02-3.3 1.98-2.5 6.64.67 7.9-.66 1.7-1.37 3.39-2.98 3.38m-3.04-12.8c.88-1.08 1.48-2.57 1.22-4.08-1.33.11-2.98.97-3.83 2.01-.76.9-1.37 2.45-1.12 3.92 1.48.1 2.9-.76 3.73-1.85Z"/></svg>
+            <span>Download Patterns</span>
+          </div>
+          <div class="privacy-note">No Accounts. No Subscriptions. No Data Leaves Your Device.</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ========================================== -->
+    <!-- CONCEPT 2: SUDS Distress Graph             -->
+    <!-- ========================================== -->
+    <div id="concept-2" class="concept-view hidden">
+      <div class="glow-bg glow-orange" id="c2-glow"></div>
+      
+      <div class="header">
+        <span class="badge info">EXPOSURE & RESPONSE PREVENTION</span>
+        <h1 class="main-title">How Distress Fades</h1>
+      </div>
+      
+      <!-- Graph Canvas/SVG Area -->
+      <div class="graph-area">
+        <div class="y-axis-label">SUDS Distress Score (0 - 10)</div>
+        <div class="x-axis-label">Time (Minutes)</div>
+        
+        <svg id="c2-svg" width="900" height="900" viewBox="0 0 900 900">
+          <defs>
+            <linearGradient id="chart-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#E05D5D" />
+              <stop offset="25%" stop-color="#F5C543" />
+              <stop offset="60%" stop-color="#4EB586" />
+              <stop offset="100%" stop-color="#4EB586" />
+            </linearGradient>
+            
+            <linearGradient id="area-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#F5C543" stop-opacity="0.12" />
+              <stop offset="100%" stop-color="#F5C543" stop-opacity="0.0" />
+            </linearGradient>
+          </defs>
+          
+          <!-- Drawing Grid Lines -->
+          <g class="grid-lines" id="graph-grid"></g>
+          
+          <!-- Axis Lines -->
+          <line x1="100" y1="800" x2="850" y2="800" stroke="#2C2C28" stroke-width="4" stroke-linecap="round" />
+          <line x1="100" y1="100" x2="100" y2="800" stroke="#2C2C28" stroke-width="4" stroke-linecap="round" />
+          
+          <!-- Y-Axis Ticks & Labels -->
+          <g class="axis-ticks y-ticks"></g>
+          
+          <!-- X-Axis Ticks & Labels -->
+          <g class="axis-ticks x-ticks"></g>
+          
+          <!-- Filled area under the curve -->
+          <path id="graph-area-path" fill="url(#area-gradient)" d="" />
+          
+          <!-- Main animated SUDS line -->
+          <path id="graph-line" fill="none" stroke="url(#chart-gradient)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+          
+          <!-- Tracker point riding the wave -->
+          <circle id="graph-tracker" r="16" fill="#F5C543" filter="url(#glow-filter)" />
+        </svg>
+        
+        <!-- Interactive Tooltips (styled exactly like app cards) -->
+        <div class="graph-tooltip danger" id="tooltip-spike" style="top: 25%; left: 32%;">
+          <div class="tooltip-arrow"></div>
+          <div class="tooltip-title">9/10 SUDS: Peak Urge</div>
+          <div class="tooltip-desc">"Urge to wash hands/check door"</div>
+        </div>
+        
+        <div class="graph-tooltip success" id="tooltip-habituate" style="top: 73%; left: 80%;">
+          <div class="tooltip-arrow"></div>
+          <div class="tooltip-title">2/10: Habituation</div>
+          <div class="tooltip-desc">The anxiety peaks and fades naturally</div>
+        </div>
+      </div>
+      
+      <!-- Outro Overlay / CTA Card styled exactly like Insights tab of actual app -->
+      <div class="outro-overlay" id="c2-outro">
+        <div class="phone-frame">
+          <div class="phone-island"></div>
+          <div class="phone-screen">
+            <!-- Status Bar -->
+            <div class="phone-status-bar">
+              <span>4:12</span>
+              <div class="status-icons">
+                <span>•••</span>
+                <svg class="wifi-icon" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c3.9-3.9 10.2-3.9 14.1 0l1.38-1.79C21.06 16.07 21.8 14.12 21.8 12c0-4.97-4.03-9-9-9Z"/></svg>
+                <svg class="battery-icon" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M17 5H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z"/></svg>
+              </div>
+            </div>
+            
+            <!-- Insights Title -->
+            <div class="app-header-row">
+              <div>
+                <h2 class="app-greeting">Insights</h2>
+              </div>
+            </div>
+            
+            <!-- Insights Tabs (Image 1) -->
+            <div class="insights-tabs">
+              <span class="tab-btn active">Overview</span>
+              <span class="tab-btn">Thoughts</span>
+              <span class="tab-btn">Urges</span>
+              <span class="tab-btn">ERP</span>
+            </div>
+            
+            <!-- Mood over time Card (Image 1) -->
+            <div class="app-card">
+              <div class="card-header-with-legend">
+                <span class="card-label">Mood over time</span>
+                <div class="legend-labels">
+                  <span class="legend-dot green"></span><span>Good</span>
+                  <span class="legend-dot yellow"></span><span>Okay</span>
+                  <span class="legend-dot red"></span><span>Low</span>
+                </div>
+              </div>
+              <div class="mood-chart-container">
+                <svg viewBox="0 0 320 120" class="mood-svg">
+                  <line x1="10" y1="90" x2="310" y2="90" stroke="#2C2C28" stroke-width="1" stroke-dasharray="3,3"/>
+                  <path d="M 10 90 L 50 85 L 90 90 L 130 85 L 170 70 L 210 90 L 250 50 L 310 75" fill="none" stroke="#E6B94A" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="10" cy="90" r="5" fill="#E05D5D"/>
+                  <circle cx="50" cy="85" r="5" fill="#E6B94A"/>
+                  <circle cx="90" cy="90" r="5" fill="#E6B94A"/>
+                  <circle cx="130" cy="85" r="5" fill="#E6B94A"/>
+                  <circle cx="170" cy="70" r="5" fill="#E6B94A"/>
+                  <circle cx="210" cy="90" r="5" fill="#4EB586"/>
+                  <circle cx="250" cy="50" r="5" fill="#4EB586"/>
+                  <circle cx="310" cy="75" r="5" fill="#4EB586"/>
+                </svg>
+                <div class="chart-dates">
+                  <span>Jun 15</span>
+                  <span>Jul 11</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Top themes Card (Image 3) -->
+            <div class="app-card">
+              <span class="card-label">Top themes</span>
+              <div class="themes-list">
+                <div class="theme-item">
+                  <div class="theme-info">
+                    <span class="theme-icon red">❓</span>
+                    <span class="theme-name">Uncertainty</span>
+                  </div>
+                  <div class="theme-progress-container">
+                    <div class="theme-progress-bar red" style="width: 100%"></div>
+                  </div>
+                  <span class="theme-pct">100%</span>
+                </div>
+                <div class="theme-item">
+                  <div class="theme-info">
+                    <span class="theme-icon orange">✓</span>
+                    <span class="theme-name">Checking</span>
+                  </div>
+                  <div class="theme-progress-container">
+                    <div class="theme-progress-bar orange" style="width: 74%"></div>
+                  </div>
+                  <span class="theme-pct">74%</span>
+                </div>
+                <div class="theme-item">
+                  <div class="theme-info">
+                    <span class="theme-icon blue">💬</span>
+                    <span class="theme-name">Reassurance</span>
+                  </div>
+                  <div class="theme-progress-container">
+                    <div class="theme-progress-bar blue" style="width: 71%"></div>
+                  </div>
+                  <span class="theme-pct">71%</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Tab Bar -->
+            <div class="phone-tab-bar">
+              <div class="tab-item">
+                <span class="tab-icon">🏠</span>
+                <span class="tab-label">Home</span>
+              </div>
+              <div class="tab-item">
+                <span class="tab-icon">📖</span>
+                <span class="tab-label">Journal</span>
+              </div>
+              <div class="tab-item">
+                <span class="tab-icon">⦿</span>
+                <span class="tab-label">Track</span>
+              </div>
+              <div class="tab-item">
+                <span class="tab-icon">🧘</span>
+                <span class="tab-label">Recovery</span>
+              </div>
+              <div class="tab-item active">
+                <span class="tab-icon">📊</span>
+                <span class="tab-label">Insights</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="cta-overlay-details">
+          <h2 class="cta-title">Watch Distress Shrink.</h2>
+          <p class="cta-subtitle">Log your triggers. Track hierarchies. Spot your recovery progress. 100% offline & secure.</p>
+          <div class="download-button gold-btn">
+            <svg viewBox="0 0 24 24" class="store-icon"><path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C3.79 16.32 4.67 9.07 9.35 8.9c1.4.05 2.25.79 3.06.78.8-.02 1.95-.9 3.56-.7 1.63.2 2.76.99 3.39 2.02-3.3 1.98-2.5 6.64.67 7.9-.66 1.7-1.37 3.39-2.98 3.38m-3.04-12.8c.88-1.08 1.48-2.57 1.22-4.08-1.33.11-2.98.97-3.83 2.01-.76.9-1.37 2.45-1.12 3.92 1.48.1 2.9-.76 3.73-1.85Z"/></svg>
+            <span>Download Patterns</span>
+          </div>
+          <div class="privacy-note">No Accounts. No Subscriptions. No Data Leaves Your Device.</div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  <script src="app.js"></script>
+  <script src="concept1-v2.js"></script>
+  <script src="concept1-v3.js"></script>
+  <script src="concept1-v4.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "patterns-ad-generator",
+  "version": "1.0.0",
+  "description": "Programmatic video generator for Patterns app ads",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "export:concept1": "node capture.js --concept=1",
+    "export:concept2": "node capture.js --concept=2"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "gsap": "^3.15.0",
+    "puppeteer": "^22.12.0"
+  }
+}

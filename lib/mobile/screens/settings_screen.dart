@@ -14,6 +14,7 @@ import '../../providers/providers.dart';
 import '../../services/material_file_store.dart';
 import '../../services/notification_service.dart';
 import '../../services/pro_service.dart';
+import '../../services/pro_pairing_service.dart';
 import '../../services/review_prompt.dart';
 import '../../services/tip_jar.dart';
 import '../../theme/app_theme.dart';
@@ -24,6 +25,7 @@ import '../../widgets/paywall_sheet.dart';
 import '../../widgets/platform.dart';
 import '../../widgets/tip_jar_sheet.dart';
 import '../biometric_auth.dart';
+import '../main_shell.dart' show tourRequestProvider;
 import '../preferences.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -150,7 +152,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              if (ref.watch(proProvider))
+              if (ref.watch(proProvider)) ...[
                 _SettingsItem(
                   icon: LineIcons.checkCircle,
                   title: 'Patterns Pro is active',
@@ -160,7 +162,15 @@ class SettingsScreen extends ConsumerWidget {
                     'Patterns Pro is active on this device.',
                     type: ToastType.success,
                   ),
-                )
+                ),
+                const SizedBox(height: 10),
+                _SettingsItem(
+                  icon: LineIcons.desktop,
+                  title: 'Link Desktop App',
+                  subtitle: 'Display your offline code to link with desktop',
+                  onTap: () => _showDesktopLinkingDialog(context),
+                ),
+              ]
               else
                 _SettingsItem(
                   icon: LineIcons.unlock,
@@ -183,6 +193,44 @@ class SettingsScreen extends ConsumerWidget {
                 },
               ),
             ],
+            const SizedBox(height: 28),
+            Text(
+              'Help',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _SettingsItem(
+              icon: LineIcons.compass,
+              title: 'Replay the app tour',
+              subtitle: 'Walk through what each tab does again',
+              onTap: () {
+                mobilePreferences?.setBool(tabTourSeenKey, false);
+                final container = ProviderScope.containerOf(
+                  context,
+                  listen: false,
+                );
+                Navigator.of(context).pop();
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  container.read(tourRequestProvider.notifier).request();
+                });
+              },
+            ),
+            const SizedBox(height: 10),
+            _SettingsItem(
+              icon: LineIcons.lightbulb,
+              title: 'Show the welcome screens',
+              subtitle: 'See the intro again next time you open Patterns',
+              onTap: () {
+                mobilePreferences?.setBool(hasStartedKey, false);
+                showAppSnackBar(
+                  context,
+                  'The welcome screens will show next time you open Patterns.',
+                  type: ToastType.info,
+                );
+              },
+            ),
             const SizedBox(height: 28),
             Text(
               'Feedback',
@@ -209,6 +257,96 @@ class SettingsScreen extends ConsumerWidget {
           ], maxSteps: 6),
         ),
       ),
+    );
+  }
+
+  void _showDesktopLinkingDialog(BuildContext context) {
+    final otp = ProPairingService.generateOfflineOTP();
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        final theme = Theme.of(dialogContext);
+        return AlertDialog(
+          backgroundColor: theme.colorScheme.surface,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(color: theme.dividerColor),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.desktop_mac_rounded, color: theme.colorScheme.primary, size: 24),
+              const SizedBox(width: 12),
+              const Text('Link Desktop App'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'To link your Patterns Pro purchase with the desktop app:',
+                style: TextStyle(fontSize: 13, color: theme.colorScheme.onSurface.withOpacity(0.7)),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Option 1: Scan QR Code',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Open the Paywall sheet on desktop, choose "Scan QR Code", and scan it with your phone\'s built-in system camera app.',
+                style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurface.withOpacity(0.55), height: 1.3),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Option 2: Enter Offline Code',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'On desktop, choose "Enter Code" and type in this code:',
+                style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurface.withOpacity(0.55), height: 1.3),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: theme.cardTheme.color,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: theme.dividerColor),
+                ),
+                child: Text(
+                  '${otp.substring(0, 3)} ${otp.substring(3)}',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 4,
+                    color: theme.colorScheme.primary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'This code expires in 5 minutes.',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontStyle: FontStyle.italic,
+                  color: theme.colorScheme.onSurface.withOpacity(0.4),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
     );
   }
 

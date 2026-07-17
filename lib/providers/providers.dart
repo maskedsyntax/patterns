@@ -598,3 +598,32 @@ final exposureMaterialProvider =
     AsyncNotifierProvider<ExposureMaterialNotifier, List<ExposureMaterial>>(() {
       return ExposureMaterialNotifier();
     });
+
+// Y-BOCS Self-Check (free)
+class YbocsAssessmentNotifier extends AsyncNotifier<List<YbocsAssessment>> {
+  @override
+  Future<List<YbocsAssessment>> build() async {
+    return await DbHelper.instance.getYbocsAssessments();
+  }
+
+  Future<void> add(YbocsAssessment assessment) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await DbHelper.instance.insertYbocsAssessment(assessment);
+      return await DbHelper.instance.getYbocsAssessments();
+    });
+  }
+
+  Future<void> delete(int id) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await DbHelper.instance.deleteYbocsAssessment(id);
+      return await DbHelper.instance.getYbocsAssessments();
+    });
+  }
+}
+
+final ybocsAssessmentProvider =
+    AsyncNotifierProvider<YbocsAssessmentNotifier, List<YbocsAssessment>>(() {
+      return YbocsAssessmentNotifier();
+    });

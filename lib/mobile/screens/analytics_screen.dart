@@ -16,7 +16,6 @@ import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 import '../../widgets/export_report_sheet.dart';
 import '../../widgets/platform.dart';
-import '../widgets/section_intro.dart';
 import 'recovery_metrics_screen.dart';
 
 enum _InsightTab { overview, thoughts, urges, erp }
@@ -107,7 +106,6 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                 ),
               ),
               const SizedBox(height: 14),
-              const SectionIntro(id: 'insights'),
               FadeSlideIn(
                 delay: const Duration(milliseconds: 50),
                 child: _InsightSegmentedControl(

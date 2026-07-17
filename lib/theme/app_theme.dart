@@ -12,11 +12,12 @@ class AppTheme {
   ); // Darker Amber (unused, kept for reference)
 
   // Refined Dark Palette
-  static const Color darkBg = Color(0xFF000000);
-  static const Color darkSurface = Color(0xFF000000);
-  static const Color darkTextPrimary = Color(0xFFF5F5F7);
-  static const Color darkTextSecondary = Color(0xFF86868B);
-  static const Color darkBorder = Color(0xFF2C2C2E);
+  static const Color darkBg = Color(0xFF161616);
+  static const Color darkSurface = Color(0xFF121212);
+  static const Color darkCard = Color(0xFF222222);
+  static const Color darkTextPrimary = Color(0xFFFFFFFF);
+  static const Color darkTextSecondary = Color(0xFF8E8E93);
+  static const Color darkBorder = Color(0xFF262626);
 
   // Mobile palette (used by lib/mobile/* screens and the mobile themes
   // below). The desktop palette above is kept verbatim.
@@ -273,10 +274,10 @@ class AppTheme {
       fontFamily: 'Manrope',
     ),
     cardTheme: CardThemeData(
-      color: darkSurface,
+      color: darkCard,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         side: const BorderSide(color: darkBorder, width: 1),
       ),
     ),
@@ -334,6 +335,20 @@ class AppTheme {
         borderSide: const BorderSide(color: primaryYellow, width: 2.0),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith<Color?>((states) {
+        return Colors.white;
+      }),
+      trackColor: WidgetStateProperty.resolveWith<Color?>((states) {
+        if (states.contains(WidgetState.selected)) {
+          return const Color(0xFF007AFF);
+        }
+        return const Color(0xFF39393C);
+      }),
+      trackOutlineColor: WidgetStateProperty.resolveWith<Color?>((states) {
+        return Colors.transparent;
+      }),
     ),
     snackBarTheme: _snackBarTheme(darkSurface, darkTextPrimary, darkBorder),
   );

@@ -1,0 +1,199 @@
+PATTERNS - 10 LINKEDIN POSTS
+Story-driven, plain language, no clinical jargon. Post one every few days, not all at once.
+Every post ends with the website, App Store, Play Store, and Ko-fi links.
+
+======================================================================
+POST 1 - The origin story
+======================================================================
+
+For years I could not leave my house without checking the door lock three or four times.
+
+Not because I forgot if I had locked it. I knew I had. But knowing was not the same as feeling sure, and that gap between knowing and feeling sure ran my entire day.
+
+That is what OCD actually looks like for a lot of people. Not neatness. Not liking things a certain way. It is getting stuck in a loop your body will not let you leave, even after your mind has already answered the question.
+
+I could not find an app that treated this the way a therapist would. Most wanted me to log a mood and call it a day. What actually helped me was something called exposure and response prevention, ERP for short. It sounds clinical but it is simple: face the thing you are avoiding in small steps instead of one big leap, and practice not doing the compulsive thing afterward.
+
+I built Patterns to turn that into something I could do on my own phone, on my own time, with nobody watching.
+
+It started as something I needed for myself. Turns out a lot of people carry a version of this loop, whether it gets labeled OCD, anxiety, or just "I cannot let this go." If that sounds familiar, the app is free to start.
+
+Website: patternsocd.com
+App Store: https://apps.apple.com/us/app/patterns-ocd-erp-journal/id6762611172
+Play Store: https://play.google.com/store/apps/details?id=com.maskedsyntax.patterns
+Support the project: ko-fi.com/aftaabsiddiqui
+
+======================================================================
+POST 2 - You don't need a diagnosis for this
+======================================================================
+
+You do not need a diagnosis to know the feeling of your chest going tight before you have even figured out why.
+
+You do not need a diagnosis to replay a conversation from three days ago wondering if you said the wrong thing.
+
+You do not need a diagnosis to avoid a place, a person, a phone call, because some part of you has decided it is not safe, even when you cannot explain why.
+
+I built Patterns while dealing with OCD, so a lot of the early features were shaped by that. But the more people used it, the more I heard from people who did not have an OCD diagnosis at all. People with panic attacks. People with a phobia they had been quietly working around for a decade. People who just called it "my anxiety" and never thought much more about it.
+
+Turns out the tools that help you sit with an intrusive thought without acting on it are the same tools that help you sit with a panic spike without running from it. The mechanism is the same. Your brain sends an alarm, your body wants to do something about it right now, and the skill is learning you can let the alarm ring without obeying it.
+
+You do not need the right label to start. You just need somewhere to practice.
+
+Website: patternsocd.com
+App Store: https://apps.apple.com/us/app/patterns-ocd-erp-journal/id6762611172
+Play Store: https://play.google.com/store/apps/details?id=com.maskedsyntax.patterns
+Support the project: ko-fi.com/aftaabsiddiqui
+
+======================================================================
+POST 3 - The "ladder" nobody explains in plain English
+======================================================================
+
+Therapists call it an exposure hierarchy. It sounds like homework. It is actually one of the simplest ideas in mental health, badly named.
+
+Here is what it really is: you make a list of the things you avoid, from mildly uncomfortable to nearly unbearable. Then you start at the bottom, not the top.
+
+Scared of driving on the highway. Start with sitting in the parked car. Then driving one exit. Then two.
+
+Scared of germs. Start with touching a doorknob and waiting five minutes before washing your hands. Then ten.
+
+Scared of a difficult conversation. Start with writing the first sentence you would say, even if you never send it.
+
+You are not trying to prove you are brave. You are trying to teach your nervous system, one small rep at a time, that the thing it is so sure will destroy you actually will not.
+
+I added a builder for exactly this in Patterns because I kept doing it on paper and losing the paper. Now it just lives in your pocket, ranked in the order you actually need to face it.
+
+No therapist required to start. Just a willingness to begin at the bottom instead of the top.
+
+Website: patternsocd.com
+App Store: https://apps.apple.com/us/app/patterns-ocd-erp-journal/id6762611172
+Play Store: https://play.google.com/store/apps/details?id=com.maskedsyntax.patterns
+Support the project: ko-fi.com/aftaabsiddiqui
+
+======================================================================
+POST 4 - Why there is no login screen
+======================================================================
+
+Patterns has no sign up page. No email, no password, no account of any kind.
+
+This was not a technical shortcut. It was a decision.
+
+The things people log in this app are not casual. Intrusive thoughts they have never said out loud. What their compulsions actually look like. How bad a panic attack got and what triggered it. This is some of the most private information a person has.
+
+I did not want to be the person holding a database of that. I did not want a breach, a subpoena, an acquisition, or a bad day at some company to be the reason someone's private mental health notes ended up somewhere they did not choose.
+
+So everything stays on your device. If you want a backup, you export it yourself. If you switch phones, you carry the file over yourself. Nothing syncs to a server because there is no server to sync to.
+
+It is slightly less convenient than the alternative. I think that is a fair trade for something this personal.
+
+Website: patternsocd.com
+App Store: https://apps.apple.com/us/app/patterns-ocd-erp-journal/id6762611172
+Play Store: https://play.google.com/store/apps/details?id=com.maskedsyntax.patterns
+Support the project: ko-fi.com/aftaabsiddiqui
+
+======================================================================
+POST 5 - Building this in the open
+======================================================================
+
+Patterns is open source. Anyone can read every line of code that touches your data and see for themselves that it does what I say it does.
+
+I did not do this to make a statement. I did it because I would not trust a mental health app built by a stranger unless I could check its homework, so I am not going to ask anyone else to trust mine without the same option.
+
+Being open also means the roadmap is not just me guessing what people need. Some of the biggest features in the last release came directly from people using the free version and telling me what was missing. Not a survey, not a focus group, just people describing their actual struggle and me realizing the app did not have an answer for it yet.
+
+That is still how most of this gets built. I am one person, and the people using this app understand OCD and anxiety a lot better than any product roadmap I could have written alone.
+
+Website: patternsocd.com
+App Store: https://apps.apple.com/us/app/patterns-ocd-erp-journal/id6762611172
+Play Store: https://play.google.com/store/apps/details?id=com.maskedsyntax.patterns
+Support the project: ko-fi.com/aftaabsiddiqui
+
+======================================================================
+POST 6 - Why I chose one price instead of a subscription
+======================================================================
+
+Most apps in this space want a monthly fee. I get why, recurring revenue is the entire business model of modern software.
+
+I did not want that here.
+
+If you are dealing with OCD or anxiety, money is often already a source of stress. The idea of adding a recurring charge to someone's life, something that quietly drains their account every month whether they open the app or not, felt wrong for what this app is trying to do.
+
+So the deeper tools in Patterns are a one time purchase. You pay once, you own it, it is yours for good. No renewal, no "your subscription is about to expire" email designed to create urgency.
+
+The core tools stay free permanently, no trial period, no countdown. If someone can only afford the free version, they still get real tools, not a demo.
+
+I would rather build something people can actually keep than something that only works as long as they keep paying for it.
+
+Website: patternsocd.com
+App Store: https://apps.apple.com/us/app/patterns-ocd-erp-journal/id6762611172
+Play Store: https://play.google.com/store/apps/details?id=com.maskedsyntax.patterns
+Support the project: ko-fi.com/aftaabsiddiqui
+
+======================================================================
+POST 7 - What I got wrong before people told me
+======================================================================
+
+Early versions of Patterns were basically a tracker. Log your mood, log your triggers, look at a graph.
+
+Turns out a graph does not help you in the moment your chest is tight and you are standing outside a door you cannot make yourself walk through.
+
+People told me this directly. Not in a survey, in actual comments and messages, some of them from people I have never met who were kind enough to describe exactly what was missing. What they needed was not more data about the problem. They needed something to do right now, in the fifteen seconds before a compulsion or a panic response takes over.
+
+So the app changed. Grounding tools you can open in one tap. A way to put a timer between the urge and the action, so you can watch the urge rise and actually fall on its own, which is something almost nobody believes will happen until they see it happen. A library of things to try that is not fifty pages of theory.
+
+I am genuinely grateful to the people who took the time to tell me the tracker was not enough. They were right, and the app is better because they said something.
+
+Website: patternsocd.com
+App Store: https://apps.apple.com/us/app/patterns-ocd-erp-journal/id6762611172
+Play Store: https://play.google.com/store/apps/details?id=com.maskedsyntax.patterns
+Support the project: ko-fi.com/aftaabsiddiqui
+
+======================================================================
+POST 8 - The stuff nobody puts in movies
+======================================================================
+
+OCD in movies is a character who lines up pencils and washes their hands a lot.
+
+Real OCD, for a lot of people, is much stranger and much harder to say out loud. It can be a violent thought about someone you love, that horrifies you precisely because you would never act on it. It can be endlessly needing to know you did not do something wrong, checking a memory over and over like rewinding a tape. It can be needing a thing to feel "just right" with no way to explain what that means to someone who does not have it.
+
+None of that makes it into the tidy version. Which means a lot of people who have it do not recognize it, and spend years thinking they are just a bad person, or too anxious, or "too much," instead of understanding they have a very treatable condition with a name.
+
+If any of this sounds like something you have never said out loud to anyone, you are not the only one. I built Patterns partly because I needed to hear that myself.
+
+Website: patternsocd.com
+App Store: https://apps.apple.com/us/app/patterns-ocd-erp-journal/id6762611172
+Play Store: https://play.google.com/store/apps/details?id=com.maskedsyntax.patterns
+Support the project: ko-fi.com/aftaabsiddiqui
+
+======================================================================
+POST 9 - Building this while not always doing great myself
+======================================================================
+
+I want to be honest about something. I have built most of this app while still dealing with the exact thing it is meant to help with.
+
+There have been stretches where replying to a message took me days longer than it should have, not because I did not care, but because some weeks the loop in my own head was loud enough that everything else got harder to do. There have been nights I worked on a feature for people managing anxiety while managing my own.
+
+I am not saying this for sympathy. I am saying it because I think there is a strange kind of dishonesty in presenting a mental health app as something built from a place of total stability. It was not. It still is not, some days.
+
+If you are building something, or recovering from something, or both at once like I am, you do not have to wait until you have it fully figured out to start. I built an app while still figuring mine out. It is not finished. Neither am I.
+
+Website: patternsocd.com
+App Store: https://apps.apple.com/us/app/patterns-ocd-erp-journal/id6762611172
+Play Store: https://play.google.com/store/apps/details?id=com.maskedsyntax.patterns
+Support the project: ko-fi.com/aftaabsiddiqui
+
+======================================================================
+POST 10 - Where this goes from here
+======================================================================
+
+Patterns started as a tool I built for myself because I could not find one that worked. It is now used by people managing OCD, panic disorder, phobias, and anxiety that never got a formal name at all.
+
+It is free to start, it does not require an account, and the deeper tools are a one time purchase, not a subscription. It runs on iOS, Android, macOS, Windows, and Linux, and it is open source if you want to see exactly how it works.
+
+None of this replaces a therapist. What it can do is give you somewhere to practice between sessions, or somewhere to start if therapy is not accessible to you right now, which for a lot of people it is not.
+
+If you have read any of the posts I have shared about why I built this, thank you. If you know someone who needs somewhere to start, this is a fine place to send them.
+
+Website: patternsocd.com
+App Store: https://apps.apple.com/us/app/patterns-ocd-erp-journal/id6762611172
+Play Store: https://play.google.com/store/apps/details?id=com.maskedsyntax.patterns
+Support the project: ko-fi.com/aftaabsiddiqui

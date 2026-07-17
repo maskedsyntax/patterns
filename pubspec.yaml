@@ -60,6 +60,8 @@ dependencies:
   record: ^6.2.1
   audioplayers: ^6.7.1
   archive: ^3.6.1
+  qr_flutter: ^4.1.0
+  crypto: ^3.0.7
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.4
@@ -87,6 +89,7 @@ flutter:
 
   assets:
     - assets/logo.png
+    - assets/recovery_path_bg.jpg
     # Loaded directly via rootBundle by PdfReportService for PDF export.
     - assets/fonts/Manrope-Regular.ttf
     - assets/fonts/Manrope-Bold.ttf

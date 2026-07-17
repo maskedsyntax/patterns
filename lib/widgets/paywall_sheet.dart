@@ -1,25 +1,46 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '../services/pro_service.dart';
+import '../services/pro_pairing_service.dart';
 import '../theme/app_theme.dart';
+import '../app_preferences.dart';
 import 'app_snack_bar.dart';
+import 'platform.dart';
 
-/// Bottom sheet that sells the one-time "Patterns Pro" unlock. Mirrors the tip
-/// jar sheet's layout and purchase-lifecycle handling, but for a single
-/// non-consumable product plus a Restore action.
+/// Bottom sheet that sells the one-time "Patterns Pro" unlock.
+/// On desktop or when StoreKit is unavailable, it transitions to a premium
+/// QR-based Local Wi-Fi Pairing Dashboard and offline 6-digit OTP code entry.
 class PaywallSheet extends StatefulWidget {
   const PaywallSheet({super.key});
 
   static Future<void> show(BuildContext context) {
+    const child = PaywallSheet();
+    if (kIsDesktop) {
+      return showDialog<void>(
+        context: context,
+        useRootNavigator: true,
+        builder: (_) => Dialog(
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 48,
+            vertical: 24,
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520, maxHeight: 720),
+            child: child,
+          ),
+        ),
+      );
+    }
     return showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) => const PaywallSheet(),
+      builder: (_) => child,
     );
   }
 
@@ -43,20 +64,55 @@ class _PaywallSheetState extends State<PaywallSheet> {
   bool _purchaseInFlight = false;
   StreamSubscription<ProEvent>? _eventSub;
 
+  // Desktop Local Pairing variables
+  String? _desktopPairingPayload;
+  StreamSubscription<bool>? _pairingSub;
+  final _otpController = TextEditingController();
+  bool _isEnteringOtp = false;
+
   @override
   void initState() {
     super.initState();
     _eventSub = ProService.events.listen(_onEvent);
     _loadProduct();
+    if (kIsDesktop || !ProService.isPlatformSupported) {
+      _startDesktopPairing();
+    }
   }
 
   @override
   void dispose() {
     _eventSub?.cancel();
+    _pairingSub?.cancel();
+    _otpController.dispose();
+    if (kIsDesktop || !ProService.isPlatformSupported) {
+      ProPairingService.stopDesktopServer();
+    }
     super.dispose();
   }
 
+  void _startDesktopPairing() async {
+    final payload = await ProPairingService.startDesktopServer();
+    if (mounted) {
+      setState(() {
+        _desktopPairingPayload = payload;
+      });
+    }
+    _pairingSub = ProPairingService.onPairingSuccess.listen((success) {
+      if (success && mounted) {
+        Navigator.pop(context);
+        _showUnlockedDialog(context, restored: false);
+      }
+    });
+  }
+
   Future<void> _loadProduct() async {
+    if (kIsDesktop || !ProService.isPlatformSupported) {
+      setState(() {
+        _loading = false;
+      });
+      return;
+    }
     setState(() {
       _loading = true;
       _loadError = null;
@@ -86,9 +142,6 @@ class _PaywallSheetState extends State<PaywallSheet> {
     }
   }
 
-  /// Loads the product, retrying a few times with short backoff to ride out
-  /// transient store failures. Returns null only if every attempt came back
-  /// empty; rethrows if the final attempt errored.
   Future<ProductDetails?> _fetchProductWithRetry() async {
     const maxAttempts = 3;
     for (var attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -103,81 +156,54 @@ class _PaywallSheetState extends State<PaywallSheet> {
     return null;
   }
 
-  /// Applies a load result, falling back to the last cached product so a
-  /// transient failure still shows a usable price instead of an error.
-  void _applyProduct(
-    ProductDetails? product, {
-    required String unavailableMessage,
-  }) {
-    if (!mounted) return;
-    final resolved = product ?? ProService.cachedProduct;
-    setState(() {
-      _loading = false;
-      if (resolved != null) {
-        _product = resolved;
-        _loadError = null;
-      } else {
-        _loadError = unavailableMessage;
-      }
-    });
+  void _applyProduct(ProductDetails? product, {required String unavailableMessage}) {
+    if (mounted) {
+      setState(() {
+        _product = product;
+        _loading = false;
+        if (product == null) {
+          _loadError = unavailableMessage;
+        }
+      });
+    }
   }
 
   void _onEvent(ProEvent event) {
-    if (!mounted) return;
-    switch (event) {
-      case ProSuccess(:final restored):
-        setState(() => _purchaseInFlight = false);
-        final rootNavigator = Navigator.of(context, rootNavigator: true);
-        Navigator.of(context).pop();
-        _showUnlockedDialog(rootNavigator.context, restored: restored);
-      case ProError(:final message):
-        setState(() => _purchaseInFlight = false);
-        showAppSnackBar(context, message, type: ToastType.error);
-      case ProCanceled():
-        setState(() => _purchaseInFlight = false);
+    if (event is ProSuccess) {
+      setState(() => _purchaseInFlight = false);
+      Navigator.pop(context);
+      _showUnlockedDialog(context, restored: event.restored);
+    } else if (event is ProError) {
+      setState(() => _purchaseInFlight = false);
+      showAppSnackBar(context, event.message, type: ToastType.error);
     }
   }
 
-  Future<void> _onBuy() async {
+  void _onBuy() async {
     final product = _product;
-    if (product == null || _purchaseInFlight) return;
+    if (product == null) return;
     setState(() => _purchaseInFlight = true);
     try {
-      final launched = await ProService.buyPro(product);
-      if (!launched && mounted) setState(() => _purchaseInFlight = false);
-    } catch (_) {
-      if (!mounted) return;
+      final success = await ProService.buyPro(product);
+      if (!success) {
+        setState(() => _purchaseInFlight = false);
+        showAppSnackBar(
+          context,
+          'Could not start purchase flow.',
+          type: ToastType.error,
+        );
+      }
+    } catch (e) {
       setState(() => _purchaseInFlight = false);
-      showAppSnackBar(
-        context,
-        'Could not start the purchase. Please try again.',
-        type: ToastType.error,
-      );
+      showAppSnackBar(context, '$e', type: ToastType.error);
     }
   }
 
-  Future<void> _onRestore() async {
-    if (_purchaseInFlight) return;
+  void _onRestore() async {
     setState(() => _purchaseInFlight = true);
     try {
       await ProService.restore();
-      if (!mounted) return;
-      // A restored entitlement arrives via the event stream; if nothing came
-      // back the user simply has no prior purchase to restore.
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted && _purchaseInFlight) {
-          setState(() => _purchaseInFlight = false);
-          if (!ProService.isUnlocked) {
-            showAppSnackBar(
-              context,
-              'No previous Patterns Pro purchase found.',
-              type: ToastType.info,
-            );
-          }
-        }
-      });
     } catch (_) {
-      if (!mounted) return;
       setState(() => _purchaseInFlight = false);
       showAppSnackBar(
         context,
@@ -251,6 +277,10 @@ class _PaywallSheetState extends State<PaywallSheet> {
   }
 
   Widget _buildBody(ThemeData theme) {
+    if (kIsDesktop || !ProService.isPlatformSupported) {
+      return _buildDesktopPairingView(theme);
+    }
+
     if (_loading) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 24),
@@ -306,6 +336,149 @@ class _PaywallSheetState extends State<PaywallSheet> {
           child: const Text('Restore purchases'),
         ),
       ],
+    );
+  }
+
+  Widget _buildDesktopPairingView(ThemeData theme) {
+    return Consumer(
+      builder: (context, ref, _) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Divider(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: ChoiceChip(
+                    label: const Center(
+                      child: Text('Scan QR Code', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    ),
+                    selected: !_isEnteringOtp,
+                    onSelected: (val) => setState(() => _isEnteringOtp = !val),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ChoiceChip(
+                    label: const Center(
+                      child: Text('Enter Code', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    ),
+                    selected: _isEnteringOtp,
+                    onSelected: (val) => setState(() => _isEnteringOtp = val),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (!_isEnteringOtp) ...[
+              Text(
+                'To unlock desktop Pro, purchase it on your mobile device first. '
+                'Then go to Settings > Link Desktop App and scan this code:',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              if (_desktopPairingPayload != null)
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: QrImageView(
+                      data: _desktopPairingPayload!,
+                      version: QrVersions.auto,
+                      size: 160.0,
+                      gapless: false,
+                      eyeStyle: const QrEyeStyle(
+                        eyeShape: QrEyeShape.square,
+                        color: Colors.black,
+                      ),
+                      dataModuleStyle: const QrDataModuleStyle(
+                        dataModuleShape: QrDataModuleShape.square,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                )
+              else
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 40),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              const SizedBox(height: 12),
+              Text(
+                'Listening for local pairing connection over Wi-Fi...',
+                style: TextStyle(
+                  fontSize: 10.5,
+                  fontStyle: FontStyle.italic,
+                  color: theme.colorScheme.onSurface.withOpacity(0.4),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ] else ...[
+              Text(
+                'If your devices are on different networks, open your mobile app settings '
+                'and enter the 6-digit linking code shown:',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _otpController,
+                keyboardType: TextInputType.number,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 6,
+                  color: theme.colorScheme.onSurface,
+                ),
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  hintText: '000000',
+                  hintStyle: TextStyle(
+                    color: theme.colorScheme.onSurface.withOpacity(0.15),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    final ok = ProPairingService.verifyOfflineOTP(_otpController.text);
+                    if (ok) {
+                      ref.read(proProvider.notifier).refresh(); // refresh Pro state
+                      Navigator.pop(context);
+                      _showUnlockedDialog(context, restored: false);
+                    } else {
+                      showAppSnackBar(
+                        context,
+                        'Invalid linking code. Please check and try again.',
+                        type: ToastType.error,
+                      );
+                    }
+                  },
+                  child: const Text('Link Desktop'),
+                ),
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
 }

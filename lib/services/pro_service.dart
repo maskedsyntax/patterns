@@ -4,13 +4,13 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:in_app_purchase/in_app_purchase.dart';
 
-import '../mobile/preferences.dart';
+import '../app_preferences.dart';
 
 /// One-time "Patterns Pro" unlock.
 ///
 /// Wraps `InAppPurchase` for a single non-consumable product. Unlike the tip
 /// jar, a Pro purchase grants a lasting entitlement, so the result is persisted
-/// to [mobilePreferences] under [proUnlockedKey] and restored on a new device
+/// to [appPreferences] under [proUnlockedKey] and restored on a new device
 /// via [restore]. The plugin's `purchaseStream` is subscribed at app start so a
 /// purchase or restore from a previous session is honoured on next launch.
 class ProService {
@@ -32,10 +32,10 @@ class ProService {
   static ProductDetails? get cachedProduct => _cachedProduct;
 
   /// Whether Pro has been unlocked on this device. Reads the persisted flag so
-  /// gating works synchronously and offline. Defaults to false (incl. desktop
-  /// where `mobilePreferences` is null).
+  /// gating works synchronously and offline. Defaults to false when prefs
+  /// have not been initialised yet.
   static bool get isUnlocked =>
-      mobilePreferences?.getBool(proUnlockedKey) ?? false;
+      appPreferences?.getBool(proUnlockedKey) ?? false;
 
   static bool get isPlatformSupported {
     if (kIsWeb) return false;
@@ -109,7 +109,7 @@ class ProService {
           break;
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
-          await mobilePreferences?.setBool(proUnlockedKey, true);
+          await appPreferences?.setBool(proUnlockedKey, true);
           if (purchase.pendingCompletePurchase) {
             await _iap.completePurchase(purchase);
           }

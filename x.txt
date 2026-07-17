@@ -1,0 +1,254 @@
+PATTERNS - 50 TWEETS
+Story-driven, plain language. Space these out, do not post all in one day.
+Every tweet ends with the website and Ko-fi link. Store links are left out of individual tweets since they're long; the website carries visitors to both stores.
+
+
+1.
+I used to check the door lock four times before I could leave my own house. Not because I forgot. Because knowing I locked it and feeling sure were two different things.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+2.
+OCD is not "I like things neat." It is being stuck in a loop your body will not let you leave, even after your mind already answered the question.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+3.
+I built an app for this because every mental health app wanted me to log my mood and call it a day. Logging the problem is not the same as practicing your way out of it.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+4.
+You do not need a diagnosis to know your chest going tight before you even know why.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+5.
+You do not need a diagnosis for a thought to loop for hours and refuse to leave.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+6.
+If you have ever avoided a phone call, a place, a person, because some part of you decided it was not safe and would not explain why, this app was built with you in mind too.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+7.
+Panic, phobias, OCD, generalized anxiety, they all use the same alarm system. The skill that helps one usually helps the others.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+8.
+Therapists call it "exposure and response prevention." All it really means: face the small version of the scary thing, then practice not doing the compulsive thing after.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+9.
+An exposure hierarchy is just a list of things you avoid, ranked easiest to hardest. You start at the bottom. Not the top.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+10.
+Scared of driving on the highway? Start by sitting in the parked car. That counts. That is real progress.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+11.
+Scared of germs? Start with touching a doorknob and waiting five extra minutes before washing your hands. Five minutes is the whole rep.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+12.
+The urge to do a compulsion feels like it will last forever if you do not obey it. It will not. It rises, peaks, and falls on its own if you let it.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+13.
+Watching an urge fall on its own for the first time, without giving in, is one of the strangest and most convincing experiences you can have.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+14.
+I built a timer for exactly that. Delay the compulsion, watch the urge do its whole rise and fall, see it with your own eyes instead of taking my word for it.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+15.
+Patterns has no login screen. No email, no password, no account.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+16.
+The things people log in this app are not casual. Intrusive thoughts they have never said out loud. I did not want to be the person holding that database.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+17.
+Everything stays on your device. If you want a backup, you export it yourself. No server, no sync, no company that could get breached or bought.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+18.
+Patterns is open source. You do not have to trust me. You can read the code yourself.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+19.
+I would not trust a mental health app built by a stranger unless I could check its homework. So I am not asking anyone else to trust mine without the same option.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+20.
+Most of the biggest features in the last release came from people using the free version and telling me exactly what was missing.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+21.
+Not a survey. Just people describing their actual struggle and me realizing the app had no answer for it yet.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+22.
+I chose a one time price over a subscription. If you already deal with anxiety, a recurring charge quietly draining your account every month is the opposite of what you need.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+23.
+Pay once, own it forever. No renewal emails designed to create urgency in a person who has enough urgency already.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+24.
+The core tools are free permanently. No trial countdown. If that is all someone can afford, they still get real tools, not a demo.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+25.
+Early versions of Patterns were just a mood tracker. A graph does not help you in the fifteen seconds before a compulsion takes over.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+26.
+People told me the tracker was not enough. They were right. The app is better because someone was honest with me about what was missing.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+27.
+OCD in movies is someone lining up pencils. Real OCD can be a violent intrusive thought about someone you love, one that horrifies you precisely because you would never act on it.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+28.
+A lot of people with OCD do not recognize it because it does not look like the movie version. They spend years thinking they are just "too much" instead of understanding they have a treatable condition.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+29.
+If you have never said your intrusive thoughts out loud to anyone, you are not the only one carrying something like that.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+30.
+I built most of this app while still dealing with the exact thing it is meant to help with.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+31.
+Some weeks the loop in my own head was loud enough that replying to a message took me days. I am not saying that for sympathy. I am saying it because pretending otherwise would be dishonest.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+32.
+You do not have to wait until you have it fully figured out to start building, or to start recovering. I built an app while still figuring mine out.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+33.
+Recovery is not a straight line. Some days you use every tool you built and it still does not feel like enough. That is still progress, even the day it does not feel like it.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+34.
+A compulsion promises certainty. It never actually delivers it. That is the whole trap, and once you see it you cannot unsee it.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+35.
+Reassurance seeking feels like relief. It is actually the compulsion wearing a disguise.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+36.
+Uncertainty is not dangerous. It just feels unbearable for a few minutes. Those are two very different things, and OCD spends a lot of energy blurring the line between them.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+37.
+"What if I did something wrong and I just do not remember" is one of the cruelest loops OCD runs, because there is no evidence that can ever fully satisfy it.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+38.
+The goal is not to feel zero anxiety. The goal is to do the thing anyway while the anxiety is still there.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+39.
+If therapy is not accessible to you right now, that does not mean you have no options. It means you start with what is accessible and go from there.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+40.
+Patterns is not a replacement for a therapist. It is somewhere to practice between sessions, or somewhere to start if a therapist is not within reach yet.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+41.
+Works on iPhone, Android, Mac, Windows, and Linux. Free to start. patternsocd.com
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+42.
+The paid tier is a one time unlock: hierarchy builder, urge surfing, structured programs, uncertainty training, progress tracking that shows your real trend over weeks.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+43.
+"Urge surfing" sounds like a wellness buzzword. It just means riding out the urge like a wave instead of fighting it or giving in to it.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+44.
+Uncertainty training is not about becoming reckless. It is short practice at tolerating doubt instead of chasing certainty that was never available in the first place.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+45.
+An action planner sounds boring until you realize a vague intention to "get better" never survives a hard day. A specific next step usually does.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+46.
+Behavioral experiments are just this: predict the worst case, then go check what actually happens. Reality is almost always kinder than the anxious forecast.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+47.
+If you know someone who avoids a place, a person, or a phone call and has quietly built their whole life around that avoidance, send them this.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+48.
+This started as something I needed for myself. I did not expect this many other people to see themselves in it too.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+49.
+Thank you to everyone who has messaged me about a feature that was missing, or a bug, or just to say the app helped on a hard day. This is still one person building it, and that matters more than I can say.
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui
+
+50.
+If any of this sounds like your own head, the app is free to start, no account needed. patternsocd.com
+
+patternsocd.com | ko-fi.com/aftaabsiddiqui

@@ -42,7 +42,11 @@ class NotificationService {
 
   static bool get isSupported {
     if (kIsWeb) return false;
-    return Platform.isIOS || Platform.isAndroid;
+    return Platform.isIOS ||
+        Platform.isAndroid ||
+        Platform.isMacOS ||
+        Platform.isLinux ||
+        Platform.isWindows;
   }
 
   /// Initialises the plugin and the timezone database. Safe to call repeatedly.
@@ -57,8 +61,16 @@ class NotificationService {
       requestBadgePermission: false,
       requestSoundPermission: false,
     );
+    const linux = LinuxInitializationSettings(
+      defaultActionName: 'Open notification',
+    );
     await _plugin.initialize(
-      settings: const InitializationSettings(android: android, iOS: darwin),
+      settings: const InitializationSettings(
+        android: android,
+        iOS: darwin,
+        macOS: darwin,
+        linux: linux,
+      ),
     );
     _initialized = true;
   }
@@ -87,16 +99,32 @@ class NotificationService {
           >();
       return await android?.requestNotificationsPermission() ?? false;
     }
-    final ios = _plugin
-        .resolvePlatformSpecificImplementation<
-          IOSFlutterLocalNotificationsPlugin
-        >();
-    return await ios?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        ) ??
-        false;
+    if (Platform.isIOS) {
+      final ios = _plugin
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >();
+      return await ios?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          ) ??
+          false;
+    }
+    if (Platform.isMacOS) {
+      final macos = _plugin
+          .resolvePlatformSpecificImplementation<
+            MacOSFlutterLocalNotificationsPlugin
+          >();
+      return await macos?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          ) ??
+          false;
+    }
+    // Linux / Windows: typically no runtime permission gate.
+    return true;
   }
 
   /// (Re)schedules the single daily reminder for [time], replacing any existing

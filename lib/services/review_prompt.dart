@@ -7,7 +7,7 @@ import 'package:in_app_review/in_app_review.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../mobile/preferences.dart';
+import '../app_preferences.dart';
 import '../theme/app_theme.dart';
 
 enum ReviewTrigger {

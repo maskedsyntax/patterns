@@ -8,7 +8,7 @@ import 'package:sqflite_common/sqlite_api.dart';
 import '../models/models.dart';
 import '../services/material_file_store.dart';
 
-const int _backupSchemaVersion = 9;
+const int _backupSchemaVersion = 10;
 
 class BackupSummary {
   final int journalCount;
@@ -28,6 +28,7 @@ class BackupSummary {
   final int implementationIntentionCount;
   final int uncertaintyLogCount;
   final int exposureMaterialCount;
+  final int ybocsAssessmentCount;
 
   const BackupSummary({
     required this.journalCount,
@@ -47,6 +48,7 @@ class BackupSummary {
     this.implementationIntentionCount = 0,
     this.uncertaintyLogCount = 0,
     this.exposureMaterialCount = 0,
+    this.ybocsAssessmentCount = 0,
   });
 }
 
@@ -69,7 +71,7 @@ class DbHelper {
     return await _databaseFactory.openDatabase(
       path,
       options: OpenDatabaseOptions(
-        version: 9,
+        version: 10,
         onCreate: _createDB,
         onUpgrade: _onUpgrade,
       ),
@@ -117,6 +119,7 @@ class DbHelper {
     await _createImplementationIntentionsTable(db);
     await _createUncertaintyLogTable(db);
     await _createExposureMaterialsTable(db);
+    await _createYbocsAssessmentsTable(db);
   }
 
   Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -158,6 +161,10 @@ class DbHelper {
     // v9: Pro - Exposure Materials (trigger library: scripts/loop tapes/images/links).
     if (oldVersion < 9) {
       await _createExposureMaterialsTable(db);
+    }
+    // v10: Y-BOCS self-check (saved symptom checklist + severity assessments).
+    if (oldVersion < 10) {
+      await _createYbocsAssessmentsTable(db);
     }
   }
 
@@ -382,6 +389,23 @@ class DbHelper {
         file_name TEXT,
         linked_hierarchy_id INTEGER,
         linked_step_id INTEGER,
+        created_at TEXT
+      )
+    ''');
+  }
+
+  Future<void> _createYbocsAssessmentsTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS ybocs_assessments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        datetime TEXT,
+        obsession_score INTEGER,
+        compulsion_score INTEGER,
+        total_score INTEGER,
+        severity INTEGER,
+        item_scores TEXT,
+        themes TEXT,
+        symptoms TEXT,
         created_at TEXT
       )
     ''');
@@ -829,6 +853,30 @@ class DbHelper {
     );
   }
 
+  // Y-BOCS Self-Check Methods
+  Future<List<YbocsAssessment>> getYbocsAssessments() async {
+    final db = await instance.database;
+    final result = await db.query(
+      'ybocs_assessments',
+      orderBy: 'datetime DESC',
+    );
+    return result.map((json) => YbocsAssessment.fromMap(json)).toList();
+  }
+
+  Future<int> insertYbocsAssessment(YbocsAssessment assessment) async {
+    final db = await instance.database;
+    return await db.insert('ybocs_assessments', assessment.toMap());
+  }
+
+  Future<int> deleteYbocsAssessment(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      'ybocs_assessments',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   Future<void> clearAll() async {
     final db = await instance.database;
     await db.transaction((txn) async {
@@ -849,6 +897,7 @@ class DbHelper {
       await txn.delete('implementation_intentions');
       await txn.delete('uncertainty_log');
       await txn.delete('exposure_materials');
+      await txn.delete('ybocs_assessments');
     });
   }
 
@@ -874,6 +923,7 @@ class DbHelper {
     );
     final uncertaintyLog = await db.query('uncertainty_log');
     final exposureMaterials = await db.query('exposure_materials');
+    final ybocsAssessments = await db.query('ybocs_assessments');
     final data = {
       'schema_version': _backupSchemaVersion,
       'journal': journal,
@@ -893,6 +943,7 @@ class DbHelper {
       'implementation_intentions': implementationIntentions,
       'uncertainty_log': uncertaintyLog,
       'exposure_materials': exposureMaterials,
+      'ybocs_assessments': ybocsAssessments,
     };
     return jsonEncode(data);
   }
@@ -983,6 +1034,9 @@ class DbHelper {
       for (final item in _backupList(data, 'exposure_materials')) {
         await txn.insert('exposure_materials', Map<String, dynamic>.from(item));
       }
+      for (final item in _backupList(data, 'ybocs_assessments')) {
+        await txn.insert('ybocs_assessments', Map<String, dynamic>.from(item));
+      }
     });
   }
 
@@ -1068,6 +1122,7 @@ class DbHelper {
       ).length,
       uncertaintyLogCount: _backupList(data, 'uncertainty_log').length,
       exposureMaterialCount: _backupList(data, 'exposure_materials').length,
+      ybocsAssessmentCount: _backupList(data, 'ybocs_assessments').length,
     );
   }
 
@@ -1109,6 +1164,7 @@ class DbHelper {
     );
     final uncertaintyLog = _backupList(data, 'uncertainty_log');
     final exposureMaterials = _backupList(data, 'exposure_materials');
+    final ybocsAssessments = _backupList(data, 'ybocs_assessments');
     for (final item in journal) {
       _validateJournalItem(item);
     }
@@ -1159,6 +1215,9 @@ class DbHelper {
     }
     for (final item in exposureMaterials) {
       _validateExposureMaterialItem(item);
+    }
+    for (final item in ybocsAssessments) {
+      _validateYbocsAssessmentItem(item);
     }
   }
 
@@ -1514,6 +1573,46 @@ class DbHelper {
     if (type < 0 || type >= MaterialType.values.length) {
       throw const FormatException('Invalid exposure material type');
     }
+    DateTime.parse(item['created_at'] as String);
+  }
+
+  static void _validateYbocsAssessmentItem(dynamic item) {
+    if (item is! Map) throw const FormatException('Invalid Y-BOCS assessment');
+    _requireString(item, 'datetime');
+    _requireInt(item, 'obsession_score');
+    _requireInt(item, 'compulsion_score');
+    _requireInt(item, 'total_score');
+    _requireInt(item, 'severity');
+    _requireString(item, 'item_scores');
+    _requireString(item, 'created_at');
+    for (final key in ['themes', 'symptoms']) {
+      if (item[key] != null && item[key] is! String) {
+        throw FormatException('Invalid Y-BOCS assessment $key');
+      }
+    }
+    final obsession = item['obsession_score'] as int;
+    final compulsion = item['compulsion_score'] as int;
+    final total = item['total_score'] as int;
+    final severity = item['severity'] as int;
+    if (obsession < 0 || obsession > 20 || compulsion < 0 || compulsion > 20) {
+      throw const FormatException('Invalid Y-BOCS subscore');
+    }
+    if (total < 0 || total > 40) {
+      throw const FormatException('Invalid Y-BOCS total score');
+    }
+    if (severity < 0 || severity >= YbocsSeverity.values.length) {
+      throw const FormatException('Invalid Y-BOCS severity');
+    }
+    final itemScores = item['item_scores'] as String;
+    if (itemScores.trim().isNotEmpty) {
+      for (final part in itemScores.split(',')) {
+        final score = int.tryParse(part.trim());
+        if (score == null || score < 0 || score > 4) {
+          throw const FormatException('Invalid Y-BOCS item score');
+        }
+      }
+    }
+    DateTime.parse(item['datetime'] as String);
     DateTime.parse(item['created_at'] as String);
   }
 

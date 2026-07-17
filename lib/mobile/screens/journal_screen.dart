@@ -14,7 +14,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 import '../../widgets/app_snack_bar.dart';
 import '../../widgets/rich_journal.dart';
-import '../widgets/section_intro.dart';
+import '../preferences.dart';
 
 class TodayScreen extends ConsumerStatefulWidget {
   final VoidCallback onJournal;
@@ -23,6 +23,7 @@ class TodayScreen extends ConsumerStatefulWidget {
   final VoidCallback onErp;
   final VoidCallback onInsights;
   final VoidCallback onSettings;
+  final ValueChanged<RecoveryStep> onNextStep;
 
   const TodayScreen({
     super.key,
@@ -32,6 +33,7 @@ class TodayScreen extends ConsumerStatefulWidget {
     required this.onErp,
     required this.onInsights,
     required this.onSettings,
+    required this.onNextStep,
   });
 
   @override
@@ -72,6 +74,25 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     );
     final recentDelay = _latestDelay(delays);
 
+    // The single recommended next action, mirroring the ERP journey stages so
+    // Today always shows one clear thing to do instead of a wall of tools.
+    final isPro = ref.watch(proProvider);
+    final ybocs = ref.watch(ybocsAssessmentProvider).asData?.value ?? const [];
+    final hierarchySteps =
+        ref.watch(exposureStepProvider).asData?.value ?? const [];
+    final now = DateTime.now();
+    bool isToday(DateTime d) =>
+        d.year == now.year && d.month == now.month && d.day == now.day;
+    final practicedToday =
+        erp.any((e) => isToday(e.createdAt)) ||
+        delays.any((d) => isToday(d.createdAt));
+    final nextStep = AnalyticsService.buildNextStep(
+      isPro: isPro,
+      hasYbocs: ybocs.isNotEmpty,
+      hasHierarchy: hierarchySteps.isNotEmpty,
+      practicedToday: practicedToday,
+    );
+
     return Scaffold(
       body: DecoratedBox(
         decoration: const BoxDecoration(
@@ -91,6 +112,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
               ),
               const SizedBox(height: 18),
               _HomeScoreCard(summary: dashboard, onTap: widget.onInsights),
+              const SizedBox(height: 16),
+              _NextStepCard(
+                step: nextStep,
+                onTap: () => widget.onNextStep(nextStep.step),
+              ),
               const SizedBox(height: 20),
               _HomeSectionHeader(
                 title: 'Continue your practice',
@@ -395,6 +421,79 @@ class _HomeScoreRingPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _HomeScoreRingPainter oldDelegate) {
     return oldDelegate.score != score;
+  }
+}
+
+class _NextStepCard extends StatelessWidget {
+  final RecoveryNextStep step;
+  final VoidCallback onTap;
+
+  const _NextStepCard({required this.step, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return PressScale(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF23200F), Color(0xFF15140F)],
+          ),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: AppTheme.warmYellow.withValues(alpha: 0.35),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'YOUR NEXT STEP',
+              style: TextStyle(
+                color: AppTheme.warmYellow,
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.6,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              step.title,
+              style: const TextStyle(
+                color: AppTheme.textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                height: 1.15,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              step.subtitle,
+              style: const TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 13,
+                height: 1.34,
+              ),
+            ),
+            const SizedBox(height: 14),
+            ElevatedButton(
+              onPressed: onTap,
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(0, 42),
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: Text(step.ctaLabel),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -935,10 +1034,6 @@ class _JournalScreenState extends ConsumerState<JournalScreen> {
                         itemCount: 10,
                       ),
                     ),
-            ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
-              child: SectionIntro(id: 'journal'),
             ),
             Expanded(
               child: entriesAsync.when(

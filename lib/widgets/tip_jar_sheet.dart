@@ -7,17 +7,35 @@ import 'package:line_icons/line_icons.dart';
 import '../services/tip_jar.dart';
 import '../theme/app_theme.dart';
 import 'app_snack_bar.dart';
+import 'platform.dart';
 import 'tip_thanks_dialog.dart';
 
 class TipJarSheet extends StatefulWidget {
   const TipJarSheet({super.key});
 
   static Future<void> show(BuildContext context) {
+    const child = TipJarSheet();
+    if (kIsDesktop) {
+      return showDialog<void>(
+        context: context,
+        useRootNavigator: true,
+        builder: (_) => Dialog(
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 48,
+            vertical: 24,
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480, maxHeight: 640),
+            child: child,
+          ),
+        ),
+      );
+    }
     return showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) => const TipJarSheet(),
+      builder: (_) => child,
     );
   }
 

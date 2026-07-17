@@ -75,7 +75,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     onPageChanged: (value) => setState(() => _index = value),
                     itemCount: _pages.length,
                     itemBuilder: (context, index) {
-                      return _OnboardingPageView(page: _pages[index]);
+                      return _OnboardingPageView(
+                        page: _pages[index],
+                        isFinal: index == _pages.length - 1,
+                      );
                     },
                   ),
                 ),
@@ -198,13 +201,12 @@ class _ProgressDots extends StatelessWidget {
 
 class _OnboardingPageView extends StatelessWidget {
   final _OnboardingPage page;
+  final bool isFinal;
 
-  const _OnboardingPageView({required this.page});
+  const _OnboardingPageView({required this.page, this.isFinal = false});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return LayoutBuilder(
       builder: (context, constraints) {
         return SingleChildScrollView(
@@ -212,68 +214,122 @@ class _OnboardingPageView extends StatelessWidget {
             constraints: BoxConstraints(minHeight: constraints.maxHeight),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FadeSlideIn(
-                  duration: AppMotion.slow,
-                  child: _OnboardingVisual(page: page),
-                ),
-                const SizedBox(height: 28),
-                FadeSlideIn(
-                  delay: const Duration(milliseconds: 90),
-                  child: Text(
-                    page.title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontFamily: AppTheme.displayFamily,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 34,
-                      height: 1.08,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                FadeSlideIn(
-                  delay: const Duration(milliseconds: 130),
-                  child: Text(
-                    page.body,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      color: AppTheme.textSecondary,
-                      height: 1.48,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 22),
-                FadeSlideIn(
-                  delay: const Duration(milliseconds: 170),
-                  child: _FeatureCard(page: page),
-                ),
-              ],
+              children: isFinal
+                  ? _finalChildren(context)
+                  : _standardChildren(context),
             ),
           ),
         );
       },
     );
   }
+
+  List<Widget> _standardChildren(BuildContext context) {
+    final theme = Theme.of(context);
+    return [
+      FadeSlideIn(
+        duration: AppMotion.slow,
+        child: _OnboardingVisual(page: page),
+      ),
+      const SizedBox(height: 28),
+      FadeSlideIn(
+        delay: const Duration(milliseconds: 90),
+        child: Text(
+          page.title,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontFamily: AppTheme.displayFamily,
+            fontWeight: FontWeight.w600,
+            fontSize: 34,
+            height: 1.08,
+            color: AppTheme.textPrimary,
+          ),
+        ),
+      ),
+      const SizedBox(height: 14),
+      FadeSlideIn(
+        delay: const Duration(milliseconds: 130),
+        child: Text(
+          page.body,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: AppTheme.textSecondary,
+            height: 1.48,
+          ),
+        ),
+      ),
+      const SizedBox(height: 22),
+      FadeSlideIn(
+        delay: const Duration(milliseconds: 170),
+        child: _FeatureCard(page: page),
+      ),
+    ];
+  }
+
+  // The final slide is sized to fit the viewport so it never scrolls behind the
+  // fixed action buttons below it. A tighter hero plus a two-column Free vs Pro
+  // comparison keeps the offer clear without the cramped, scrollable feel.
+  List<Widget> _finalChildren(BuildContext context) {
+    return [
+      FadeSlideIn(
+        duration: AppMotion.slow,
+        child: _OnboardingVisual(page: page, size: 132),
+      ),
+      const SizedBox(height: 22),
+      FadeSlideIn(
+        delay: const Duration(milliseconds: 90),
+        child: Text(
+          page.title,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontFamily: AppTheme.displayFamily,
+            fontWeight: FontWeight.w600,
+            fontSize: 30,
+            height: 1.08,
+            color: AppTheme.textPrimary,
+          ),
+        ),
+      ),
+      const SizedBox(height: 12),
+      FadeSlideIn(
+        delay: const Duration(milliseconds: 130),
+        child: Text(
+          'Everything free stays free. Pro adds the active ERP toolkit.',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 14.5,
+            height: 1.4,
+            color: AppTheme.textSecondary,
+          ),
+        ),
+      ),
+      const SizedBox(height: 20),
+      FadeSlideIn(
+        delay: const Duration(milliseconds: 170),
+        child: const _FreeProCompareCard(),
+      ),
+    ];
+  }
 }
 
 class _OnboardingVisual extends StatelessWidget {
   final _OnboardingPage page;
+  final double size;
 
-  const _OnboardingVisual({required this.page});
+  const _OnboardingVisual({required this.page, this.size = 188});
 
   @override
   Widget build(BuildContext context) {
+    final inner = size * 0.447;
     return SizedBox(
-      width: 188,
-      height: 188,
+      width: size,
+      height: size,
       child: CustomPaint(
         painter: _SignalPainter(color: page.color),
         child: Center(
           child: Container(
-            width: 84,
-            height: 84,
+            width: inner,
+            height: inner,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
@@ -289,7 +345,11 @@ class _OnboardingVisual extends StatelessWidget {
                 ),
               ],
             ),
-            child: Icon(page.icon, color: const Color(0xFF17130A), size: 38),
+            child: Icon(
+              page.icon,
+              color: const Color(0xFF17130A),
+              size: size * 0.202,
+            ),
           ),
         ),
       ),
@@ -309,8 +369,8 @@ class _SignalPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.4
       ..color = color.withValues(alpha: 0.26);
-    for (final radius in [54.0, 74.0, 94.0]) {
-      canvas.drawCircle(center, radius, ringPaint);
+    for (final fraction in [0.287, 0.394, 0.497]) {
+      canvas.drawCircle(center, size.width * fraction, ringPaint);
     }
 
     final linePaint = Paint()
@@ -357,6 +417,109 @@ class _FeatureCard extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+class _FreeProCompareCard extends StatelessWidget {
+  const _FreeProCompareCard();
+
+  static const _free = ['Journaling', 'OCD tracking', 'Insights & trends'];
+  static const _pro = ['Guided ERP', 'Exposure tools', 'Response prevention'];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: _glassDecoration(),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Expanded(
+              child: _CompareColumn(
+                label: 'FREE',
+                accent: AppTheme.textSecondary,
+                items: _free,
+              ),
+            ),
+            Container(
+              width: 1,
+              margin: const EdgeInsets.symmetric(horizontal: 14),
+              color: const Color(0xFF34322D),
+            ),
+            const Expanded(
+              child: _CompareColumn(
+                label: 'PRO',
+                accent: AppTheme.warmYellow,
+                items: _pro,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CompareColumn extends StatelessWidget {
+  final String label;
+  final Color accent;
+  final List<String> items;
+
+  const _CompareColumn({
+    required this.label,
+    required this.accent,
+    required this.items,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: accent.withValues(alpha: 0.14),
+            borderRadius: BorderRadius.circular(7),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: accent,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        for (var i = 0; i < items.length; i++) ...[
+          if (i != 0) const SizedBox(height: 9),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 1),
+                child: Icon(LineIcons.check, color: accent, size: 13),
+              ),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Text(
+                  items[i],
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    height: 1.25,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
     );
   }
 }
@@ -473,37 +636,37 @@ class _OnboardingPage {
 final _pages = <_OnboardingPage>[
   const _OnboardingPage(
     icon: LineIcons.feather,
-    title: 'Understand your patterns.',
+    title: 'A calm, private space.',
     body:
-        'A calm private space to notice thoughts, urges, compulsions, and what helps you move through them.',
+        'Patterns lives on your device — no account, no cloud, no one watching. A gentle place to notice OCD, not judge it.',
     points: [
-      'Private local-first reflection',
-      'Gentle tracking without pressure',
-      'Built for noticing, not judging',
+      'Private and local-first by design',
+      'No sign-up, ever',
+      'Support to practice with, not a diagnosis',
     ],
     color: AppTheme.warmYellow,
   ),
   const _OnboardingPage(
-    icon: LineIcons.bullseye,
-    title: 'Track what OCD repeats.',
+    icon: Icons.self_improvement_rounded,
+    title: 'A simple daily loop.',
     body:
-        'Log intrusive thoughts, distress, responses, and themes so the loops become easier to see.',
+        'The same gentle rhythm each day: notice what shows up, track it, practice responding differently, and reflect.',
     points: [
-      'Journal thoughts and daily context',
+      'Notice and journal a thought',
       'Track urges, distress, and responses',
-      'See themes emerge over time',
+      'Practice ERP and delay tools',
     ],
     color: Color(0xFF7BBF91),
   ),
   const _OnboardingPage(
-    icon: Icons.self_improvement_rounded,
-    title: 'Practice responding differently.',
+    icon: LineIcons.compass,
+    title: 'Everything, one tap away.',
     body:
-        'Use daily ERP practice, delay tools, and recovery progress to build small moments of freedom.',
+        "Five simple tabs, each with one job. We'll give you a quick tour in a moment.",
     points: [
-      'Daily ERP habit support',
-      'Compulsion delay and urge practice',
-      'Progress that reflects real effort',
+      'Today — your daily anchor and next step',
+      'Recovery — every tool, grouped by stage',
+      'Insights — your trends over time',
     ],
     color: AppTheme.warmYellow,
   ),

@@ -8,7 +8,7 @@
   import BrandIcon from '$lib/components/BrandIcon.svelte';
   import WindowsIcon from '$lib/components/WindowsIcon.svelte';
   import { siAppstore, siGoogleplay, siLinux } from 'simple-icons';
-  import { Download as DownloadIcon } from 'lucide-svelte';
+  import { Download as DownloadIcon, Hammer } from 'lucide-svelte';
 
   let loading = $state(true);
   let linuxUrl = $state<string | null>(null);
@@ -99,9 +99,23 @@
         {/if}
       </div>
 
+      <div class="desktop-notice" role="note">
+        <div class="notice-icon" aria-hidden="true">
+          <Hammer size={18} />
+        </div>
+        <div class="notice-copy">
+          <span class="notice-badge">Rebuilding now</span>
+          <h4>A fresh desktop app is on the way</h4>
+          <p>
+            We're rebuilding Patterns for desktop from scratch - cleaner, calmer, and made for a big
+            screen. Journaling and self-tracking stay free; Pro lives on mobile, where it belongs.
+          </p>
+        </div>
+      </div>
+
       <div class="other-header">
-        <h3 class="serif">Other download options</h3>
-        <p>Patterns runs natively on every desktop you use.</p>
+        <h3 class="serif">Download for desktop</h3>
+        <p>Available today while the new experience is on its way.</p>
       </div>
 
       <div class="platform-grid">
@@ -308,7 +322,68 @@
     color: var(--text-secondary);
   }
 
+  .desktop-notice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+    padding: 28px 24px;
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--accent) 6%, var(--surface-alt));
+    border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+    margin: 0 auto 48px;
+    max-width: 560px;
+  }
+
+  .notice-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    color: var(--accent);
+  }
+
+  .notice-badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 100px;
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .notice-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .notice-copy h4 {
+    margin: 12px 0 0;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--text);
+  }
+
+  .notice-copy p {
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    max-width: 42ch;
+  }
+
   .other-header {
+    text-align: center;
     margin-bottom: 32px;
   }
 
@@ -339,8 +414,8 @@
   .platform-card {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
+    align-items: center;
+    text-align: center;
     padding: 24px;
     border-radius: 16px;
     border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
@@ -383,6 +458,7 @@
     margin: 20px 0 0;
     font-size: 12px;
     color: var(--text-secondary);
+    text-align: center;
   }
 
   .source {

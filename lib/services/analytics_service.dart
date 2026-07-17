@@ -212,7 +212,80 @@ class RecoveryDashboardSummary {
   });
 }
 
+/// The four ERP-journey stages a recommended next step can point at, plus the
+/// two free fallbacks used when the ideal step is Pro-only. Consumed by the
+/// "Your next step" card on the Today screen and routed by the mobile shell.
+enum RecoveryStep { selfCheck, buildHierarchy, dailyPractice, reflect, journal }
+
+/// A single recommended next action, computed from where the user is in the
+/// Assess → Plan → Practice → Review arc.
+class RecoveryNextStep {
+  final RecoveryStep step;
+  final String title;
+  final String subtitle;
+  final String ctaLabel;
+
+  const RecoveryNextStep({
+    required this.step,
+    required this.title,
+    required this.subtitle,
+    required this.ctaLabel,
+  });
+}
+
 class AnalyticsService {
+  /// Picks the single most useful next action so the Today screen can show one
+  /// clear thing to do instead of a wall of tools. The ladder mirrors the ERP
+  /// stages: Assess (self-check) → Plan (hierarchy) → Practice (daily rep) →
+  /// Review (reflect). It is Pro-aware: a free user is never handed a paywalled
+  /// step as their "next step" — the Plan step is skipped for them and the
+  /// Review step falls back to a plain journal entry.
+  static RecoveryNextStep buildNextStep({
+    required bool isPro,
+    required bool hasYbocs,
+    required bool hasHierarchy,
+    required bool practicedToday,
+  }) {
+    if (!hasYbocs) {
+      return const RecoveryNextStep(
+        step: RecoveryStep.selfCheck,
+        title: 'See where you are',
+        subtitle: 'A quick self-check sets a baseline to measure progress against.',
+        ctaLabel: 'Take self-check',
+      );
+    }
+    if (isPro && !hasHierarchy) {
+      return const RecoveryNextStep(
+        step: RecoveryStep.buildHierarchy,
+        title: 'Set up your practice',
+        subtitle: 'Build an exposure ladder, from easiest to hardest.',
+        ctaLabel: 'Build ladder',
+      );
+    }
+    if (!practicedToday) {
+      return const RecoveryNextStep(
+        step: RecoveryStep.dailyPractice,
+        title: 'Do today\'s practice',
+        subtitle: 'One small ERP rep today keeps your momentum going.',
+        ctaLabel: 'Start practice',
+      );
+    }
+    if (isPro) {
+      return const RecoveryNextStep(
+        step: RecoveryStep.reflect,
+        title: 'Reflect and learn',
+        subtitle: 'Capture what today\'s practice taught you.',
+        ctaLabel: 'Reflect',
+      );
+    }
+    return const RecoveryNextStep(
+      step: RecoveryStep.journal,
+      title: 'Reflect on today',
+      subtitle: 'Write a line about how your practice went.',
+      ctaLabel: 'Open journal',
+    );
+  }
+
   static List<JournalEntry> filterJournals(
     List<JournalEntry> entries,
     DateRangeFilter filter,

@@ -1,11 +1,7 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
 
-import '../../providers/providers.dart';
-import '../../services/analytics_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animations.dart';
 import '../preferences.dart';
@@ -25,136 +21,164 @@ import 'response_prevention_screen.dart';
 import 'structured_programs_screen.dart';
 import 'uncertainty_training_screen.dart';
 import 'urge_surf_screen.dart';
+import 'ybocs_screen.dart';
 
 /// Daily recovery cockpit: today-first ERP, compact tools, and visible progress.
 class RecoveryHubScreen extends ConsumerWidget {
   const RecoveryHubScreen({super.key});
 
-  static const _freeTools = <_RecoveryTool>[
-    _RecoveryTool(
-      icon: Icons.self_improvement_rounded,
-      title: 'Guided ERP',
-      subtitle: 'Practice a plan.',
-      destination: _RecoveryDestination.guidedErp,
-    ),
-    _RecoveryTool(
-      icon: Icons.hourglass_bottom_rounded,
-      title: 'Compulsion Delay',
-      subtitle: 'Create space.',
-      destination: _RecoveryDestination.compulsionDelay,
-      fullscreen: true,
-    ),
+  /// Fast-access tools for a hard moment. These also appear under their journey
+  /// stage below — a distressed user must not have to scan a journey to find a
+  /// grounding tool. All three are free.
+  static const _sosTools = <_RecoveryTool>[
     _RecoveryTool(
       icon: Icons.health_and_safety_rounded,
       title: 'Emergency Toolkit',
       subtitle: 'Fast support.',
       destination: _RecoveryDestination.emergencyToolkit,
+      stage: _Stage.practice,
     ),
     _RecoveryTool(
       icon: Icons.spa_rounded,
       title: 'Coping Library',
       subtitle: 'Ground and reset.',
       destination: _RecoveryDestination.copingLibrary,
+      stage: _Stage.practice,
+    ),
+    _RecoveryTool(
+      icon: Icons.hourglass_bottom_rounded,
+      title: 'Compulsion Delay',
+      subtitle: 'Create space.',
+      destination: _RecoveryDestination.compulsionDelay,
+      stage: _Stage.practice,
+      fullscreen: true,
     ),
   ];
 
-  static const _proTools = <_RecoveryTool>[
+  /// The full library, tagged by ERP journey stage and Pro status. Rendered
+  /// grouped so users find a tool by where they are in their work rather than
+  /// scanning a flat wall of tiles.
+  static const _tools = <_RecoveryTool>[
+    // Assess — see where you are.
     _RecoveryTool(
-      icon: Icons.stairs_rounded,
-      title: 'Exposure Hierarchy',
-      subtitle: 'Build your ladder.',
-      destination: _RecoveryDestination.exposureHierarchy,
-    ),
-    _RecoveryTool(
-      icon: Icons.folder_special_rounded,
-      title: 'Exposure Materials',
-      subtitle: 'Scripts and links.',
-      destination: _RecoveryDestination.exposureMaterials,
-    ),
-    _RecoveryTool(
-      icon: Icons.shield_rounded,
-      title: 'Response Prevention',
-      subtitle: 'Stay on track.',
-      destination: _RecoveryDestination.responsePrevention,
-    ),
-    _RecoveryTool(
-      icon: Icons.calendar_month_rounded,
-      title: 'Structured Programs',
-      subtitle: 'Guided weeks.',
-      destination: _RecoveryDestination.structuredPrograms,
-    ),
-    _RecoveryTool(
-      icon: Icons.waves_rounded,
-      title: 'Urge Surfing',
-      subtitle: 'Ride the wave.',
-      destination: _RecoveryDestination.urgeSurfing,
-    ),
-    _RecoveryTool(
-      icon: Icons.help_outline_rounded,
-      title: 'Uncertainty Training',
-      subtitle: 'Practice maybe.',
-      destination: _RecoveryDestination.uncertaintyTraining,
-    ),
-    _RecoveryTool(
-      icon: Icons.checklist_rounded,
-      title: 'Action Planner',
-      subtitle: 'Plan responses.',
-      destination: _RecoveryDestination.actionPlanner,
-    ),
-    _RecoveryTool(
-      icon: Icons.science_rounded,
-      title: 'Behavioral Experiments',
-      subtitle: 'Test OCD.',
-      destination: _RecoveryDestination.behavioralExperiments,
+      icon: Icons.fact_check_rounded,
+      title: 'OCD Self-Check',
+      subtitle: 'Y-BOCS check-in.',
+      destination: _RecoveryDestination.ybocsSelfCheck,
+      stage: _Stage.assess,
+      fullscreen: true,
     ),
     _RecoveryTool(
       icon: Icons.local_fire_department_rounded,
       title: 'Recovery Metrics',
       subtitle: 'Track progress.',
       destination: _RecoveryDestination.recoveryMetrics,
+      stage: _Stage.assess,
+      pro: true,
+    ),
+    // Plan — set up your practice.
+    _RecoveryTool(
+      icon: Icons.stairs_rounded,
+      title: 'Exposure Hierarchy',
+      subtitle: 'Build your ladder.',
+      destination: _RecoveryDestination.exposureHierarchy,
+      stage: _Stage.plan,
+      pro: true,
     ),
     _RecoveryTool(
-      icon: Icons.menu_book_rounded,
-      title: 'Reflection Journal',
-      subtitle: 'Capture learning.',
-      destination: _RecoveryDestination.reflectionJournal,
+      icon: Icons.folder_special_rounded,
+      title: 'Exposure Materials',
+      subtitle: 'Scripts and links.',
+      destination: _RecoveryDestination.exposureMaterials,
+      stage: _Stage.plan,
+      pro: true,
+    ),
+    _RecoveryTool(
+      icon: Icons.calendar_month_rounded,
+      title: 'Structured Programs',
+      subtitle: 'Guided weeks.',
+      destination: _RecoveryDestination.structuredPrograms,
+      stage: _Stage.plan,
+      pro: true,
+    ),
+    _RecoveryTool(
+      icon: Icons.checklist_rounded,
+      title: 'Action Planner',
+      subtitle: 'Plan responses.',
+      destination: _RecoveryDestination.actionPlanner,
+      stage: _Stage.plan,
+      pro: true,
     ),
     _RecoveryTool(
       icon: Icons.lightbulb_outline_rounded,
       title: 'Implementation Intentions',
       subtitle: 'If-then plans.',
       destination: _RecoveryDestination.implementationIntentions,
+      stage: _Stage.plan,
+      pro: true,
+    ),
+    // Practice — do the reps.
+    _RecoveryTool(
+      icon: Icons.self_improvement_rounded,
+      title: 'Guided ERP',
+      subtitle: 'Practice a plan.',
+      destination: _RecoveryDestination.guidedErp,
+      stage: _Stage.practice,
+    ),
+    _RecoveryTool(
+      icon: Icons.hourglass_bottom_rounded,
+      title: 'Compulsion Delay',
+      subtitle: 'Create space.',
+      destination: _RecoveryDestination.compulsionDelay,
+      stage: _Stage.practice,
+      fullscreen: true,
+    ),
+    _RecoveryTool(
+      icon: Icons.waves_rounded,
+      title: 'Urge Surfing',
+      subtitle: 'Ride the wave.',
+      destination: _RecoveryDestination.urgeSurfing,
+      stage: _Stage.practice,
+      pro: true,
+    ),
+    _RecoveryTool(
+      icon: Icons.shield_rounded,
+      title: 'Response Prevention',
+      subtitle: 'Stay on track.',
+      destination: _RecoveryDestination.responsePrevention,
+      stage: _Stage.practice,
+      pro: true,
+    ),
+    _RecoveryTool(
+      icon: Icons.help_outline_rounded,
+      title: 'Uncertainty Training',
+      subtitle: 'Practice maybe.',
+      destination: _RecoveryDestination.uncertaintyTraining,
+      stage: _Stage.practice,
+      pro: true,
+    ),
+    // Review — reflect and learn.
+    _RecoveryTool(
+      icon: Icons.science_rounded,
+      title: 'Behavioral Experiments',
+      subtitle: 'Test OCD.',
+      destination: _RecoveryDestination.behavioralExperiments,
+      stage: _Stage.review,
+      pro: true,
+    ),
+    _RecoveryTool(
+      icon: Icons.menu_book_rounded,
+      title: 'Reflection Journal',
+      subtitle: 'Capture learning.',
+      destination: _RecoveryDestination.reflectionJournal,
+      stage: _Stage.review,
+      pro: true,
     ),
   ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isPro = ref.watch(proProvider);
-    final delays = ref.watch(delaySessionProvider).asData?.value ?? const [];
-    final erp = ref.watch(erpExerciseSessionProvider).asData?.value ?? const [];
-    final steps = ref.watch(exposureStepProvider).asData?.value ?? const [];
-    final responses =
-        ref.watch(responsePreventionProvider).asData?.value ?? const [];
-    final surfs = ref.watch(urgeSurfProvider).asData?.value ?? const [];
-    final journals = ref.watch(journalProvider).asData?.value ?? const [];
-    final ocds = ref.watch(ocdProvider).asData?.value ?? const [];
-
-    final recoveryMetrics = AnalyticsService.buildRecoveryMetrics(
-      delaySessions: delays,
-      erpSessions: erp,
-      exposureSteps: steps,
-      responsePreventionLogs: responses,
-      urgeSurfSessions: surfs,
-    );
-    final dashboard = AnalyticsService.buildRecoveryDashboard(
-      journals: journals,
-      ocds: ocds,
-      delaySessions: delays,
-      erpSessions: erp,
-      exposureSteps: steps,
-      responsePreventionLogs: responses,
-      urgeSurfSessions: surfs,
-    );
 
     return Scaffold(
       body: DecoratedBox(
@@ -169,57 +193,30 @@ class RecoveryHubScreen extends ConsumerWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(18, 16, 18, 116),
             children: staggered([
-              _CockpitHeader(streak: recoveryMetrics.practiceStreakDays),
-              const SizedBox(height: 14),
-              _DailyPracticeCard(
-                weeklyActivity: recoveryMetrics.weeklyActivity,
-                onStart: () => _open(context, _RecoveryDestination.guidedErp),
-              ),
-              const SizedBox(height: 12),
-              _ToolSection(
-                title: 'Free tools',
-                actionLabel: 'See all',
-                onAction: () => _showToolsSheet(
+              const _RecoveryHeader(),
+              const SizedBox(height: 16),
+              _SosStrip(
+                tools: _sosTools,
+                onTap: (tool) => _open(
                   context,
-                  ref,
-                  title: 'Free tools',
-                  tools: _freeTools,
-                  isPro: isPro,
-                ),
-                child: _ToolGrid(
-                  tools: _freeTools,
-                  isPro: true,
-                  onTap: (tool) => _openTool(context, ref, tool, isPro: true),
+                  tool.destination,
+                  fullscreen: tool.fullscreen,
                 ),
               ),
-              const SizedBox(height: 12),
-              _ToolSection(
-                title: 'Pro tools',
-                pro: true,
-                actionLabel: 'See all',
-                onAction: () => _showToolsSheet(
-                  context,
-                  ref,
-                  title: 'Pro tools',
-                  tools: _proTools,
-                  isPro: isPro,
-                  locked: !isPro,
+              const SizedBox(height: 18),
+              for (final stage in _Stage.values) ...[
+                _ToolSection(
+                  title: stage.title,
+                  subtitle: stage.subtitle,
+                  child: _ToolList(
+                    tools: _tools.where((t) => t.stage == stage).toList(),
+                    isPro: isPro,
+                    onTap: (tool) =>
+                        _openTool(context, ref, tool, isPro: isPro),
+                  ),
                 ),
-                child: _ToolGrid(
-                  tools: _proTools.take(4).toList(),
-                  isPro: isPro,
-                  locked: !isPro,
-                  onTap: (tool) => _openTool(context, ref, tool, isPro: isPro),
-                ),
-              ),
-              const SizedBox(height: 12),
-              _ProgressCard(
-                score: dashboard.recoveryScore,
-                onTap: () {
-                  if (!requirePro(context, ref)) return;
-                  _open(context, _RecoveryDestination.recoveryMetrics);
-                },
-              ),
+                const SizedBox(height: 12),
+              ],
             ]),
           ),
         ),
@@ -233,33 +230,8 @@ class RecoveryHubScreen extends ConsumerWidget {
     _RecoveryTool tool, {
     required bool isPro,
   }) {
-    if (!isPro && !requirePro(context, ref)) return;
+    if (tool.pro && !isPro && !requirePro(context, ref)) return;
     _open(context, tool.destination, fullscreen: tool.fullscreen);
-  }
-
-  void _showToolsSheet(
-    BuildContext context,
-    WidgetRef ref, {
-    required String title,
-    required List<_RecoveryTool> tools,
-    required bool isPro,
-    bool locked = false,
-  }) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (sheetContext) => _ToolsSheet(
-        title: title,
-        tools: tools,
-        locked: locked,
-        isPro: isPro,
-        onTap: (tool) {
-          Navigator.of(sheetContext).pop();
-          _openTool(context, ref, tool, isPro: isPro);
-        },
-      ),
-    );
   }
 
   void _open(
@@ -280,6 +252,8 @@ class RecoveryHubScreen extends ConsumerWidget {
     switch (destination) {
       case _RecoveryDestination.guidedErp:
         return const ErpExercisesScreen(showBack: true);
+      case _RecoveryDestination.ybocsSelfCheck:
+        return const YbocsScreen();
       case _RecoveryDestination.compulsionDelay:
         return const CompulsionDelayFlow();
       case _RecoveryDestination.emergencyToolkit:
@@ -314,6 +288,7 @@ class RecoveryHubScreen extends ConsumerWidget {
 
 enum _RecoveryDestination {
   guidedErp,
+  ybocsSelfCheck,
   compulsionDelay,
   emergencyToolkit,
   copingLibrary,
@@ -330,11 +305,27 @@ enum _RecoveryDestination {
   implementationIntentions,
 }
 
+/// The ERP journey stages the library is grouped into, ordered as a user
+/// progresses. Plain-language titles/subtitles keep the framing calm.
+enum _Stage {
+  assess('Assess', 'See where you are.'),
+  plan('Plan', 'Set up your practice.'),
+  practice('Practice', 'Do the reps.'),
+  review('Review', 'Reflect and learn.');
+
+  const _Stage(this.title, this.subtitle);
+
+  final String title;
+  final String subtitle;
+}
+
 class _RecoveryTool {
   final IconData icon;
   final String title;
   final String subtitle;
   final _RecoveryDestination destination;
+  final _Stage stage;
+  final bool pro;
   final bool fullscreen;
 
   const _RecoveryTool({
@@ -342,238 +333,139 @@ class _RecoveryTool {
     required this.title,
     required this.subtitle,
     required this.destination,
+    required this.stage,
+    this.pro = false,
     this.fullscreen = false,
   });
 }
 
-class _CockpitHeader extends StatelessWidget {
-  final int streak;
-
-  const _CockpitHeader({required this.streak});
+class _RecoveryHeader extends StatelessWidget {
+  const _RecoveryHeader();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Row(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Recovery',
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  height: 1.05,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                'Tools and practices to help you respond to OCD differently.',
-                style: TextStyle(
-                  color: AppTheme.textSecondary,
-                  fontSize: 14,
-                  height: 1.3,
-                ),
-              ),
-            ],
+        Text(
+          'Recovery',
+          style: theme.textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.w900,
+            height: 1.05,
           ),
         ),
-        const SizedBox(width: 12),
-        _StreakPill(streak: streak),
+        const SizedBox(height: 5),
+        Text(
+          'Tools and practices, grouped by where you are in your work.',
+          style: TextStyle(
+            color: AppTheme.textSecondary,
+            fontSize: 14,
+            height: 1.3,
+          ),
+        ),
       ],
     );
   }
 }
 
-class _StreakPill extends StatelessWidget {
-  final int streak;
+/// Persistent quick-access to the in-the-moment tools, kept above the journey
+/// stages so a distressed user reaches grounding in one tap.
+class _SosStrip extends StatelessWidget {
+  final List<_RecoveryTool> tools;
+  final ValueChanged<_RecoveryTool> onTap;
 
-  const _StreakPill({required this.streak});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 9, 13, 9),
-      decoration: _cockpitDecoration(radius: 26),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 30,
-            height: 30,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppTheme.warmYellow.withValues(alpha: 0.14),
-            ),
-            child: const Icon(
-              Icons.local_fire_department_rounded,
-              color: AppTheme.warmYellow,
-              size: 19,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '$streak',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 15,
-                  height: 1,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                streak == 1 ? 'day streak' : 'day streak',
-                style: _mutedStyle.copyWith(fontSize: 10.5),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DailyPracticeCard extends StatelessWidget {
-  final List<bool> weeklyActivity;
-  final VoidCallback onStart;
-
-  const _DailyPracticeCard({
-    required this.weeklyActivity,
-    required this.onStart,
-  });
+  const _SosStrip({required this.tools, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return _CockpitCard(
+      padding: const EdgeInsets.fromLTRB(14, 13, 14, 14),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppTheme.warmYellow,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.calendar_month_rounded,
-                  color: Color(0xFF17130A),
-                ),
+              Icon(
+                Icons.favorite_rounded,
+                color: AppTheme.warmYellow,
+                size: 16,
               ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Daily ERP practice',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 16,
-                      ),
-                    ),
-                    SizedBox(height: 3),
-                    Text(
-                      'A small daily step builds long-term change.',
-                      style: _mutedStyle,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: onStart,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(0, 42),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                ),
-                child: const Text('Start today'),
+              SizedBox(width: 7),
+              Text(
+                'Need help right now?',
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
               ),
             ],
           ),
-          const SizedBox(height: 18),
-          _WeeklyPracticeRow(activity: weeklyActivity),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              for (var i = 0; i < tools.length; i++) ...[
+                if (i != 0) const SizedBox(width: 8),
+                Expanded(
+                  child: _SosButton(
+                    tool: tools[i],
+                    onTap: () => onTap(tools[i]),
+                  ),
+                ),
+              ],
+            ],
+          ),
         ],
       ),
     );
   }
 }
 
-class _WeeklyPracticeRow extends StatelessWidget {
-  final List<bool> activity;
+class _SosButton extends StatelessWidget {
+  final _RecoveryTool tool;
+  final VoidCallback onTap;
 
-  const _WeeklyPracticeRow({required this.activity});
-
-  static const _labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const _SosButton({required this.tool, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
-    return Row(
-      children: [
-        for (var i = 0; i < 7; i++)
-          Expanded(
-            child: Column(
-              children: [
-                Text(
-                  _labels[(today.subtract(Duration(days: 6 - i)).weekday - 1) %
-                      7],
-                  style: _mutedStyle.copyWith(fontSize: 10.5),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  width: 26,
-                  height: 26,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: activity.length > i && activity[i]
-                        ? AppTheme.warmYellow
-                        : Colors.transparent,
-                    border: Border.all(
-                      color: activity.length > i && activity[i]
-                          ? AppTheme.warmYellow
-                          : const Color(0xFF3B3935),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: activity.length > i && activity[i]
-                      ? const Icon(
-                          Icons.check_rounded,
-                          color: Color(0xFF17130A),
-                          size: 16,
-                        )
-                      : null,
-                ),
-              ],
+    return PressScale(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFF181817),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFF2D2B27)),
+        ),
+        child: Column(
+          children: [
+            Icon(tool.icon, color: AppTheme.warmYellow, size: 22),
+            const SizedBox(height: 7),
+            Text(
+              tool.title,
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 11,
+                height: 1.1,
+              ),
             ),
-          ),
-      ],
+          ],
+        ),
+      ),
     );
   }
 }
 
 class _ToolSection extends StatelessWidget {
   final String title;
-  final bool pro;
-  final String actionLabel;
-  final VoidCallback onAction;
+  final String subtitle;
   final Widget child;
 
   const _ToolSection({
     required this.title,
-    required this.actionLabel,
-    required this.onAction,
+    required this.subtitle,
     required this.child,
-    this.pro = false,
   });
 
   @override
@@ -581,8 +473,11 @@ class _ToolSection extends StatelessWidget {
     return _CockpitCard(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
                 title,
@@ -591,38 +486,9 @@ class _ToolSection extends StatelessWidget {
                   fontSize: 16,
                 ),
               ),
-              if (pro) ...[
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.warmYellow.withValues(alpha: 0.14),
-                    borderRadius: BorderRadius.circular(7),
-                  ),
-                  child: Text(
-                    'PRO',
-                    style: TextStyle(
-                      color: AppTheme.warmYellow,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-              ],
-              const Spacer(),
-              GestureDetector(
-                onTap: onAction,
-                child: Text(
-                  actionLabel,
-                  style: TextStyle(
-                    color: AppTheme.warmYellow,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12,
-                  ),
-                ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(subtitle, style: _mutedStyle.copyWith(fontSize: 12)),
               ),
             ],
           ),
@@ -634,53 +500,48 @@ class _ToolSection extends StatelessWidget {
   }
 }
 
-class _ToolGrid extends StatelessWidget {
+/// Compact full-width rows for a stage's tools. Rows fill the card edge to edge
+/// and stay tidy whether a stage holds two tools or five — no empty grid cells
+/// or tall tiles with dead space in the middle.
+class _ToolList extends StatelessWidget {
   final List<_RecoveryTool> tools;
   final bool isPro;
-  final bool locked;
   final ValueChanged<_RecoveryTool> onTap;
 
-  const _ToolGrid({
+  const _ToolList({
     required this.tools,
     required this.isPro,
     required this.onTap,
-    this.locked = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final columns = constraints.maxWidth < 350 ? 2 : 4;
-        final gap = 8.0;
-        final tileWidth =
-            (constraints.maxWidth - gap * (columns - 1)) / columns;
-        return Wrap(
-          spacing: gap,
-          runSpacing: gap,
-          children: [
-            for (final tool in tools)
-              SizedBox(
-                width: tileWidth,
-                child: _ToolTile(
-                  tool: tool,
-                  locked: locked || !isPro,
-                  onTap: () => onTap(tool),
-                ),
-              ),
-          ],
-        );
-      },
+    return Column(
+      children: [
+        for (var i = 0; i < tools.length; i++) ...[
+          if (i != 0)
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: Color(0xFF262521),
+            ),
+          _ToolRow(
+            tool: tools[i],
+            locked: tools[i].pro && !isPro,
+            onTap: () => onTap(tools[i]),
+          ),
+        ],
+      ],
     );
   }
 }
 
-class _ToolTile extends StatelessWidget {
+class _ToolRow extends StatelessWidget {
   final _RecoveryTool tool;
   final bool locked;
   final VoidCallback onTap;
 
-  const _ToolTile({
+  const _ToolRow({
     required this.tool,
     required this.locked,
     required this.onTap,
@@ -690,221 +551,45 @@ class _ToolTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return PressScale(
       onTap: onTap,
-      child: Container(
-        height: 126,
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: const Color(0xFF181817),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFF2D2B27)),
-        ),
-        child: Stack(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
           children: [
-            if (locked)
-              const Positioned(
-                top: 0,
-                right: 0,
-                child: Icon(
-                  LineIcons.lock,
-                  size: 14,
-                  color: AppTheme.textSecondary,
-                ),
+            Container(
+              width: 40,
+              height: 40,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppTheme.warmYellow.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
               ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(tool.icon, color: AppTheme.warmYellow, size: 27),
-                const Spacer(),
-                Text(
-                  tool.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 12,
-                    height: 1.1,
+              child: Icon(tool.icon, color: AppTheme.warmYellow, size: 21),
+            ),
+            const SizedBox(width: 13),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    tool.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  tool.subtitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: _mutedStyle.copyWith(fontSize: 10.5, height: 1.18),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProgressCard extends StatelessWidget {
-  final int score;
-  final VoidCallback onTap;
-
-  const _ProgressCard({required this.score, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return PressScale(
-      onTap: onTap,
-      child: _CockpitCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Your progress',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-            ),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                _ProgressRing(score: score),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Recovery progress',
-                        style: TextStyle(fontWeight: FontWeight.w900),
-                      ),
-                      const SizedBox(height: 4),
-                      Text("You've come a long way.", style: _mutedStyle),
-                      const SizedBox(height: 12),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(999),
-                        child: LinearProgressIndicator(
-                          value: score.clamp(0, 100) / 100,
-                          minHeight: 8,
-                          backgroundColor: const Color(0xFF2B2926),
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppTheme.warmYellow,
-                          ),
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 2),
+                  Text(
+                    tool.subtitle,
+                    style: _mutedStyle.copyWith(fontSize: 11.5),
                   ),
-                ),
-                const SizedBox(width: 10),
-                const Icon(
-                  LineIcons.angleRight,
-                  color: AppTheme.textSecondary,
-                  size: 20,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProgressRing extends StatelessWidget {
-  final int score;
-
-  const _ProgressRing({required this.score});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 76,
-      height: 76,
-      child: CustomPaint(
-        painter: _ProgressRingPainter(score),
-        child: Center(
-          child: Text(
-            '$score%',
-            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 19),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ProgressRingPainter extends CustomPainter {
-  final int score;
-
-  const _ProgressRingPainter(this.score);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    final radius = math.min(size.width, size.height) / 2 - 5;
-    final track = Paint()
-      ..color = const Color(0xFF2B2926)
-      ..strokeWidth = 6
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-    final progress = Paint()
-      ..color = AppTheme.warmYellow
-      ..strokeWidth = 6
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-    canvas.drawCircle(center, radius, track);
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      -math.pi / 2,
-      (score.clamp(0, 100) / 100) * math.pi * 2,
-      false,
-      progress,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _ProgressRingPainter oldDelegate) {
-    return oldDelegate.score != score;
-  }
-}
-
-class _ToolsSheet extends StatelessWidget {
-  final String title;
-  final List<_RecoveryTool> tools;
-  final bool locked;
-  final bool isPro;
-  final ValueChanged<_RecoveryTool> onTap;
-
-  const _ToolsSheet({
-    required this.title,
-    required this.tools,
-    required this.locked,
-    required this.isPro,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        margin: const EdgeInsets.all(12),
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.sizeOf(context).height * 0.82,
-        ),
-        decoration: _cockpitDecoration(radius: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
-            ),
-            const SizedBox(height: 14),
-            Flexible(
-              child: SingleChildScrollView(
-                child: _ToolGrid(
-                  tools: tools,
-                  isPro: isPro,
-                  locked: locked,
-                  onTap: onTap,
-                ),
+                ],
               ),
+            ),
+            const SizedBox(width: 10),
+            Icon(
+              locked ? LineIcons.lock : LineIcons.angleRight,
+              color: AppTheme.textSecondary,
+              size: locked ? 15 : 18,
             ),
           ],
         ),

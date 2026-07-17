@@ -7,6 +7,7 @@ import 'package:local_auth/local_auth.dart'
 
 import '../models/models.dart';
 import '../providers/providers.dart';
+import '../services/analytics_service.dart';
 import '../services/demo_seed_service.dart';
 import '../services/notification_service.dart';
 import '../theme/app_theme.dart';
@@ -16,16 +17,36 @@ import 'biometric_auth.dart';
 import 'preferences.dart';
 import 'screens/analytics_screen.dart';
 import 'screens/compulsion_delay_screen.dart';
+import 'screens/erp_exercises_screen.dart';
+import 'screens/exposure_hierarchy_screen.dart';
+import 'screens/exposure_reflection_screen.dart';
 import 'screens/journal_screen.dart';
 import 'screens/ocd_tracker_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/recovery_hub_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/ybocs_screen.dart';
+import 'widgets/pro_gate.dart';
+import 'widgets/section_intro.dart';
+import 'widgets/spotlight_tour.dart';
 
 /// MaterialApp.navigatorKey for the mobile build, so Welcome→Settings can
 /// push from a post-frame callback.
 final GlobalKey<NavigatorState> mobileRootNavigatorKey =
     GlobalKey<NavigatorState>();
+
+/// Bumped to request a replay of the spotlight tab tour (e.g. from Settings).
+/// The mobile home listens and re-runs the tour when this changes.
+class TourRequestNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void request() => state++;
+}
+
+final tourRequestProvider = NotifierProvider<TourRequestNotifier, int>(
+  TourRequestNotifier.new,
+);
 
 /// Wraps mobile content with a centered max-width frame so it looks reasonable
 /// on tablets and landscape phones. Used as MaterialApp.builder on mobile.
@@ -55,12 +76,18 @@ class _MobileShellState extends ConsumerState<MobileShell> {
       !_hasStarted ||
       mobilePreferences?.getString(lastSeenReleaseKey) == currentReleaseId;
 
+  // True only for the session where the user just finished onboarding, so the
+  // spotlight tour runs for genuinely new users and not on every cold start or
+  // for existing users upgrading into this release.
+  bool _justStarted = false;
+
   void _startApp() {
     mobilePreferences?.setBool('hasStarted', true);
     mobilePreferences?.setString(lastSeenReleaseKey, currentReleaseId);
     setState(() {
       _hasStarted = true;
       _hasSeenCurrentRelease = true;
+      _justStarted = true;
     });
   }
 
@@ -82,7 +109,7 @@ class _MobileShellState extends ConsumerState<MobileShell> {
         onContinue: _markReleaseSeen,
       );
     }
-    if (_hasStarted) return const MobileHome();
+    if (_hasStarted) return MobileHome(showTour: _justStarted);
     return WelcomeScreen(
       onStart: _startApp,
       onImport: () {
@@ -170,7 +197,7 @@ class WhatsNewScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       const Text(
-                        'Your Home now brings recovery score, daily practice, quick actions, and progress into one calm place.',
+                        'Today now shows one clear next step, and Recovery groups every tool by where you are in your work.',
                         style: TextStyle(
                           color: AppTheme.textSecondary,
                           fontSize: 15,
@@ -193,7 +220,7 @@ class WhatsNewScreen extends StatelessWidget {
                   onPressed: () {
                     onShowHome();
                   },
-                  child: const Text('Show me the new Home'),
+                  child: const Text('Show me the new Today'),
                 ),
               ),
               const SizedBox(height: 10),
@@ -229,19 +256,19 @@ class _WhatsNewFeatureList extends StatelessWidget {
 
   static const _features = [
     _WhatsNewFeature(
-      icon: LineIcons.lineChart,
-      title: 'Recovery score on Home',
-      body: 'See progress without digging through analytics.',
-    ),
-    _WhatsNewFeature(
-      icon: LineIcons.clock,
-      title: 'Continue your practice',
-      body: 'Jump back into ERP and delay tools faster.',
+      icon: LineIcons.checkCircle,
+      title: 'One clear next step',
+      body: 'Today suggests the single best thing to do right now.',
     ),
     _WhatsNewFeature(
       icon: LineIcons.layerGroup,
-      title: 'Exposure tools are closer',
-      body: 'Find hierarchy, materials, and uncertainty practice from Home.',
+      title: 'Recovery, grouped by stage',
+      body: 'Assess, Plan, Practice, and Review — tools where you expect them.',
+    ),
+    _WhatsNewFeature(
+      icon: LineIcons.heart,
+      title: 'Help right now, up top',
+      body: 'Grounding tools stay one tap away when a moment gets hard.',
     ),
   ];
 
@@ -599,7 +626,9 @@ class _PrivacyCover extends StatelessWidget {
 enum _Tab { home, journal, track, erp, insights }
 
 class MobileHome extends ConsumerStatefulWidget {
-  const MobileHome({super.key});
+  final bool showTour;
+
+  const MobileHome({super.key, this.showTour = false});
 
   @override
   ConsumerState<MobileHome> createState() => _MobileHomeState();
@@ -608,10 +637,69 @@ class MobileHome extends ConsumerStatefulWidget {
 class _MobileHomeState extends ConsumerState<MobileHome> {
   late _Tab _selectedTab = _savedTab();
 
+  // Stable keys the spotlight tour measures — one per tab. The concluding step
+  // is centered (target-less), so it needs no key.
+  final Map<_Tab, GlobalKey> _tabKeys = {
+    for (final tab in _Tab.values) tab: GlobalKey(),
+  };
+  bool _tourRunning = false;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _seedDemoData());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _seedDemoData();
+      if (widget.showTour) _startTour();
+    });
+  }
+
+  void _startTour({bool force = false}) {
+    if (_tourRunning) return;
+    if (!force && (mobilePreferences?.getBool(tabTourSeenKey) ?? false)) return;
+    _selectTab(_Tab.home);
+    // Let any in-flight transition settle (a Settings pop on replay, or the
+    // Home mounting on first run) before measuring/showing the spotlight.
+    Future.delayed(const Duration(milliseconds: 350), () {
+      if (!mounted || _tourRunning) return;
+      _tourRunning = true;
+      showSpotlightTour(
+        context,
+        steps: _buildTourSteps(),
+        onFinish: () {
+          _tourRunning = false;
+          mobilePreferences?.setBool(tabTourSeenKey, true);
+        },
+        onFinaleCta: () => _openNextStep(RecoveryStep.selfCheck),
+      );
+    });
+  }
+
+  List<TourStep> _buildTourSteps() {
+    TourStep tab(_Tab t, String id) {
+      final intro = sectionIntros[id]!;
+      return TourStep(
+        targetKey: _tabKeys[t]!,
+        title: intro.title,
+        points: intro.points,
+        onShow: () => _selectTab(t),
+      );
+    }
+
+    return [
+      tab(_Tab.home, 'today'),
+      tab(_Tab.journal, 'journal'),
+      tab(_Tab.track, 'track'),
+      tab(_Tab.erp, 'recoveryHub'),
+      tab(_Tab.insights, 'insights'),
+      TourStep(
+        title: "You're all set",
+        points: const [
+          'Start with a quick self-check — it sets your baseline and unlocks your recovery score.',
+        ],
+        ctaLabel: 'Take self-check',
+        onShow: () => _selectTab(_Tab.home),
+      ),
+    ];
   }
 
   Future<void> _seedDemoData() async {
@@ -631,12 +719,16 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
 
   @override
   Widget build(BuildContext context) {
+    // Replay requests (from Settings) re-run the tour on the live app.
+    ref.listen<int>(tourRequestProvider, (_, _) => _startTour(force: true));
+
     final today = TodayScreen(
       onJournal: () => _openJournalEditor(context),
       onTrack: () => _openOcdFlow(context),
       onDelay: () => _openDelayFlow(context),
       onErp: _openErpTab,
       onInsights: _openInsightsTab,
+      onNextStep: _openNextStep,
       onSettings: () => Navigator.of(
         context,
       ).push(MaterialPageRoute<void>(builder: (_) => const SettingsScreen())),
@@ -684,6 +776,7 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
               minimum: EdgeInsets.zero,
               child: _FloatingTabBar(
                 selectedTab: _selectedTab,
+                tabKeys: _tabKeys,
                 onSelected: (tab) {
                   if (tab == _selectedTab) return;
                   _selectTab(tab);
@@ -767,6 +860,43 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
     _selectTab(_Tab.insights);
   }
 
+  /// Deep-links the Today screen's "Your next step" card straight to the right
+  /// tool. Pro-only steps are only ever recommended to Pro users (see
+  /// [AnalyticsService.buildNextStep]); the requirePro guards are defensive.
+  void _openNextStep(RecoveryStep step) {
+    switch (step) {
+      case RecoveryStep.selfCheck:
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            fullscreenDialog: true,
+            builder: (_) => const YbocsScreen(),
+          ),
+        );
+      case RecoveryStep.buildHierarchy:
+        if (!requirePro(context, ref)) return;
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => const ExposureHierarchyScreen(),
+          ),
+        );
+      case RecoveryStep.dailyPractice:
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => const ErpExercisesScreen(showBack: true),
+          ),
+        );
+      case RecoveryStep.reflect:
+        if (!requirePro(context, ref)) return;
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => const ExposureReflectionScreen(),
+          ),
+        );
+      case RecoveryStep.journal:
+        _openJournalEditor(context);
+    }
+  }
+
   void _selectTab(_Tab tab) {
     mobilePreferences?.setString(mobileSelectedTabKey, tab.name);
     setState(() => _selectedTab = tab);
@@ -808,12 +938,17 @@ class _MobileHomeState extends ConsumerState<MobileHome> {
 
 class _FloatingTabBar extends StatelessWidget {
   final _Tab selectedTab;
+  final Map<_Tab, GlobalKey> tabKeys;
   final ValueChanged<_Tab> onSelected;
 
-  const _FloatingTabBar({required this.selectedTab, required this.onSelected});
+  const _FloatingTabBar({
+    required this.selectedTab,
+    required this.tabKeys,
+    required this.onSelected,
+  });
 
   static const _items = [
-    _DockTabSpec(tab: _Tab.home, icon: LineIcons.home, label: 'Home'),
+    _DockTabSpec(tab: _Tab.home, icon: LineIcons.home, label: 'Today'),
     _DockTabSpec(tab: _Tab.journal, icon: LineIcons.bookOpen, label: 'Journal'),
     _DockTabSpec(tab: _Tab.track, icon: LineIcons.bullseye, label: 'Track'),
     _DockTabSpec(
@@ -853,6 +988,7 @@ class _FloatingTabBar extends StatelessWidget {
                 _SegmentTabItem(
                   spec: item,
                   active: selectedTab == item.tab,
+                  measureKey: tabKeys[item.tab],
                   onTap: () => onSelected(item.tab),
                 ),
             ],
@@ -942,11 +1078,13 @@ class _DockTabSpec {
 class _SegmentTabItem extends StatelessWidget {
   final _DockTabSpec spec;
   final bool active;
+  final GlobalKey? measureKey;
   final VoidCallback onTap;
 
   const _SegmentTabItem({
     required this.spec,
     required this.active,
+    required this.measureKey,
     required this.onTap,
   });
 
@@ -968,6 +1106,7 @@ class _SegmentTabItem extends StatelessWidget {
             scale: 0.96,
             onTap: onTap,
             child: SizedBox.expand(
+              key: measureKey,
               child: Stack(
                 children: [
                   Positioned.fill(

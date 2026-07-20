@@ -519,16 +519,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 icon: LineIcons.unlock,
                                 onTap: () => PaywallSheet.show(context),
                               ),
-                            Divider(height: 1, color: Colors.white.withOpacity(0.04), indent: 20, endIndent: 20),
-                            _SettingsListRow(
-                              title: 'Restore purchases',
-                              subtitle: 'Re-apply a previous Patterns Desktop Pro unlock',
-                              icon: LineIcons.syncIcon,
-                              onTap: () {
-                                ProService.restore();
-                                showAppSnackBar(context, 'Restoring purchases…');
-                              },
-                            ),
                           ],
                         ),
                         _SettingsCategory.support => _SettingsGroup(

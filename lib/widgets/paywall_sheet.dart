@@ -532,153 +532,159 @@ class _DesktopPaywallViewState extends State<DesktopPaywallView> {
           const SizedBox(height: 28),
 
           // Pricing & Checkout Box
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: theme.colorScheme.primary.withOpacity(0.15),
-                width: 1.2,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (!_isEnteringLicense) ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+          Align(
+            alignment: Alignment.center,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: theme.colorScheme.primary.withOpacity(0.15),
+                    width: 1.2,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (!_isEnteringLicense) ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'One-Time License',
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'One-Time License',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '\$9.99 (one-time purchase)',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                            ],
+                          ),
+                          ElevatedButton(
+                            onPressed: () => launchUrl(
+                              Uri.parse('https://maskedsyntax.lemonsqueezy.com/buy/patterns-desktop-pro'),
+                              mode: LaunchMode.externalApplication,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                            ),
+                            child: const Text('Purchase License Key'),
+                          ),
+                        ],
+                      ),
+                      const Divider(height: 24, color: Colors.white10),
+                      GestureDetector(
+                        onTap: () => setState(() => _isEnteringLicense = true),
+                        child: Center(
+                          child: Text(
+                            'Already purchased? Enter your License Key',
                             style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey,
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.primary,
+                              decoration: TextDecoration.underline,
                             ),
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '\$9.99 (one-time purchase)',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ] else ...[
+                      Text(
+                        'Enter your Lemon Squeezy license key:',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _licenseController,
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: 'License Key',
+                          hintText: 'e.g. DESKTOP-XXXX-XXXX-XXXX',
+                          hintStyle: TextStyle(
+                            color: theme.colorScheme.onSurface.withOpacity(0.3),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'For testing, enter any 8+ character key (e.g. DESKTOP-TEST-KEY).',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontStyle: FontStyle.italic,
+                          color: theme.colorScheme.onSurface.withOpacity(0.4),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => setState(() {
+                                _isEnteringLicense = false;
+                                _licenseController.clear();
+                              }),
+                              child: const Text('Back'),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Consumer(
+                              builder: (context, ref, _) {
+                                return ElevatedButton(
+                                  onPressed: () async {
+                                    final key = _licenseController.text.trim();
+                                    if (key.length >= 8) {
+                                      await appPreferences?.setBool(proUnlockedKey, true);
+                                      ref.read(proProvider.notifier).refresh();
+                                      if (widget.onUnlocked != null) {
+                                        widget.onUnlocked!();
+                                      } else {
+                                        _showUnlockedDialog(context, restored: false);
+                                      }
+                                    } else {
+                                      showAppSnackBar(
+                                        context,
+                                        'Please enter a valid license key (at least 8 characters).',
+                                        type: ToastType.error,
+                                      );
+                                    }
+                                  },
+                                  child: const Text('Activate License'),
+                                );
+                              },
                             ),
                           ),
                         ],
                       ),
-                      ElevatedButton(
-                        onPressed: () => launchUrl(
-                          Uri.parse('https://maskedsyntax.lemonsqueezy.com/buy/patterns-desktop-pro'),
-                          mode: LaunchMode.externalApplication,
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                        ),
-                        child: const Text('Purchase License Key'),
-                      ),
                     ],
-                  ),
-                  const Divider(height: 24, color: Colors.white10),
-                  GestureDetector(
-                    onTap: () => setState(() => _isEnteringLicense = true),
-                    child: Center(
-                      child: Text(
-                        'Already purchased? Enter your License Key',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.primary,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ),
-                  ),
-                ] else ...[
-                  Text(
-                    'Enter your Lemon Squeezy license key:',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _licenseController,
-                    style: TextStyle(
-                      fontSize: 13.5,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                    decoration: InputDecoration(
-                      labelText: 'License Key',
-                      hintText: 'e.g. DESKTOP-XXXX-XXXX-XXXX',
-                      hintStyle: TextStyle(
-                        color: theme.colorScheme.onSurface.withOpacity(0.3),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'For testing, enter any 8+ character key (e.g. DESKTOP-TEST-KEY).',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontStyle: FontStyle.italic,
-                      color: theme.colorScheme.onSurface.withOpacity(0.4),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => setState(() {
-                            _isEnteringLicense = false;
-                            _licenseController.clear();
-                          }),
-                          child: const Text('Back'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Consumer(
-                          builder: (context, ref, _) {
-                            return ElevatedButton(
-                              onPressed: () async {
-                                final key = _licenseController.text.trim();
-                                if (key.length >= 8) {
-                                  await appPreferences?.setBool(proUnlockedKey, true);
-                                  ref.read(proProvider.notifier).refresh();
-                                  if (widget.onUnlocked != null) {
-                                    widget.onUnlocked!();
-                                  } else {
-                                    _showUnlockedDialog(context, restored: false);
-                                  }
-                                } else {
-                                  showAppSnackBar(
-                                    context,
-                                    'Please enter a valid license key (at least 8 characters).',
-                                    type: ToastType.error,
-                                  );
-                                }
-                              },
-                              child: const Text('Activate License'),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
+                  ],
+                ),
+              ),
             ),
           ),
         ],

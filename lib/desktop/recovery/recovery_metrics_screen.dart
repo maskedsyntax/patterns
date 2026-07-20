@@ -116,7 +116,7 @@ class _LockedTeaser extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               'Streaks, exposures completed, and how your urges drop over time, '
-              'across every ERP tool. Unlock with Patterns Pro.',
+              'across every ERP tool. Unlock with Patterns Desktop Pro.',
               style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
             ),
             const SizedBox(height: 14),
@@ -124,7 +124,7 @@ class _LockedTeaser extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: ElevatedButton(
                 onPressed: onTap,
-                child: const Text('Unlock Pro'),
+                child: const Text('Unlock Desktop Pro'),
               ),
             ),
           ],

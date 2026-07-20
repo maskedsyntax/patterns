@@ -49,7 +49,15 @@ class PaywallSheet extends StatefulWidget {
 }
 
 class _PaywallSheetState extends State<PaywallSheet> {
-  static const _proPoints = <String>[
+  static const _desktopProPoints = <String>[
+    'Exposure Hierarchy Builder: plan and structure hierarchy steps',
+    'ERP Practice: log response prevention & timed exercises',
+    'Urge Surfing: ride urges with real-time logs',
+    'Advanced Insights: interactive charts & progress trends',
+    'Local-first database with manual backup export/import',
+  ];
+
+  static const _mobileProPoints = <String>[
     'Exposure Hierarchy Builder: climb fear ladders step by step',
     'Exposure materials: scripts, loop tapes, images & links',
     'Urge surfing & response-prevention trackers',
@@ -249,7 +257,7 @@ class _PaywallSheetState extends State<PaywallSheet> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Patterns Pro',
+                    kIsDesktop ? 'Patterns Desktop Pro' : 'Patterns Pro',
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
@@ -259,12 +267,13 @@ class _PaywallSheetState extends State<PaywallSheet> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Move beyond tracking and practice recovery. A one-time unlock, '
-              'yours for good, no subscription.',
+              kIsDesktop
+                  ? 'Unlock all desktop-optimized recovery features. A cheaper, one-time purchase separate from the mobile companion.'
+                  : 'Move beyond tracking and practice recovery. A one-time unlock, yours for good, no subscription.',
               style: TextStyle(color: AppTheme.textSecondary, height: 1.45),
             ),
             const SizedBox(height: 18),
-            for (final point in _proPoints) ...[
+            for (final point in (kIsDesktop ? _desktopProPoints : _mobileProPoints)) ...[
               _ProPoint(text: point),
               const SizedBox(height: 10),
             ],
@@ -310,6 +319,10 @@ class _PaywallSheetState extends State<PaywallSheet> {
       );
     }
     final product = _product;
+    final buttonText = (kIsDesktop || !ProService.isPlatformSupported)
+        ? 'Unlock Desktop Pro · \$9.99'
+        : (product != null ? 'Unlock Pro · ${product.price}' : 'Unlock Pro');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -323,11 +336,7 @@ class _PaywallSheetState extends State<PaywallSheet> {
                     width: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : Text(
-                    product != null
-                        ? 'Unlock Pro · ${product.price}'
-                        : 'Unlock Pro',
-                  ),
+                : Text(buttonText),
           ),
         ),
         const SizedBox(height: 8),
@@ -372,7 +381,7 @@ class _PaywallSheetState extends State<PaywallSheet> {
             const SizedBox(height: 16),
             if (!_isEnteringOtp) ...[
               Text(
-                'To unlock desktop Pro, purchase it on your mobile device first. '
+                'To unlock Desktop Pro, purchase the "Desktop Pro Upgrade" inside the Patterns mobile app. '
                 'Then go to Settings > Link Desktop App and scan this code:',
                 style: TextStyle(
                   fontSize: 12,
@@ -423,8 +432,8 @@ class _PaywallSheetState extends State<PaywallSheet> {
               ),
             ] else ...[
               Text(
-                'If your devices are on different networks, open your mobile app settings '
-                'and enter the 6-digit linking code shown:',
+                'If your devices are on different networks, open Settings > Link Desktop App on your mobile companion '
+                'and enter this 6-digit linking code:',
                 style: TextStyle(
                   fontSize: 12,
                   color: theme.colorScheme.onSurface.withOpacity(0.7),
@@ -553,8 +562,8 @@ void _showUnlockedDialog(BuildContext context, {required bool restored}) {
               const SizedBox(height: 8),
               Text(
                 restored
-                    ? 'Patterns Pro has been restored on this device.'
-                    : 'Patterns Pro is unlocked. Every recovery tool is now yours.',
+                    ? 'Patterns Desktop Pro has been restored on this device.'
+                    : 'Patterns Desktop Pro is unlocked. Every desktop recovery tool is now yours.',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: AppTheme.textSecondary,
                   height: 1.5,

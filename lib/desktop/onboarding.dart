@@ -183,7 +183,7 @@ class DesktopWelcomeScreen extends StatelessWidget {
                     width: double.infinity,
                     child: TextButton(
                       onPressed: () => PaywallSheet.show(context),
-                      child: const Text('Unlock Patterns Pro'),
+                      child: const Text('Unlock Patterns Desktop Pro'),
                     ),
                   ),
                 ],

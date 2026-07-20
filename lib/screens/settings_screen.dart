@@ -499,28 +499,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             ),
                           ],
                         ),
-                        _SettingsCategory.pro => _SettingsGroup(
-                          title: 'Patterns Desktop Pro',
-                          children: [
-                            if (isPro)
-                              _SettingsListRow(
-                                title: 'Patterns Desktop Pro is active',
-                                subtitle: 'Every desktop recovery tool is unlocked. Thank you',
-                                icon: LineIcons.crown,
-                                onTap: () => showAppSnackBar(
-                                  context,
-                                  'Patterns Desktop Pro is active on this device.',
-                                ),
+                        _SettingsCategory.pro => isPro
+                            ? _SettingsGroup(
+                                title: 'Patterns Desktop Pro',
+                                children: [
+                                  _SettingsListRow(
+                                    title: 'Patterns Desktop Pro is active',
+                                    subtitle: 'Every desktop recovery tool is unlocked. Thank you',
+                                    icon: LineIcons.crown,
+                                    onTap: () => showAppSnackBar(
+                                      context,
+                                      'Patterns Desktop Pro is active on this device.',
+                                    ),
+                                  ),
+                                ],
                               )
-                            else
-                              _SettingsListRow(
-                                title: 'Unlock Patterns Desktop Pro',
-                                subtitle: 'One-time unlock for all desktop recovery tools',
-                                icon: LineIcons.unlock,
-                                onTap: () => PaywallSheet.show(context),
-                              ),
-                          ],
-                        ),
+                            : const DesktopPaywallView(),
                         _SettingsCategory.support => _SettingsGroup(
                           title: 'Support & Sponsorship',
                           children: [

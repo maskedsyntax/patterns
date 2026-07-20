@@ -487,11 +487,11 @@ class _DesktopPaywallViewState extends State<DesktopPaywallView> {
           const SizedBox(height: 24),
 
           // Features Grid
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 560;
+              if (isNarrow) {
+                return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     buildFeatureCard(
@@ -499,35 +499,70 @@ class _DesktopPaywallViewState extends State<DesktopPaywallView> {
                       features[0].title,
                       features[0].desc,
                     ),
-                    const SizedBox(height: 12),
-                    buildFeatureCard(
-                      features[2].icon,
-                      features[2].title,
-                      features[2].desc,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
+                    const SizedBox(height: 10),
                     buildFeatureCard(
                       features[1].icon,
                       features[1].title,
                       features[1].desc,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
+                    buildFeatureCard(
+                      features[2].icon,
+                      features[2].title,
+                      features[2].desc,
+                    ),
+                    const SizedBox(height: 10),
                     buildFeatureCard(
                       features[3].icon,
                       features[3].title,
                       features[3].desc,
                     ),
                   ],
-                ),
-              ),
-            ],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        buildFeatureCard(
+                          features[0].icon,
+                          features[0].title,
+                          features[0].desc,
+                        ),
+                        const SizedBox(height: 12),
+                        buildFeatureCard(
+                          features[2].icon,
+                          features[2].title,
+                          features[2].desc,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        buildFeatureCard(
+                          features[1].icon,
+                          features[1].title,
+                          features[1].desc,
+                        ),
+                        const SizedBox(height: 12),
+                        buildFeatureCard(
+                          features[3].icon,
+                          features[3].title,
+                          features[3].desc,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
           const SizedBox(height: 28),
 
@@ -550,40 +585,39 @@ class _DesktopPaywallViewState extends State<DesktopPaywallView> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (!_isEnteringLicense) ...[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'One-Time License',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                '\$9.99 (one-time purchase)',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: theme.colorScheme.onSurface,
-                                ),
-                              ),
-                            ],
+                          const Text(
+                            'One-Time License',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey,
+                            ),
                           ),
-                          ElevatedButton(
-                            onPressed: () => launchUrl(
-                              Uri.parse('https://maskedsyntax.lemonsqueezy.com/buy/patterns-desktop-pro'),
-                              mode: LaunchMode.externalApplication,
+                          const SizedBox(height: 4),
+                          Text(
+                            '\$9.99 (one-time purchase)',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onSurface,
                             ),
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () => launchUrl(
+                                Uri.parse('https://maskedsyntax.lemonsqueezy.com/buy/patterns-desktop-pro'),
+                                mode: LaunchMode.externalApplication,
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                              ),
+                              child: const Text('Purchase License Key'),
                             ),
-                            child: const Text('Purchase License Key'),
                           ),
                         ],
                       ),
@@ -640,19 +674,11 @@ class _DesktopPaywallViewState extends State<DesktopPaywallView> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Row(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => setState(() {
-                                _isEnteringLicense = false;
-                                _licenseController.clear();
-                              }),
-                              child: const Text('Back'),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
+                          SizedBox(
+                            width: double.infinity,
                             child: Consumer(
                               builder: (context, ref, _) {
                                 return ElevatedButton(
@@ -677,6 +703,17 @@ class _DesktopPaywallViewState extends State<DesktopPaywallView> {
                                   child: const Text('Activate License'),
                                 );
                               },
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              onPressed: () => setState(() {
+                                _isEnteringLicense = false;
+                                _licenseController.clear();
+                              }),
+                              child: const Text('Back'),
                             ),
                           ),
                         ],

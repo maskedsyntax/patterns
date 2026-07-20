@@ -629,14 +629,18 @@ class _CategoryTileState extends State<_CategoryTile> {
                       : theme.colorScheme.onSurface.withOpacity(0.5),
                 ),
                 const SizedBox(width: 12),
-                Text(
-                  widget.label,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13.5,
-                    color: widget.selected
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurface.withOpacity(0.7),
+                Expanded(
+                  child: Text(
+                    widget.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13.5,
+                      color: widget.selected
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurface.withOpacity(0.7),
+                    ),
                   ),
                 ),
               ],

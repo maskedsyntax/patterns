@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:qr_flutter/qr_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../services/pro_service.dart';
-import '../services/pro_pairing_service.dart';
 import '../theme/app_theme.dart';
 import '../app_preferences.dart';
 import 'app_snack_bar.dart';
@@ -72,46 +71,22 @@ class _PaywallSheetState extends State<PaywallSheet> {
   bool _purchaseInFlight = false;
   StreamSubscription<ProEvent>? _eventSub;
 
-  // Desktop Local Pairing variables
-  String? _desktopPairingPayload;
-  StreamSubscription<bool>? _pairingSub;
-  final _otpController = TextEditingController();
-  bool _isEnteringOtp = false;
+  // Desktop License Checkout variables
+  final _licenseController = TextEditingController();
+  bool _isEnteringLicense = false;
 
   @override
   void initState() {
     super.initState();
     _eventSub = ProService.events.listen(_onEvent);
     _loadProduct();
-    if (kIsDesktop || !ProService.isPlatformSupported) {
-      _startDesktopPairing();
-    }
   }
 
   @override
   void dispose() {
     _eventSub?.cancel();
-    _pairingSub?.cancel();
-    _otpController.dispose();
-    if (kIsDesktop || !ProService.isPlatformSupported) {
-      ProPairingService.stopDesktopServer();
-    }
+    _licenseController.dispose();
     super.dispose();
-  }
-
-  void _startDesktopPairing() async {
-    final payload = await ProPairingService.startDesktopServer();
-    if (mounted) {
-      setState(() {
-        _desktopPairingPayload = payload;
-      });
-    }
-    _pairingSub = ProPairingService.onPairingSuccess.listen((success) {
-      if (success && mounted) {
-        Navigator.pop(context);
-        _showUnlockedDialog(context, restored: false);
-      }
-    });
   }
 
   Future<void> _loadProduct() async {
@@ -139,13 +114,13 @@ class _PaywallSheetState extends State<PaywallSheet> {
       _applyProduct(
         product,
         unavailableMessage:
-            'Patterns Pro is not available right now. Please try again later.',
+          'Patterns Pro is not available right now. Please try again later.',
       );
     } catch (_) {
       _applyProduct(
         null,
         unavailableMessage:
-            'Could not load Patterns Pro. Please try again later.',
+          'Could not load Patterns Pro. Please try again later.',
       );
     }
   }
@@ -287,7 +262,7 @@ class _PaywallSheetState extends State<PaywallSheet> {
 
   Widget _buildBody(ThemeData theme) {
     if (kIsDesktop || !ProService.isPlatformSupported) {
-      return _buildDesktopPairingView(theme);
+      return _buildDesktopCheckoutView(theme);
     }
 
     if (_loading) {
@@ -348,94 +323,45 @@ class _PaywallSheetState extends State<PaywallSheet> {
     );
   }
 
-  Widget _buildDesktopPairingView(ThemeData theme) {
+  Widget _buildDesktopCheckoutView(ThemeData theme) {
     return Consumer(
       builder: (context, ref, _) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Divider(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: ChoiceChip(
-                    label: const Center(
-                      child: Text('Scan QR Code', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    ),
-                    selected: !_isEnteringOtp,
-                    onSelected: (val) => setState(() => _isEnteringOtp = !val),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ChoiceChip(
-                    label: const Center(
-                      child: Text('Enter Code', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    ),
-                    selected: _isEnteringOtp,
-                    onSelected: (val) => setState(() => _isEnteringOtp = val),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            if (!_isEnteringOtp) ...[
+            if (!_isEnteringLicense) ...[
               Text(
-                'To unlock Desktop Pro, purchase the "Desktop Pro Upgrade" inside the Patterns mobile app. '
-                'Then go to Settings > Link Desktop App and scan this code:',
+                'Patterns Desktop Pro is a separate purchase from the mobile app. '
+                'It unlocks all desktop-optimized worksheets, advanced insights, and exposures.',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.5,
                   color: theme.colorScheme.onSurface.withOpacity(0.7),
                   height: 1.4,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
-              if (_desktopPairingPayload != null)
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: QrImageView(
-                      data: _desktopPairingPayload!,
-                      version: QrVersions.auto,
-                      size: 160.0,
-                      gapless: false,
-                      eyeStyle: const QrEyeStyle(
-                        eyeShape: QrEyeShape.square,
-                        color: Colors.black,
-                      ),
-                      dataModuleStyle: const QrDataModuleStyle(
-                        dataModuleShape: QrDataModuleShape.square,
-                        color: Colors.black,
-                      ),
-                    ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => launchUrl(
+                    Uri.parse('https://maskedsyntax.lemonsqueezy.com/buy/patterns-desktop-pro'),
+                    mode: LaunchMode.externalApplication,
                   ),
-                )
-              else
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 40),
-                  child: Center(child: CircularProgressIndicator()),
+                  child: const Text('Purchase License · \$9.99'),
                 ),
+              ),
               const SizedBox(height: 12),
-              Text(
-                'Listening for local pairing connection over Wi-Fi...',
-                style: TextStyle(
-                  fontSize: 10.5,
-                  fontStyle: FontStyle.italic,
-                  color: theme.colorScheme.onSurface.withOpacity(0.4),
-                ),
-                textAlign: TextAlign.center,
+              TextButton(
+                onPressed: () => setState(() => _isEnteringLicense = true),
+                child: const Text('I already have a License Key'),
               ),
             ] else ...[
               Text(
-                'If your devices are on different networks, open Settings > Link Desktop App on your mobile companion '
-                'and enter this 6-digit linking code:',
+                'Enter the license key from your Lemon Squeezy purchase receipt below:',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.5,
                   color: theme.colorScheme.onSurface.withOpacity(0.7),
                   height: 1.4,
                 ),
@@ -443,46 +369,69 @@ class _PaywallSheetState extends State<PaywallSheet> {
               ),
               const SizedBox(height: 16),
               TextField(
-                controller: _otpController,
-                keyboardType: TextInputType.number,
+                controller: _licenseController,
                 style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 6,
+                  fontSize: 14,
                   color: theme.colorScheme.onSurface,
                 ),
-                textAlign: TextAlign.center,
                 decoration: InputDecoration(
-                  hintText: '000000',
+                  labelText: 'License Key',
+                  hintText: 'e.g. DESKTOP-XXXX-XXXX-XXXX',
                   hintStyle: TextStyle(
-                    color: theme.colorScheme.onSurface.withOpacity(0.15),
+                    color: theme.colorScheme.onSurface.withOpacity(0.3),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    final ok = ProPairingService.verifyOfflineOTP(_otpController.text);
-                    if (ok) {
-                      ref.read(proProvider.notifier).refresh(); // refresh Pro state
-                      Navigator.pop(context);
-                      _showUnlockedDialog(context, restored: false);
-                    } else {
-                      showAppSnackBar(
-                        context,
-                        'Invalid linking code. Please check and try again.',
-                        type: ToastType.error,
-                      );
-                    }
-                  },
-                  child: const Text('Link Desktop'),
+              const SizedBox(height: 10),
+              Text(
+                'For evaluation, you can enter any 8+ character key (e.g. DESKTOP-TEST-KEY).',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontStyle: FontStyle.italic,
+                  color: theme.colorScheme.onSurface.withOpacity(0.4),
                 ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => setState(() {
+                        _isEnteringLicense = false;
+                        _licenseController.clear();
+                      }),
+                      child: const Text('Back'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final key = _licenseController.text.trim();
+                        if (key.length >= 8) {
+                          await appPreferences?.setBool(proUnlockedKey, true);
+                          ref.read(proProvider.notifier).refresh();
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            _showUnlockedDialog(context, restored: false);
+                          }
+                        } else {
+                          showAppSnackBar(
+                            context,
+                            'Please enter a valid license key (at least 8 characters).',
+                            type: ToastType.error,
+                          );
+                        }
+                      },
+                      child: const Text('Activate'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ],

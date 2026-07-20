@@ -339,7 +339,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         children: [
           // Left Sidebar Inside Settings
           SizedBox(
-            width: 220,
+            width: 240,
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
@@ -632,8 +632,7 @@ class _CategoryTileState extends State<_CategoryTile> {
                 Expanded(
                   child: Text(
                     widget.label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 13.5,

@@ -434,11 +434,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                     color: theme.colorScheme.onSurface.withOpacity(0.4),
                                   ),
                                   const SizedBox(width: 8),
-                                  Text(
-                                    'All data stays on your device unless you choose to export.',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: theme.colorScheme.onSurface.withOpacity(0.4),
+                                  Expanded(
+                                    child: Text(
+                                      'All data stays on your device unless you choose to export.',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: theme.colorScheme.onSurface.withOpacity(0.4),
+                                      ),
                                     ),
                                   ),
                                 ],

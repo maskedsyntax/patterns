@@ -36,6 +36,21 @@
         <img src="/assets/logo.png" alt="" width="28" height="28" />
         <span>Patterns</span>
         <p>Clarity for the mind through<br />structured reflection.</p>
+        <a
+          class="ph-badge"
+          href={links.productHuntReview}
+          target="_blank"
+          rel="noopener noreferrer"
+          onclick={() => trackClick('product_hunt_review')}
+        >
+          <img
+            src="https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1265014&theme=neutral"
+            alt="Patterns - Track urges, mood & exposure | Product Hunt"
+            width="250"
+            height="54"
+            loading="lazy"
+          />
+        </a>
       </div>
       <div class="link-groups">
         <nav class="links" aria-label="Resources">
@@ -102,6 +117,16 @@
     font-size: 14px;
     line-height: 1.5;
     color: var(--text-secondary);
+  }
+
+  .ph-badge {
+    margin-top: 4px;
+    display: inline-flex;
+    line-height: 0;
+  }
+
+  .ph-badge img {
+    border-radius: 0;
   }
 
   .link-groups {

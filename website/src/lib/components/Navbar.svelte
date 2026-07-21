@@ -3,8 +3,11 @@
   import { goto } from '$app/navigation';
   import { theme } from '$lib/stores/theme';
   import { githubStats, links } from '$lib/data/links';
+  import { logEvent } from '$lib/utils/analytics';
   import ContentContainer from './ContentContainer.svelte';
+  import BrandIcon from './BrandIcon.svelte';
   import { Download, Menu, X, Sun, Moon, Star, ChevronDown } from 'lucide-svelte';
+  import { siProducthunt } from 'simple-icons';
 
   let {
     onNavigate
@@ -27,6 +30,10 @@
 
   function closeMobile() {
     mobileMenuOpen = false;
+  }
+
+  function trackProductHunt() {
+    logEvent('product_hunt_review_click', { source: 'navbar' });
   }
 
   $effect(() => {
@@ -125,6 +132,16 @@
             <Moon size={20} />
           {/if}
         </button>
+        <a
+          class="ph-btn"
+          href={links.productHuntReview}
+          target="_blank"
+          rel="noopener noreferrer"
+          onclick={trackProductHunt}
+        >
+          <BrandIcon icon={siProducthunt} size={16} color="currentColor" />
+          <span>Review</span>
+        </a>
         <a class="github-btn" href={links.github} target="_blank" rel="noopener noreferrer">
           <Star size={16} />
           <span>Star on GitHub</span>
@@ -202,6 +219,19 @@
           <span class="star-count" aria-label={`${starCountLabel} GitHub stars`}>
             {starCountLabel}
           </span>
+        </a>
+        <a
+          class="ph-btn mobile-ph"
+          href={links.productHuntReview}
+          target="_blank"
+          rel="noopener noreferrer"
+          onclick={() => {
+            trackProductHunt();
+            closeMobile();
+          }}
+        >
+          <BrandIcon icon={siProducthunt} size={16} color="currentColor" />
+          <span>Review on Product Hunt</span>
         </a>
       </div>
     </div>
@@ -369,6 +399,27 @@
     border-color: color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
   }
 
+  .ph-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    color: color-mix(in srgb, var(--text) 82%, transparent);
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+
+  .ph-btn:hover {
+    color: var(--accent);
+    background: color-mix(in srgb, var(--surface-alt) 90%, var(--accent) 10%);
+    border-color: color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
+  }
+
   .star-count {
     display: inline-flex;
     align-items: center;
@@ -492,12 +543,17 @@
   }
 
   .mobile-download,
-  .mobile-github {
+  .mobile-github,
+  .mobile-ph {
     width: 100%;
     justify-content: center;
   }
 
   .mobile-github {
+    margin-top: 0;
+  }
+
+  .mobile-ph {
     margin-top: 0;
   }
 

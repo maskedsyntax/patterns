@@ -13,7 +13,9 @@ export const links = {
   issues: 'https://github.com/maskedsyntax/patterns/issues',
   license: 'https://github.com/maskedsyntax/patterns/blob/master/LICENSE',
   maskedsyntax: 'https://maskedsyntax.com/',
-  site: 'https://patternsocd.com/'
+  site: 'https://patternsocd.com/',
+  productHuntReview:
+    'https://www.producthunt.com/products/patterns-ocd-erp-journal/reviews/new?utm_source=badge-product_review&utm_medium=badge&utm_source=badge-patterns-ocd-erp-journal'
 } as const;
 
 export const githubStats = {

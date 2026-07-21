@@ -53,8 +53,8 @@
         {#if isMobile}
           <div class="phone-wrap">
             <img
-              src="/assets/mockups/frame-1.jpg"
-              alt="Patterns home screen on a phone"
+              src="/assets/mockups/mobile-hero.jpg"
+              alt="Patterns app home screen showing recovery score, ERP practice, and quick actions"
               width="148"
               height="320"
               loading="lazy"
@@ -89,8 +89,8 @@
         {#if !isMobile}
           <div class="phone-wrap">
             <img
-              src="/assets/mockups/frame-1.jpg"
-              alt="Patterns home screen on a phone"
+              src="/assets/mockups/mobile-hero.jpg"
+              alt="Patterns app home screen showing recovery score, ERP practice, and quick actions"
               width="148"
               height="320"
               loading="lazy"
@@ -215,20 +215,21 @@
   @media (min-width: 600px) {
     .mobile-hero {
       flex-direction: row;
-      padding: 40px;
-      gap: 40px;
+      justify-content: center;
+      padding: 48px 40px;
+      gap: 56px;
     }
 
-    .mobile-copy {
-      flex: 1;
-      text-align: left;
+    .phone-wrap img {
+      height: 360px;
     }
   }
 
   .phone-wrap {
-    border-radius: 20px;
+    border-radius: 22px;
     overflow: hidden;
-    box-shadow: 0 14px 28px color-mix(in srgb, #000 40%, transparent);
+    box-shadow: 0 18px 40px color-mix(in srgb, #000 45%, transparent);
+    border: 1px solid color-mix(in srgb, #fff 8%, transparent);
     flex-shrink: 0;
   }
 
@@ -240,6 +241,7 @@
 
   .mobile-copy {
     text-align: center;
+    max-width: 480px;
   }
 
   .tag {
@@ -274,12 +276,6 @@
     gap: 12px;
     margin-top: 24px;
     justify-content: center;
-  }
-
-  @media (min-width: 600px) {
-    .store-badges {
-      justify-content: flex-start;
-    }
   }
 
   .store-badge {

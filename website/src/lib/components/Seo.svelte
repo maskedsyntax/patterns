@@ -37,8 +37,14 @@
   {#if keywords}
     <meta name="keywords" content={keywords} />
   {/if}
+  <meta
+    name="robots"
+    content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+  />
   <link rel="canonical" href={url} />
 
+  <meta property="og:site_name" content="Patterns" />
+  <meta property="og:locale" content="en_US" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:url" content={url} />

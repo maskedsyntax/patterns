@@ -45,7 +45,7 @@
       <div class="hook">
         <div class="badge">
           <span class="dot"></span>
-          <span>Private OCD journaling & ERP practice</span>
+          <span>The private OCD app for journaling & ERP</span>
         </div>
 
         <h1 id="hero-title" class="headline serif">
@@ -53,8 +53,9 @@
         </h1>
 
         <p class="subhead">
-          Patterns helps you journal, track OCD events, practice ERP, and spot trends
-          without accounts, cloud sync, or anyone else reading your notes.
+          Patterns is a private OCD app that helps you journal, track OCD events, practice
+          CBT-based ERP, and spot trends - without accounts, cloud sync, or anyone else
+          reading your notes.
         </p>
 
         <div class="cta-row">

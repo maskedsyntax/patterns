@@ -6,6 +6,7 @@
   const resourceLinks = [
     { label: 'Understanding OCD', url: '/ocd' },
     { label: 'ERP & how it helps', url: '/erp' },
+    { label: 'CBT for OCD', url: '/cbt' },
     { label: 'Recovery toolkit', url: '/toolkit' },
     { label: 'Blog', url: '/blog' },
     { label: 'FAQ', url: '/faq' },

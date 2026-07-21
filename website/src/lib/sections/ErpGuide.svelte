@@ -9,6 +9,7 @@
   title="The urge will pass - even if you don't act on it."
   intro="Exposure and Response Prevention (ERP) is the most evidence-based therapy for OCD. It works by teaching your brain, through experience rather than reassurance, that anxiety fades on its own. Patterns is built to support that work between sessions."
   related={[
+    { label: 'CBT for OCD, and how ERP fits', href: '/cbt' },
     { label: 'Understanding the OCD cycle', href: '/ocd' },
     { label: 'Frequently asked questions', href: '/faq' }
   ]}
@@ -28,6 +29,13 @@
     compulsion that usually follows. The "prevention" half is where the change happens.
   </p>
   <p>
+    ERP is a form of <strong>cognitive behavioral therapy (CBT)</strong> - specifically,
+    it's the CBT approach with the strongest evidence for OCD. So when people look for a
+    "CBT app" or an "ERP app" for OCD, this is the kind of work they usually mean, and it's
+    exactly what Patterns is built around. If you want the CBT framing first, start with
+    <a href="/cbt">CBT for OCD</a>.
+  </p>
+  <p>
     The goal isn't to grit your teeth forever. It's <em>habituation</em> and new learning:
     your nervous system discovers that the feared outcome doesn't arrive, and the alarm
     stops firing so loudly. ERP is most effective when guided by a trained therapist -
@@ -44,8 +52,8 @@
 
   <h2>How Patterns maps to ERP</h2>
   <p>
-    Patterns turns the core moves of ERP into a quiet daily habit you can keep on your
-    own terms:
+    Patterns is an ERP app for OCD that turns the core moves of ERP into a quiet daily
+    habit you can keep on your own terms:
   </p>
   <ul>
     <li>

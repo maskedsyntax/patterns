@@ -24,6 +24,7 @@
   const learnLinks = [
     { label: 'Understanding OCD', href: '/ocd' },
     { label: 'ERP & how it helps', href: '/erp' },
+    { label: 'CBT for OCD', href: '/cbt' },
     { label: 'Recovery toolkit', href: '/toolkit' },
     { label: 'FAQ', href: '/faq' }
   ];

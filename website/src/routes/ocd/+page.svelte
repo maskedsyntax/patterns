@@ -27,7 +27,8 @@
 
 <Seo
   title="Understanding OCD - Obsessions, Compulsions & the OCD Cycle | Patterns"
-  description="What is OCD, really? A clear, empathetic guide to obsessions, compulsions, and the self-reinforcing OCD cycle - and how tracking the pattern helps you loosen its grip."
+  description="What is OCD, really? A clear, empathetic guide to obsessions, compulsions, and the OCD cycle - and how the Patterns OCD app helps you loosen its grip."
+  keywords="ocd app, ocd tracker app, understanding ocd, ocd cycle, obsessions and compulsions, intrusive thoughts, ocd journal app"
   path="ocd"
   {jsonLd}
 />

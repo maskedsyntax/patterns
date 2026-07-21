@@ -5,7 +5,7 @@
 >
   <url>
     <loc>https://patternsocd.com/</loc>
-    <lastmod>2026-07-04</lastmod>
+    <lastmod>2026-07-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -29,13 +29,19 @@
   </url>
   <url>
     <loc>https://patternsocd.com/ocd</loc>
-    <lastmod>2026-07-04</lastmod>
+    <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://patternsocd.com/erp</loc>
-    <lastmod>2026-07-04</lastmod>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://patternsocd.com/cbt</loc>
+    <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -66,6 +72,18 @@
   <url>
     <loc>https://patternsocd.com/blog/why-patterns-stays-private</loc>
     <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://patternsocd.com/blog/what-i-wanted-in-an-ocd-app</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://patternsocd.com/blog/is-patterns-a-cbt-app</loc>
+    <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

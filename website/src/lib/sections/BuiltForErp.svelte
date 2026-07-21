@@ -32,9 +32,9 @@
         <span class="eyebrow">Designed around ERP</span>
         <h2 id="erp-title" class="title serif">Built to support the work that works.</h2>
         <p class="subtitle">
-          Exposure and Response Prevention is the most evidence-based therapy for OCD.
-          Patterns turns its core moves into a calm daily habit you can keep between
-          sessions.
+          Exposure and Response Prevention is the CBT-based therapy with the strongest
+          evidence for OCD. Patterns turns its core moves into a calm daily habit you can
+          keep between sessions.
         </p>
       </div>
     </AnimatedOnScroll>

@@ -10,6 +10,7 @@
   intro="Obsessive-compulsive disorder isn't about being tidy or liking things 'just so.' It's an exhausting loop between thoughts you don't want and the things you do to feel safe. Understanding that loop is the first step to loosening its grip."
   related={[
     { label: 'How ERP works in Patterns', href: '/erp' },
+    { label: 'CBT for OCD explained', href: '/cbt' },
     { label: 'Frequently asked questions', href: '/faq' }
   ]}
 >

@@ -19,14 +19,17 @@
       name: 'Patterns',
       alternateName: [
         'Patterns - OCD Tracker & Journal',
+        'Patterns OCD App',
         'Patterns OCD Journaling',
-        'Patterns ERP Journal'
+        'Patterns ERP Journal',
+        'CBT & ERP App for OCD'
       ],
       applicationCategory: 'HealthApplication',
       applicationSubCategory: 'Mental Health',
       operatingSystem: 'iOS, Android, macOS, Windows, Linux',
+      keywords: 'OCD app, CBT app, ERP app, CBT app for OCD, OCD tracker, ERP journal',
       description:
-        'Patterns is a privacy-first OCD tracker and daily journaling app for iOS, Android, macOS, Windows, and Linux, built to support Exposure and Response Prevention (ERP). Record intrusive thoughts and compulsions, rate distress, delay urges, journal reflections, and review your patterns over time - all kept local on your device.',
+        'Patterns is a privacy-first OCD app and daily journaling app for iOS, Android, macOS, Windows, and Linux, built around Exposure and Response Prevention (ERP) - the CBT-based therapy proven for OCD. Record intrusive thoughts and compulsions, rate distress, delay urges, journal reflections, and review your patterns over time - all kept local on your device.',
       url: links.site,
       image: site.ogImage,
       screenshot: [
@@ -43,6 +46,7 @@
       softwareVersion: site.appVersion,
       availableOnDevice: ['iOS devices', 'Android devices', 'Mac', 'Windows PC', 'Linux desktop'],
       featureList: [
+        'CBT-based ERP tools for OCD (exposure and response prevention)',
         'Private OCD journal for dated reflections',
         'OCD self-tracking for obsessions, compulsions, triggers, and responses',
         'Distress (SUDS 0–10) rating and trend analysis',
@@ -117,9 +121,9 @@
 </script>
 
 <Seo
-  title="Patterns - Private OCD Tracker & ERP Journal App"
-  description="Patterns is a private OCD tracker and ERP journal app for iOS, Android, macOS, Windows, and Linux. Track obsessions, compulsions, triggers, and distress levels, delay urges, and see your patterns - local-first with no accounts or cloud uploads."
-  keywords="OCD tracker app, OCD journal app, ERP journal app, exposure response prevention app, intrusive thoughts tracker, compulsion tracker, distress tracking app, private journaling app, mental health journal, obsessive compulsive self-tracking, local-first journal, OCD app for iOS, OCD tracking app for Android, OCD journal app for desktop"
+  title="Patterns - Private OCD App & ERP Journal (CBT for OCD)"
+  description="Patterns is a private OCD app for tracking obsessions, compulsions, and distress - built around ERP, the CBT-based therapy for OCD. Local-first, no accounts."
+  keywords="ocd app, cbt app, erp app, cbt app for ocd, OCD tracker app, OCD journal app, ERP journal app, exposure response prevention app, intrusive thoughts tracker, compulsion tracker, distress tracking app, private journaling app, mental health journal, obsessive compulsive self-tracking, local-first journal, OCD app for iOS, OCD tracking app for Android, OCD journal app for desktop"
   {jsonLd}
 />
 

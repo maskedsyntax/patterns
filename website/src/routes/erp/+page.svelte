@@ -26,8 +26,9 @@
 </script>
 
 <Seo
-  title="ERP for OCD - Exposure & Response Prevention | Patterns"
-  description="What is ERP (Exposure and Response Prevention)? Learn how the leading OCD therapy works, why delaying compulsions matters, and how Patterns' distress tracking and Compulsion Delay Tool support your ERP practice."
+  title="ERP App for OCD - Exposure & Response Prevention | Patterns"
+  description="What is ERP (Exposure and Response Prevention)? Learn how this CBT-based OCD therapy works and how the Patterns ERP app supports your practice between sessions."
+  keywords="erp app, erp app for ocd, exposure response prevention app, erp therapy app, ocd app, cbt app for ocd, compulsion delay tool"
   path="erp"
   {jsonLd}
 />

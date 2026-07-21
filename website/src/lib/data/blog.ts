@@ -250,6 +250,120 @@ export const posts: BlogPost[] = [
         place to exist, so I built it.
       </p>
     `
+  },
+  {
+    slug: 'what-i-wanted-in-an-ocd-app',
+    title: 'What I actually wanted from an OCD app',
+    description:
+      'I tried a lot of apps before I built one. Here is the honest list of what an OCD app needs to do - and what most of them get wrong.',
+    date: '2026-07-21',
+    readingMinutes: 6,
+    excerpt:
+      'Before I built Patterns, I kept downloading apps and deleting them. This is what I was actually looking for in an OCD app, and why it was so hard to find.',
+    content: `
+      <p class="lead">
+        For a long time my search history was some version of "best OCD app" over and over
+        again. I would download one, poke at it for ten minutes, and delete it. It took me a
+        while to put words to what I was actually looking for - so here it is, the honest
+        checklist I wish someone had handed me.
+      </p>
+
+      <h2>It had to speak OCD, not "wellness"</h2>
+      <p>
+        Most of what came up when I searched for an OCD app was general mood-tracking with a
+        calming gradient slapped on top. Nice, but useless to me. I did not need to rate my
+        day with an emoji. I needed to log an <strong>obsession</strong>, name the
+        <strong>compulsion</strong> it dragged behind it, and rate how much distress it
+        caused - in that language, because that is the language OCD actually uses.
+      </p>
+
+      <h2>It had to be built around ERP</h2>
+      <p>
+        The thing that helped me was ERP - exposure and response prevention. So the app I
+        wanted was really an <strong>ERP app</strong>: something that helped me delay a
+        compulsion, sit with the discomfort, and see, in my own data, that the wave came down
+        on its own. An OCD app that ignores ERP is just a diary. I wanted the tool that
+        supported the therapy, not a prettier place to spiral.
+      </p>
+
+      <h2>It could not ask for my email</h2>
+      <p>
+        I am not writing my worst intrusive thoughts into something that wants an account
+        first. Every app that opened with a sign-up wall lost me immediately. The OCD app I
+        wanted would keep everything on my device, no login, no cloud, nobody on the other
+        end. That turned out to be non-negotiable - I could not be honest otherwise.
+      </p>
+
+      <h2>It had to get out of the way</h2>
+      <p>
+        No streaks guilt-tripping me. No countdown timer on a subscription. No notifications
+        engineered to pull me back in. OCD already has enough hooks; I did not want an app
+        adding more. I wanted something quiet that I could open when I needed it and close
+        without a fight.
+      </p>
+
+      <h2>I could not find it, so I built it</h2>
+      <p>
+        Eventually I stopped searching and built the thing from the list. That is what
+        <a href="/">Patterns</a> is: a private OCD app built around
+        <a href="/erp">ERP</a>, with no account and no cloud. I am not a therapist and it is
+        not a replacement for one - but it is the OCD app I kept looking for and never found.
+      </p>
+    `
+  },
+  {
+    slug: 'is-patterns-a-cbt-app',
+    title: 'Is Patterns a CBT app? ERP, CBT, and what actually helped me',
+    description:
+      'People ask if Patterns is a CBT app. The honest answer: it is built around ERP, which is the form of CBT with the strongest evidence for OCD. Here is what that means.',
+    date: '2026-07-21',
+    readingMinutes: 5,
+    excerpt:
+      'A question I get a lot: is Patterns a CBT app? The short answer is yes-ish, and the honest answer is more interesting than that.',
+    content: `
+      <p class="lead">
+        People ask me whether Patterns is a "CBT app." It is a fair question, and I want to
+        answer it honestly rather than just say whatever gets more downloads. So here is the
+        real version: Patterns is built around ERP, which <em>is</em> a form of CBT - the one
+        with the strongest evidence for OCD.
+      </p>
+
+      <h2>What CBT means</h2>
+      <p>
+        Cognitive behavioral therapy is not one single technique - it is a family of
+        practical, evidence-based approaches that work on the link between your thoughts,
+        feelings, and behaviors. When people picture a "CBT app," they often imagine thought
+        records or mood tracking. That is one corner of CBT. For OCD, it is not the corner
+        that helped me.
+      </p>
+
+      <h2>The CBT that works for OCD is ERP</h2>
+      <p>
+        The part of CBT that actually moves OCD is <strong>ERP</strong> - exposure and
+        response prevention. You gradually face the thought or situation that triggers you,
+        and you choose not to do the compulsion that usually follows. Over time your brain
+        learns the feared thing does not happen. Clinicians treat ERP as the gold-standard,
+        first-line therapy for OCD, and it is the thing that changed my life. So a
+        <strong>CBT app for OCD</strong> that is worth using is, in practice, an ERP app.
+      </p>
+
+      <h2>So, is Patterns a CBT app?</h2>
+      <p>
+        Yes, in the way that matters for OCD: it is built entirely around ERP, the CBT
+        approach proven to help. But I want to be careful not to over-claim. Patterns is not
+        a general CBT app for depression, or a thought-record tool for every situation. It is
+        focused, on purpose, on OCD and the CBT that treats it. If you want the full
+        walkthrough, I wrote up <a href="/cbt">CBT for OCD</a> and
+        <a href="/erp">how ERP works</a> in plain language.
+      </p>
+
+      <h2>The honest bottom line</h2>
+      <p>
+        I am not a therapist, and no app replaces one. What I can tell you is that ERP is the
+        CBT that helped me, and Patterns is the private, no-account app I built to keep doing
+        it between sessions. If that is what you are searching for, that is what this is.
+      </p>
+    `
   }
 ];
 
